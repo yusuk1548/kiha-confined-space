@@ -340,6 +340,15 @@
                             {activeTab === 'status' && <StatusScreen spaces={spaces} setSpaces={setSpaces} />}
                             {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
                             {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
+                            {/* 관리자 정보 푸터 (인쇄 시 완벽 숨김 처리) */}
+                            <footer className="mt-12 py-6 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50">
+                                <p className="font-bold text-gray-700 mb-2">시스템 오류 및 사용 문의</p>
+                                <p>대한산업보건협회 대구지역본부 보건관리국 | 정유석 과장</p>
+                                <p className="mt-1">
+                                    <span className="inline-block mr-3">📞 010-2875-1548 / 053-659-0116</span>
+                                    <span className="inline-block">✉️ 2018006@kiha21.or.kr</span>
+                                </p>
+                            </footer>
                         </main>
                     </div>
                 </React.Fragment>
