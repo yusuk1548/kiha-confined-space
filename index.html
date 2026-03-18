@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>밀폐공간 위험성평가 솔루션 (KIHA)</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="./logo.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* 화면용 기본 스타일 */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .print-page {
+            width: 210mm;
+            background: white;
+            margin: 0 auto 20px auto;
+            padding: 10mm;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* 인쇄 전용 완벽 제어 스타일 */
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            /* 안전한 여백 확보 */
+
+            html,
+            body,
+            #root {
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* 모든 인쇄 페이지 공통 */
+            .print-page {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                page-break-after: always;
+                break-after: page;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* [핵심 1] 1장으로 무조건 끝나야 하는 페이지 (표지, 도면, 상세현황) */
+            /* A4 용지 안쪽에 무조건 들어오도록 260mm로 철창 고정! (빈 페이지 원천 차단) */
+            .print-fixed-page {
+                height: 260mm !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* [핵심 2] 내용이 넘어가면 자연스럽게 다음 장으로 이어지는 페이지 (체크리스트, 의견) */
+            .print-flow-page {
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .break-inside-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-slate-800 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        const Icon = ({ name, size = 20, className }) => {
+            useEffect(() => { lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
+
+        const compressImage = (file, maxWidth = 800, quality = 0.6) => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                };
+            });
+        };
+
+        const KIHA_REGIONS = ["대구지역본부", "서울지역본부", "부산지역본부", "부산경남지역본부(부산남부)", "경북지역본부", "광주전남지역본부", "대전세종충남지역본부", "충북지역본부", "전북지역본부", "경남지역본부", "울산지역본부", "경기지역본부", "경기북부지역본부", "경기서부지역본부"];
+        const KIHA_CENTERS = ["강원산업보건센터", "충남산업보건센터", "전북서부산업보건센터", "인천산업보건센터", "제주산업보건센터"];
+        const SPACE_TYPES = [
+            { label: '오폐수 처리조 / 정화조', law: '규칙 별표18 제11호', hazards: ['황화수소(H2S)', '산소결핍', '메탄'] },
+            { label: '통신 / 전력구 맨홀', law: '규칙 별표18 제3호', hazards: ['산소결핍', '일산화탄소(CO)'] },
+            { label: '화학물질 반응기 / 탱크', law: '규칙 별표18 제16호', hazards: ['화학물질 중독', '질식', '화재폭발'] },
+            { label: '빗물 / 우수 맨홀', law: '규칙 별표18 제4호', hazards: ['산소결핍', '미생물 호흡'] },
+            { label: '저장 탱크 (불활성가스)', law: '규칙 별표18 제13호', hazards: ['질식(N2, Ar, CO2)'] },
+            { label: '양생 작업장 (갈탄/연탄)', law: '규칙 별표18 제15호', hazards: ['일산화탄소(CO) 중독'] },
+            { label: '기타 밀폐공간', law: '규칙 별표18 제18호', hazards: [] }
+        ];
+
+        const CYCLE_OPTIONS = ['청소시(비정기)', '점검시(비정기)', '반기별 1회', '분기별 1회', '잠재적밀폐공간', '직접 입력'];
+        const PERSONNEL_OPTIONS = ['2인 1조', '3인 1조', '직접 입력'];
+        const TIME_OPTIONS = ['환기 전', '환기 후', '직접 입력'];
+
+        const RISK_SOLUTIONS = {
+            'LOW': {
+                direction: "적정공기 상태 유지 및 기본 안전 절차의 엄격한 준수",
+                measures: [
+                    "밀폐공간 출입금지 경고 표지 부착 및 물리적 접근 통제 확인 (규칙 제620조)",
+                    "가스 농도 측정 장비의 공식 지급 및 초기 공기 질 측정 감독 (규칙 제619조의2)",
+                    "작업 전 체적의 10배 이상, 작업 중 시간당 20회 이상 환기 설비 가동 검증 (KOSHA Guide)",
+                    "근로자 위험성 숙지 상태 확인 및 특별안전보건교육 실시 (규칙 제641조)",
+                    "2시간 간격 주기적 측정, 영상물 등 현장 기록물 3년 보존 (규칙 제619조의2)",
+                    "전담 감시인 지정 및 외부 모니터링, 작업 종료 후 인원 대조 및 출입구 폐쇄"
+                ]
+            },
+            'MEDIUM': {
+                direction: "공정 에너지 차단(LOTO), 상시 환기 및 작업허가 통제 강화",
+                measures: [
+                    "위험 물질 배관 차단, 맹판(Blind) 설치 및 기계/전기 동력원 LOTO 조치 검증",
+                    "오염원 근처 배기(Pull)와 반대편 급기(Push)를 동시 가동하여 일방향 기류(Sweep) 형성",
+                    "작업자 휴대용 측정기 부착 등 경보 알람이 설정된 상시 유해공기 모니터링 구축",
+                    "안전작업허가서(PTW) 필수 확인항목의 현장 교차 검증 및 엄격한 심사",
+                    "수직 밀폐공간 대피용 삼각대, 윈치, 전체식 안전대 등 비치 및 훈련 (규칙 제625조)"
+                ]
+            },
+            'HIGH': {
+                direction: "위험의 원천적 차단 및 최상위 수준의 생명 보호 조치(공기호흡기 등) 발동",
+                measures: [
+                    "작업의 공학적 대체 가능성 최우선 평가 및 배관 이중 차단(또는 맹판) 기밀 확인",
+                    "방독마스크 절대 금지, 공기호흡기(SCBA) 또는 송기마스크 강제 지급 및 공기 질 확인",
+                    "점화원 차단을 위한 본질안전 방폭형(Ex) 전기기계기구 반입 통제 및 사용 승인",
+                    "복수(2인 이상)의 감시인 배치 및 윈치-구명줄 체결 상시 유지",
+                    "가스 측정 및 안전 조치 전 과정의 방폭형 바디캠 영상물 기록·보존 (규칙 제619조의2)",
+                    "사고 발생 시 119 지체 없는 즉각 신고 원칙(직접 구조 절대 금지) 확립 (규칙 제623조)"
+                ]
+            }
+        };
+
+        const CHECKLIST_MASTER = [
+            { category: "1. 관리 및 장비 지급 (최근 강화)", items: [{ id: "1-1", question: "사업주는 지정된 측정자에게 산소 및 유해가스 농도 측정 장비를 지급하였는가?", law: "규칙 제619조의2 (측정장비 지급)", action: "장비 미보유 시 안전보건공단 '찾아가는 질식재해예방 원콜서비스(1644-8595)' 신청하여 측정기 무상 대여 활용" }, { id: "1-2", question: "해당 설비의 출입구에 관계자 외 출입금지 및 위험 경고 표지를 부착하였는가?", law: "규칙 제619조 (출입금지 등)", action: "법정 서식(규칙 별표 2) 표지 부착 / 밀폐공간 장소명 및 관리책임자 기재" }] },
+            { category: "2. 교육 및 숙지 상태 (최근 강화)", items: [{ id: "2-1", question: "작업 전, 측정자는 측정 장비의 조작 방법, 이상 유무 확인, 적정공기 기준을 정확히 숙지하고 있는가?", law: "규칙 제619조의2 (숙지 여부 확인)", action: "측정 미숙 시 원콜서비스(1644-8595) 신청하여 전문가의 '측정자 양성 교육' 및 현장 지도 받기" }, { id: "2-2", question: "작업자, 감시인, 측정자 전원에게 작업 전 특별안전보건교육(TBM)을 실시하고 내용을 주지시켰는가? (위험성, 응급조치, 119 신고 요령, 측정방법 등)", law: "규칙 제619조의2, 법 제29조", action: "TBM 일지 작성 및 전원 서명 / 감시인에게 119 신고 의무 강조" }] },
+            { category: "3. 환경 측정 & 환기", items: [{ id: "3-1", question: "작업 전 및 재출입 시 산소 및 유해가스 농도를 측정하고, 결과를 3년간 보존(영상 포함)하는가?", law: "규칙 제619조의2 (기록 보존)", action: "자체 측정 곤란 시 작업 3일 전 원콜서비스(1644-8595) 신청하여 전문가 측정 지원 요청 / 결과 보존" }, { id: "3-2", question: "적정공기 기준(O2: 18~23.5%, CO2: 1.5%↓, H2S: 10ppm ↓, CO: 30ppm↓, LEL: 10% ↓)을 충족하는가?", law: "규칙 제618조 (정의)", action: "기준 미달 시 즉시 작업 중지 및 강제 환기 실시 후 재측정 / 측정기 교정 상태 확인" }, { id: "3-3", question: "작업 전 기적(체적)의 10배 이상 충분한 환기를 실시하고, 작업 중 지속 가동하는가?", law: "KOSHA Guide", action: "환기팬 미보유 사업장은 원콜서비스를 통해 환기팬 무상 대여 후 충분한 급배기 실시" }] },
+            { category: "4. 감시 및 비상 대응", items: [{ id: "4-1", question: "감시인을 외부에 배치하고, 내부 작업자와 상시 연락 체계를 유지하는가?", law: "규칙 제623조 (감시인 배치)", action: "무전기/호각 테스트 / 감시인 이석 절대 금지 교육" }, { id: "4-2", question: "사고 발생 시 감시인이 지체 없이 119에 신고하도록 절차가 마련되어 있는가?", law: "규칙 제623조 (119 신고 의무)", action: "비상연락망 최상단에 119 및 인근 병원 기재 / 자체 구조 시도 금지(보호구 없이 진입 금지)" }, { id: "4-3", question: "비상 시 피난 및 구출을 위한 기구(송기마스크, 삼각대 등) 작업장소 바로 옆에 비치하였는가?", law: "규칙 제625조 (대피용 기구)", action: "구조장비 미보유 시 원콜서비스(1644-8595)로 송기마스크 등 필수 장비 무상 대여 활용" }] },
+            { category: "5. 기타 안전", items: [{ id: "5-1", question: "밀폐공간 작업은 최소 2인 1조 이상으로 진행하며, 입/퇴장 시 인원 점검을 하는가?", law: "작업안전수칙", action: "인원 점검표 작성 (들어간 사람 = 나온 사람) / 단독 작업 금지" }, { id: "5-2", question: "출입문이 내부에서 임의로 잠기지 않도록 조치하고, 추락 위험 시 안전대를 착용하였는가?", law: "안전작업수칙", action: "문 고정 장치 설치 / 수직 이동 시 추락방지대 체결" }] }
+        ];
+
+        const getRiskLevel = (gas) => {
+            const { o2, co, h2s, lel, co2 } = gas;
+            if (o2 < 19.5 || o2 > 23.5) return { level: 'HIGH', label: '🔴 고위험 (산소)', color: 'bg-red-100 text-red-700' };
+            if (h2s > 0) return { level: 'HIGH', label: '🔴 고위험 (H2S)', color: 'bg-red-100 text-red-700' };
+            if (co > 25 || lel > 10 || co2 > 1.5) return { level: 'HIGH', label: '🔴 고위험', color: 'bg-red-100 text-red-700' };
+            if (co > 0 || (lel >= 5 && lel <= 10) || (co2 >= 1.0 && co2 <= 1.5)) return { level: 'MEDIUM', label: '🟡 중위험', color: 'bg-yellow-100 text-yellow-700' };
+            return { level: 'LOW', label: '🔵 저위험 (안전)', color: 'bg-blue-100 text-blue-700' };
+        };
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('cover');
+            const [reportInfo, setReportInfo] = useState({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1일간)", agencyType: 'region', agencyBranch: '대구지역본부' });
+            const [spaces, setSpaces] = useState([]);
+            const [checklistResults, setChecklistResults] = useState({});
+            const [mapImage, setMapImage] = useState(null);
+            const [finalOpinion, setFinalOpinion] = useState("");
+            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleSaveFile = () => {
+                const fileName = reportInfo.companyName ? reportInfo.companyName : "무제";
+                const data = { reportInfo, spaces, checklistResults, finalOpinion, mapImage };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${fileName}_밀폐공간평가_${new Date().toLocaleDateString().replace(/\./g, '').replace(/ /g, '')}.json`;
+                link.click();
+            };
+
+            const handleLoadFile = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.reportInfo) setReportInfo(data.reportInfo);
+                        if (data.spaces) setSpaces(data.spaces);
+                        if (data.checklistResults) setChecklistResults(data.checklistResults);
+                        if (data.finalOpinion) setFinalOpinion(data.finalOpinion);
+                        if (data.mapImage) setMapImage(data.mapImage);
+                        alert("데이터 로드 완료");
+                    } catch (err) { alert("파일 오류"); }
+                };
+                reader.readAsText(file);
+            };
+
+            const handleReset = () => {
+                if (confirm(`⚠️ [${reportInfo.companyName}] 데이터를 모두 삭제하고 초기화하시겠습니까?`)) {
+                    setReportInfo({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1일간)", agencyType: 'region', agencyBranch: '대구지역본부' });
+                    setSpaces([]); setChecklistResults({}); setMapImage(null); setFinalOpinion("");
+                    localStorage.removeItem('kiha_data');
+                    alert("초기화 완료");
+                    setActiveTab('cover');
+                }
+            };
+
+            useEffect(() => {
+                const saved = localStorage.getItem('kiha_data');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        setSpaces(data.spaces || []); setChecklistResults(data.checklist || {}); setReportInfo(prev => ({ ...prev, ...data.info })); setFinalOpinion(data.opinion || ""); setMapImage(data.map || null);
+                    } catch (e) { }
+                }
+            }, []);
+
+            useEffect(() => {
+                try {
+                    const data = { spaces, checklist: checklistResults, info: reportInfo, opinion: finalOpinion, map: mapImage };
+                    localStorage.setItem('kiha_data', JSON.stringify(data));
+                } catch (e) { console.error("Storage Limit"); }
+            }, [spaces, checklistResults, reportInfo, finalOpinion, mapImage]);
+
+            // PDF 출력 시 기본 파일명 자동 지정 로직 (사업장명 연동)
+            useEffect(() => {
+                if (reportInfo.companyName) {
+                    document.title = `${reportInfo.companyName}_밀폐공간 위험성평가 보고서(KIHA)`;
+                } else {
+                    document.title = '밀폐공간 위험성평가 솔루션 (KIHA)';
+                }
+            }, [reportInfo.companyName]);
+
+            const defectSummary = useMemo(() => {
+                const defects = [];
+                CHECKLIST_MASTER.forEach(cat => cat.items.forEach(item => { if (checklistResults[item.id] === 'FAIL') defects.push(item); }));
+                return defects;
+            }, [checklistResults]);
+
+            return (
+                <React.Fragment>
+                    {/* 인쇄 뷰 */}
+                    <ReportView reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} mapImage={mapImage} finalOpinion={finalOpinion} />
+
+                    {/* 화면 뷰 */}
+                    <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-100 relative">
+
+                        {/* 모바일 전용 상단 헤더 */}
+                        <div className="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 z-40 shrink-0">
+                            <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> KIHA Safety</h1>
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}><Icon name={isMobileMenuOpen ? 'x' : 'menu'} /></button>
+                        </div>
+
+                        {/* 사이드바 (모바일: 슬라이드오버 | PC: 고정) */}
+                        <aside className={`absolute md:relative z-50 w-64 h-full bg-slate-900 text-white flex flex-col shadow-lg transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+                            <div className="p-6 border-b border-slate-700">
+                                <h1 className="text-xl font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" /> KIHA Safety</h1>
+                                <p className="text-xs text-slate-400 mt-1">밀폐공간 위험성평가 Pro</p>
+                            </div>
+                            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                                <MenuBtn active={activeTab === 'cover'} onClick={() => { setActiveTab('cover'); setIsMobileMenuOpen(false); }} icon="file-text" text="1. 보고서 표지" />
+                                <MenuBtn active={activeTab === 'check'} onClick={() => { setActiveTab('check'); setIsMobileMenuOpen(false); }} icon="check-square" text="2. 체크리스트" />
+                                <MenuBtn active={activeTab === 'status'} onClick={() => { setActiveTab('status'); setIsMobileMenuOpen(false); }} icon="layout-list" text="3. 밀폐공간 현황" />
+                                <MenuBtn active={activeTab === 'map'} onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }} icon="map-pin" text="4. 디지털 배치도" />
+                                <MenuBtn active={activeTab === 'conclusion'} onClick={() => { setActiveTab('conclusion'); setIsMobileMenuOpen(false); }} icon="pen-tool" text="5. 결론 및 의견" />
+                            </nav>
+                            <div className="p-4 border-t border-slate-700 space-y-2">
+                                <div className="text-xs text-slate-400 font-bold mb-1">데이터 관리</div>
+                                <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2 bg-blue-700 rounded text-sm font-bold"><Icon name="download" size={16} />저장</button>
+                                <button onClick={() => fileInputRef.current.click()} className="w-full flex gap-2 px-3 py-2 bg-slate-700 rounded text-sm"><Icon name="upload" size={16} />불러오기</button>
+                                <input type="file" ref={fileInputRef} onChange={handleLoadFile} className="hidden" accept=".json" />
+                                <div className="h-px bg-slate-700 my-2"></div>
+                                <button onClick={handleReset} className="w-full flex gap-2 px-3 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold"><Icon name="rotate-ccw" size={16} /> 초기화</button>
+                            </div>
+                            <div className="p-4 bg-slate-800">
+                                <button onClick={() => window.print()} className="w-full py-3 bg-teal-600 hover:bg-teal-500 rounded font-bold flex justify-center gap-2"><Icon name="printer" /> 출력</button>
+                            </div>
+                        </aside>
+
+                        {/* 모바일 메뉴 오버레이 배경 */}
+                        {isMobileMenuOpen && <div className="absolute inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>}
+
+                        <main className="flex-1 bg-gray-100 overflow-auto">
+                            {activeTab === 'cover' && <CoverScreen data={reportInfo} setData={setReportInfo} />}
+                            {activeTab === 'check' && <ChecklistScreen results={checklistResults} setResults={setChecklistResults} defectSummary={defectSummary} />}
+                            {activeTab === 'status' && <StatusScreen spaces={spaces} setSpaces={setSpaces} />}
+                            {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
+                            {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
+                        </main>
+                    </div>
+                </React.Fragment>
+            );
+        }
+
+        const MenuBtn = ({ active, onClick, icon, text }) => (
+            <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded text-sm transition ${active ? 'bg-blue-600 shadow' : 'hover:bg-slate-800 text-slate-300'}`}>
+                <Icon name={icon} size={18} /> {text}
+            </button>
+        );
+
+        // ... (화면 렌더링용 컴포넌트들 생략, 기능은 동일) ...
+        function CoverScreen({ data, setData }) {
+            return (
+                <div className="h-full flex items-center justify-center p-10">
+                    <div className="w-[210mm] min-h-[297mm] bg-white flex flex-col items-center justify-between border relative p-10">
+                        <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
+                        <div className="text-right w-full font-bold text-gray-400 mt-4">KIHA-2026-REPORT</div>
+                        <div className="text-center mt-10">
+                            <h1 className="text-5xl font-extrabold mb-6 leading-tight text-gray-900">밀폐공간 작업<br />위험성평가 보고서</h1>
+                            <p className="text-xl text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
+                        </div>
+                        <div className="w-full px-10 space-y-8 my-10">
+                            <div className="border-b-2 border-gray-300 pb-2">
+                                <label className="text-sm font-bold text-gray-500">사업장명</label>
+                                <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-3xl font-bold text-center bg-transparent outline-none" placeholder="사업장명 입력" />
+                            </div>
+                            <div className="border-b-2 border-gray-300 pb-2">
+                                <label className="text-sm font-bold text-gray-500">평가 기간</label>
+                                <input type="text" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-2xl font-bold text-center bg-transparent outline-none" />
+                            </div>
+                            <div className="border-b-2 border-gray-300 pb-2 text-center">
+                                <label className="text-sm font-bold text-gray-500 block mb-2">평가 기관</label>
+                                <div className="text-2xl font-bold mb-2">(사)대한산업보건협회</div>
+                                <div className="flex justify-center gap-2">
+                                    <select className="p-2 border rounded" value={data.agencyType} onChange={e => setData({ ...data, agencyType: e.target.value, agencyBranch: e.target.value === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0] })}>
+                                        <option value="region">지역본부</option><option value="center">센터</option>
+                                    </select>
+                                    <select className="p-2 border rounded font-bold text-blue-900 bg-blue-50" value={data.agencyBranch} onChange={e => setData({ ...data, agencyBranch: e.target.value })}>
+                                        {(data.agencyType === 'region' ? KIHA_REGIONS : KIHA_CENTERS).map(b => <option key={b} value={b}>{b}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mb-10 text-center">
+                            <img src="./logo.png" alt="Logo" className="h-24 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ChecklistScreen({ results, setResults, defectSummary }) {
+            const [expanded, setExpanded] = useState("1. 관리 및 장비 지급 (최근 강화)");
+            return (
+                <div className="flex h-full p-6 gap-6">
+                    <div className="flex-1 overflow-auto space-y-4">
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Icon name="check-square" className="text-blue-600" /> 체크리스트 점검</h2>
+                        {CHECKLIST_MASTER.map((cat, idx) => (
+                            <div key={idx} className="bg-white rounded-xl shadow p-6">
+                                <button onClick={() => setExpanded(expanded === cat.category ? null : cat.category)} className="w-full flex justify-between font-bold text-lg mb-2 text-slate-700 border-b pb-2">
+                                    {cat.category} {expanded === cat.category ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
+                                </button>
+                                {expanded === cat.category && cat.items.map(item => (
+                                    <div key={item.id} className="mb-4 pb-4 border-b last:border-0">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="flex-1 pr-4">
+                                                <div className="font-medium text-lg">{item.question}</div>
+                                                <div className="text-xs text-blue-500 mt-1 flex items-center gap-1"><Icon name="book-open" size={12} /> {item.law}</div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                {['PASS', 'FAIL', 'NA'].map(status => (
+                                                    <button key={status} onClick={() => setResults({ ...results, [item.id]: status })} className={`px-3 py-2 rounded text-sm font-bold border ${results[item.id] === status ? (status === 'PASS' ? 'bg-green-600 text-white' : status === 'FAIL' ? 'bg-red-600 text-white' : 'bg-gray-500 text-white') : 'bg-white hover:bg-gray-50'}`}>{status === 'PASS' ? '적합' : status === 'FAIL' ? '부적합' : '해당없음'}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {results[item.id] === 'FAIL' && <div className="p-3 bg-red-50 text-red-700 rounded text-sm font-bold">💡 [자동대책] {item.action}</div>}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function StatusScreen({ spaces, setSpaces }) {
+            const [form, setForm] = useState({
+                typeIdx: -1, location: '', area: '',
+                gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
+                cycle: '청소시(비정기)', cycleDirect: '',
+                personnel: '2인 1조', personnelDirect: '',
+                measureTime: '환기 전', measureTimeDirect: ''
+            });
+            const [isProcessing, setIsProcessing] = useState(false);
+            const risk = getRiskLevel(form.gas);
+
+            const handleSave = () => {
+                if (form.typeIdx === -1) return alert("설비를 선택하세요");
+                const type = SPACE_TYPES[form.typeIdx];
+                const finalCycle = form.cycle === '직접 입력' ? form.cycleDirect : form.cycle;
+                const finalPersonnel = form.personnel === '직접 입력' ? form.personnelDirect : form.personnel;
+                const finalTime = form.measureTime === '직접 입력' ? form.measureTimeDirect : form.measureTime;
+                const newId = `CS-${String(spaces.length + 1).padStart(2, '0')}`;
+
+                const riskSolution = RISK_SOLUTIONS[risk.level] || RISK_SOLUTIONS['LOW'];
+
+                setSpaces([...spaces, {
+                    ...form, id: newId,
+                    name: type.label, risk, hazards: type.hazards.join(', '),
+                    legalBasis: type.law, locationMap: null,
+                    cycle: finalCycle, personnel: finalPersonnel, measureTime: finalTime,
+                    riskSolution
+                }]);
+
+                setForm({
+                    typeIdx: -1, location: '', area: '',
+                    gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
+                    cycle: '청소시(비정기)', cycleDirect: '',
+                    personnel: '2인 1조', personnelDirect: '',
+                    measureTime: '환기 전', measureTimeDirect: ''
+                });
+            };
+
+            const handlePhoto = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setIsProcessing(true);
+                    try {
+                        const compressedDataUrl = await compressImage(file);
+                        setForm(prev => ({ ...prev, photo: compressedDataUrl }));
+                    } catch (err) { alert("이미지 오류"); } finally { setIsProcessing(false); }
+                }
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row h-full p-4 md:p-6 gap-4 md:gap-6 overflow-auto">
+                    <div className="w-full md:w-[400px] bg-white rounded-xl shadow p-6 overflow-auto">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="plus-circle" /> 신규 등록</h3>
+                        <div className="space-y-4">
+                            <div><label className="text-sm font-bold text-gray-600">설비 유형</label>
+                                <select className="w-full p-2 border rounded" value={form.typeIdx} onChange={e => setForm({ ...form, typeIdx: e.target.value })}>
+                                    <option value={-1}>선택하세요</option>
+                                    {SPACE_TYPES.map((t, i) => <option key={i} value={i}>{t.label}</option>)}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div><label className="text-sm font-bold text-gray-600">위치</label><input type="text" className="w-full p-2 border rounded" placeholder="지하1층" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} /></div>
+                                <div><label className="text-sm font-bold text-gray-600">면적/체적</label><input type="text" className="w-full p-2 border rounded" placeholder="50㎥" value={form.area} onChange={e => setForm({ ...form, area: e.target.value })} /></div>
+                            </div>
+
+                            <div><label className="text-sm font-bold text-gray-600">출입 주기</label>
+                                <select className="w-full p-2 border rounded" value={form.cycle} onChange={e => setForm({ ...form, cycle: e.target.value })}>
+                                    {CYCLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                                </select>
+                                {form.cycle === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="직접 입력" value={form.cycleDirect} onChange={e => setForm({ ...form, cycleDirect: e.target.value })} />}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div><label className="text-sm font-bold text-gray-600">출입 인원</label>
+                                    <select className="w-full p-2 border rounded" value={form.personnel} onChange={e => setForm({ ...form, personnel: e.target.value })}>
+                                        {PERSONNEL_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                                    </select>
+                                    {form.personnel === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="N명" value={form.personnelDirect} onChange={e => setForm({ ...form, personnelDirect: e.target.value })} />}
+                                </div>
+                                <div><label className="text-sm font-bold text-gray-600">측정 시기</label>
+                                    <select className="w-full p-2 border rounded" value={form.measureTime} onChange={e => setForm({ ...form, measureTime: e.target.value })}>
+                                        {TIME_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                                    </select>
+                                    {form.measureTime === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="00:00~00:00" value={form.measureTimeDirect} onChange={e => setForm({ ...form, measureTimeDirect: e.target.value })} />}
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded border">
+                                <h4 className="font-bold text-sm mb-2 text-gray-700">가스 농도 (최고치)</h4>
+                                <div className="space-y-2">
+                                    <GasInput label="O2(%)" val={form.gas.o2} setVal={v => setForm({ ...form, gas: { ...form.gas, o2: v } })} />
+                                    <GasInput label="H2S(ppm)" val={form.gas.h2s} setVal={v => setForm({ ...form, gas: { ...form.gas, h2s: v } })} />
+                                    <GasInput label="CO(ppm)" val={form.gas.co} setVal={v => setForm({ ...form, gas: { ...form.gas, co: v } })} />
+                                    <GasInput label="LEL(%)" val={form.gas.lel} setVal={v => setForm({ ...form, gas: { ...form.gas, lel: v } })} />
+                                    <GasInput label="CO2(%)" val={form.gas.co2} setVal={v => setForm({ ...form, gas: { ...form.gas, co2: v } })} />
+                                </div>
+                                <div className={`mt-3 p-2 text-center font-bold rounded border ${risk.color}`}>{risk.label}</div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold text-gray-600 mb-1 block">현장 사진</label>
+                                <div className="flex items-center gap-2">
+                                    <label className={`cursor-pointer bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded text-sm flex items-center gap-2 ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}>
+                                        <Icon name="camera" size={16} /> {isProcessing ? '압축 중...' : '사진 선택'}
+                                        <input type="file" className="hidden" accept="image/*" onChange={handlePhoto} disabled={isProcessing} />
+                                    </label>
+                                    {form.photo && <span className="text-xs text-blue-600">완료</span>}
+                                </div>
+                                {form.photo && <img src={form.photo} className="mt-2 h-20 w-auto rounded border" />}
+                            </div>
+                            <button onClick={handleSave} disabled={isProcessing} className="w-full py-3 bg-slate-900 text-white font-bold rounded disabled:bg-gray-400">저장하기</button>
+                        </div>
+                    </div>
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 content-start overflow-auto">
+                        {spaces.map(s => (
+                            <div key={s.id} className="bg-white p-4 rounded shadow border relative">
+                                <div className="flex justify-between font-bold mb-1"><span>{s.id}</span><span className={`text-xs px-2 py-1 rounded ${s.risk.color}`}>{s.risk.label}</span></div>
+                                <div className="font-bold text-lg flex justify-between">
+                                    {s.name}
+                                    {s.photo && <Icon name="image" size={16} className="text-blue-500" />}
+                                </div>
+                                <div className="text-sm text-gray-500 mb-2">{s.location}</div>
+                                <div className="text-xs bg-gray-50 p-2 rounded grid grid-cols-5 gap-1 text-center">
+                                    <div>O2: {s.gas.o2}</div><div className={s.gas.h2s > 0 ? 'text-red-600 font-bold' : ''}>H2S: {s.gas.h2s}</div>
+                                    <div>CO: {s.gas.co}</div><div>LEL: {s.gas.lel}</div><div>CO2: {s.gas.co2}</div>
+                                </div>
+                                <button onClick={() => setSpaces(spaces.filter(x => x.id !== s.id))} className="absolute top-2 right-2 text-gray-300 hover:text-red-500"><Icon name="trash-2" size={16} /></button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        const GasInput = ({ label, val, setVal, highlight }) => (
+            <div className="flex justify-between items-center">
+                <label className={`text-xs ${highlight ? 'text-red-600 font-bold' : 'text-gray-600'}`}>{label}</label>
+                <input type="number" className="w-20 p-1 border rounded text-right font-bold" value={val} onChange={e => setVal(e.target.value)} />
+            </div>
+        );
+
+        function MapScreen({ spaces, mapImage, setMapImage, setSpaces }) {
+            const [modal, setModal] = useState(false);
+            const [pt, setPt] = useState(null);
+
+            const handleMapClick = (e) => {
+                if (!mapImage) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setPt({ x, y });
+                setModal(true);
+            };
+
+            const handleDragOver = (e) => { e.preventDefault(); };
+            const handleDrop = (e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    compressImage(file, 1024, 0.7).then(result => setMapImage(result));
+                }
+            };
+
+            const unmapped = spaces.filter(s => !s.locationMap);
+
+            return (
+                <div className="flex h-full p-6 gap-6">
+                    <div className="flex-1 bg-white rounded shadow overflow-hidden relative flex flex-col">
+                        <div className="p-4 bg-slate-800 text-white flex justify-between items-center">
+                            <h3 className="font-bold flex items-center gap-2"><Icon name="map" /> 디지털 배치도</h3>
+                            <label className="cursor-pointer bg-slate-600 hover:bg-slate-500 px-3 py-1 rounded text-xs">
+                                이미지 업로드 <input type="file" className="hidden" accept="image/*" onChange={e => {
+                                    const file = e.target.files[0];
+                                    if (file) compressImage(file, 1024, 0.7).then(result => setMapImage(result));
+                                }} />
+                            </label>
+                        </div>
+                        <div className="flex-1 bg-gray-100 overflow-auto relative flex items-center justify-center" onDragOver={handleDragOver} onDrop={handleDrop}>
+                            {mapImage ? (
+                                <div className="relative inline-block cursor-crosshair shadow-lg" onClick={handleMapClick}>
+                                    <img src={mapImage} className="block max-w-none" style={{ maxHeight: '800px' }} />
+                                    {spaces.filter(s => s.locationMap).map(s => (
+                                        <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${s.risk.level === 'HIGH' ? 'bg-red-600 animate-bounce' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
+                                            {s.id.split('-')[1]}
+                                        </div>
+                                    ))}
+                                    {pt && <div className="absolute w-4 h-4 bg-black rounded-full opacity-50 transform -translate-x-1/2 -translate-y-1/2" style={{ left: `${pt.x}%`, top: `${pt.y}%` }} />}
+                                </div>
+                            ) : <div className="text-gray-400">도면 이미지를 업로드하세요 (또는 드래그)</div>}
+                        </div>
+                    </div>
+                    {modal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                            <div className="bg-white p-6 rounded w-96 max-h-[80vh] overflow-auto">
+                                <h3 className="font-bold mb-4">설비 배치</h3>
+                                {unmapped.map(s => (
+                                    <button key={s.id} onClick={() => { setSpaces(spaces.map(x => x.id === s.id ? { ...x, locationMap: pt } : x)); setModal(false); }} className="w-full text-left p-3 border mb-2 rounded hover:bg-gray-100 flex justify-between">
+                                        <span>{s.name}</span> <span className={`text-xs px-2 rounded ${s.risk.color}`}>{s.risk.label}</span>
+                                    </button>
+                                ))}
+                                <button onClick={() => setModal(false)} className="w-full p-2 bg-gray-200 rounded mt-4">닫기</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function ConclusionScreen({ reportInfo, spaces, defectSummary, setFinalOpinion, finalOpinion }) {
+            const generate = () => {
+                const total = spaces.length;
+                const high = spaces.filter(s => s.risk.level === 'HIGH').length;
+                const medium = spaces.filter(s => s.risk.level === 'MEDIUM').length;
+                const low = spaces.filter(s => s.risk.level === 'LOW').length;
+
+                // 설비 명칭별 개수 카운트
+                const spaceCounts = spaces.reduce((acc, s) => {
+                    acc[s.name] = (acc[s.name] || 0) + 1;
+                    return acc;
+                }, {});
+                const spaceDesc = Object.entries(spaceCounts).map(([name, count]) => `${name} ${count}개소`).join(', ');
+
+                // 초과된 주요 유해요인 추출
+                const hazards = new Set();
+                spaces.forEach(s => {
+                    if (s.gas.o2 < 19.5 || s.gas.o2 > 23.5) hazards.add('산소(O2) 농도 이상');
+                    if (s.gas.h2s > 0) hazards.add('황화수소(H2S) 검출');
+                    if (s.gas.co > 25) hazards.add('일산화탄소(CO) 초과');
+                    if (s.gas.lel > 10) hazards.add('가연성가스(LEL) 초과');
+                    if (s.gas.co2 > 1.5) hazards.add('이산화탄소(CO2) 초과');
+                });
+                const hazardText = hazards.size > 0 ? Array.from(hazards).join(', ') : '특이사항 없음';
+
+                // 등록된 데이터를 바탕으로 동적 사용용도 리스트 생성
+                let dynamicUsage = "";
+                const usageMap = {};
+                spaces.forEach(s => {
+                    if(!usageMap[s.name]) usageMap[s.name] = new Set();
+                    if(s.cycle) usageMap[s.name].add(s.cycle);
+                });
+                Object.entries(usageMap).forEach(([name, cycles]) => {
+                    const cycleText = Array.from(cycles).join(', ');
+                    dynamicUsage += ` - ${name} (${cycleText} 등 내부 진입 및 점검 작업 시 사용)\n`;
+                });
+                if(!dynamicUsage) dynamicUsage = " - 등록된 밀폐공간 현황 데이터가 없습니다.\n";
+
+                // 보고서 텍스트 조립
+                let t = `[1. 평가 개요]\n`;
+                t += `1. 대상 사업장: ${reportInfo.companyName || '미입력'}\n`;
+                t += `2. 평가 대상: 밀폐공간 총 ${total}개소 (${spaceDesc})\n`;
+                t += `3. 평가 기간: ${reportInfo.period}\n`;
+                t += `4. 평가 주관: (사)대한산업보건협회 ${reportInfo.agencyBranch}\n`;
+                t += `5. 평가 목적:\n`;
+                t += ` 1) 중대재해처벌법 제4조(사업주와 경영책임자등의 안전 및 보건 확보의무)\n`;
+                t += ` 2) 산업안전보건법 제39조(보건조치)에 따른 밀폐공간에 의한 작업 시 발생 할 수 있는 산소결핍 등 밀폐공간 위험성 사전 파악\n`;
+                t += ` 3) 밀폐공간 질식·중독·화재 등 중대 재해 예방\n`;
+                t += ` 4) 안전보건관리 대책 수립 및 보완점 도출\n\n`;
+
+                t += `[2. 밀폐공간 현황 및 사용용도]\n`;
+                t += `본 사업장의 밀폐공간은 총 ${total}개소로 파악되며, 위험도 평가 결과에 따라 고위험 ${high}개소, 중위험 ${medium}개소, 저위험 ${low}개소로 분류되었습니다.\n`;
+                t += `주요 밀폐공간의 사용 용도는 다음과 같습니다.\n`;
+                t += dynamicUsage; // 동적으로 생성된 리스트 삽입
+                t += `해당 밀폐공간은 산소결핍, 유해가스 축적, 화재·폭발 위험 등 중대 재해 위험이 상존하므로, 용도별 특성을 고려한 맞춤형 안전보건조치가 요구됩니다.\n\n`;
+
+                t += `[3. 결론 및 권고사항]\n`;
+                t += `${reportInfo.period.split('(')[0].trim()} 실시한 위험성평가에 따라 총 ${total}곳의 밀폐공간에 대한 평가를 완료하였습니다.\n`;
+
+                if (high > 0 || medium > 0) {
+                    t += `평가 결과, 일부 공간은 산소결핍 및 유해가스 농도가 허용기준을 초과하는 등 즉각적인 개선이 필요한 위험 공간으로 분류되었습니다. 주요 위험 요소로는 [${hazardText}] 등이 확인되어 해당 항목의 위험도가 높게 나타났습니다.\n`;
+                } else {
+                    t += `평가 결과, 유해가스 농도가 기준치 이내로 유지되는 등 전반적인 가스 농도 상태는 양호한 것으로 판단됩니다. 그러나 밀폐공간 특성상 작업 시 언제든 급격한 환경 변화가 발생할 수 있으므로 철저한 대비가 필요합니다.\n`;
+                }
+
+                t += `이에 따라 관련 법령 및 KOSHA 가이드라인(KOSHA CODE H-63)에 의거하여, 사업장에서는 다음의 <질식재해 예방 조치사항>을 반드시 이행할 것을 권고 드립니다.\n\n`;
+                t += `<질식재해 예방 조치사항>\n`;
+                t += `(1) 밀폐공간의 확인과 출입금지 조치\n`;
+                t += `(2) 밀폐공간 작업허가서(PTW) 발급 및 준수\n`;
+                t += `(3) 작업 전 및 작업 중 10배 이상 충분한 환기 실시\n`;
+                t += `(4) 유해가스 농도 지속 측정 및 모니터링\n`;
+                t += `(5) 비상 구출용 보호구 및 장비 비치\n`;
+                t += `(6) 작업자, 감시인 대상 특별안전보건교육 훈련\n`;
+                t += `(7) 사업장 자체 밀폐공간 작업 프로그램 수립 및 이행`;
+
+                setFinalOpinion(t);
+            };
+            return (
+                <div className="p-8 h-full flex flex-col">
+                    <div className="mb-4"><button onClick={generate} className="px-4 py-2 bg-indigo-600 text-white font-bold rounded">초안 자동 작성</button></div>
+                    <textarea className="flex-1 p-4 border rounded resize-none" value={finalOpinion} onChange={e => setFinalOpinion(e.target.value)} />
+                </div>
+            );
+        }
+
+        function ReportView({ reportInfo, spaces, defectSummary, mapImage, finalOpinion }) {
+            return (
+                <div className="hidden print:block w-full bg-white text-black">
+
+                    {/* [문제 1 완벽 해결] 1. 표지 (무조건 1페이지 고정) */}
+                    <div className="print-page print-fixed-page border-4 border-double">
+                        <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
+                        <div className="text-right w-full font-bold text-gray-400 mt-2">KIHA-2026-REPORT</div>
+
+                        <div className="flex-1 flex flex-col items-center justify-center w-full">
+                            <div className="text-center">
+                                <h1 className="text-5xl font-extrabold mb-4 leading-tight text-gray-900">밀폐공간 작업<br />위험성평가 보고서</h1>
+                                <p className="text-xl text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
+                            </div>
+
+                            <div className="w-full px-20 space-y-6 mt-10 mb-6">
+                                <div className="border-b-2 border-gray-300 pb-2">
+                                    <div className="text-sm font-bold text-gray-500 text-center">사업장명</div>
+                                    <div className="w-full text-3xl font-bold text-center mt-2">{reportInfo.companyName || "사업장명 미입력"}</div>
+                                </div>
+                                <div className="border-b-2 border-gray-300 pb-2">
+                                    <div className="text-sm font-bold text-gray-500 text-center">평가 기간</div>
+                                    <div className="w-full text-2xl font-bold text-center mt-2">{reportInfo.period}</div>
+                                </div>
+                                <div className="border-b-2 border-gray-300 pb-2 text-center">
+                                    <div className="text-sm font-bold text-gray-500 text-center mb-2">평가 기관</div>
+                                    <div className="text-2xl font-bold mb-2">(사)대한산업보건협회 {reportInfo.agencyBranch}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 로고가 밀리지 않도록 고정 */}
+                        <div className="mb-2 text-center shrink-0">
+                            <img src="./logo.png" className="h-16 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
+                        </div>
+                    </div>
+
+                    {/* 2. 목차 (무조건 1페이지 고정) */}
+                    <div className="print-page print-fixed-page">
+                        <h2 className="text-3xl font-bold border-b-2 border-black pb-4 mb-8">목 차</h2>
+                        <ul className="space-y-6 text-xl text-black">
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>1. 체크리스트 결과</span><span>3p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>2. 현황 배치도</span><span>4p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>3. 위험성평가 결과 및 등급</span><span>5p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>4. 밀폐공간별 상세 현황</span><span>6p~</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>5. 종합 의견</span><span>End</span></li>
+                        </ul>
+                    </div>
+
+                    {/* 3. 체크리스트 결과 (페이지 자동 넘어감) */}
+                    <div className="print-page print-flow-page">
+                        <div className="break-inside-avoid">
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">1. 체크리스트 결과</h2>
+                        </div>
+                        {defectSummary.length === 0 ? <div className="text-center p-10 bg-gray-100 break-inside-avoid">지적사항 없음</div> :
+                            defectSummary.map((d, i) => (
+                                <div key={i} className="mb-4 border border-red-200 p-4 rounded bg-red-50 break-inside-avoid">
+                                    <div className="text-red-600 font-bold mb-1">[개선 필요 {i + 1}] {d.question}</div>
+                                    <div className="font-bold">➔ 권고: {d.action}</div>
+                                </div>
+                            ))
+                        }
+                    </div>
+
+                    {/* [문제 3 완벽 해결] 4. 현황 배치도 및 범례 (무조건 1페이지 고정) */}
+                    <div className="print-page print-fixed-page">
+                        <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4 shrink-0">2. 현황 배치도</h2>
+                        {/* 도면 박스 높이를 140mm로 고정하여 범례가 들어갈 자리를 확실히 확보 */}
+                        <div className="flex-1 w-full border flex items-center justify-center relative overflow-hidden" style={{ maxHeight: '140mm' }}>
+                            {mapImage ? (
+                                <div className="relative inline-block w-full h-full flex justify-center items-center">
+                                    <img src={mapImage} className="max-w-full max-h-full object-contain" />
+                                    {spaces.filter(s => s.locationMap).map(s => (
+                                        <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${s.risk.level === 'HIGH' ? 'bg-red-600 animate-bounce' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
+                                            {s.id.split('-')[1]}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : <span className="text-gray-400">배치도 이미지 없음</span>}
+                        </div>
+                        {/* 8페이지로 도망가던 범례를 도면 바로 밑으로 고정 */}
+                        <div className="shrink-0 flex justify-center gap-6 text-sm font-bold mt-4 mb-2">
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-600 rounded-full border"></span> 고위험</span>
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-500 rounded-full border"></span> 중위험</span>
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-blue-600 rounded-full border"></span> 저위험</span>
+                        </div>
+                    </div>
+
+                    {/* 5. 위험성평가 결과 요약 (페이지 자동 넘어감) */}
+                    <div className="print-page print-flow-page">
+                        <div className="break-inside-avoid">
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">3. 위험성평가 결과 및 등급 분류</h2>
+                        </div>
+
+                        <div className="mb-8 break-inside-avoid">
+                            <h3 className="font-bold text-lg mb-2 text-blue-900">3-1. 위험성 평가 등급 분류 기준</h3>
+                            <table className="w-full text-sm border-collapse border border-slate-400">
+                                <thead className="bg-slate-200">
+                                    <tr>
+                                        <th className="border border-slate-400 p-2 w-1/5">구분 (유해가스)</th>
+                                        <th className="border border-slate-400 p-2 bg-blue-100 text-blue-800">적정 (저위험)</th>
+                                        <th className="border border-slate-400 p-2 bg-yellow-100 text-yellow-800">주의 (중위험)</th>
+                                        <th className="border border-slate-400 p-2 bg-red-100 text-red-800">위험 (고위험)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td className="border border-slate-400 p-2 font-bold text-center">산소 (O2)</td>
+                                        <td className="border border-slate-400 p-2 text-center">19.5% ~ 23.5%</td>
+                                        <td className="border border-slate-400 p-2 text-center">-</td>
+                                        <td className="border border-slate-400 p-2 text-center text-red-600 font-bold">&lt; 19.5% or &gt; 23.5%</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="border border-slate-400 p-2 font-bold text-center">황화수소 (H2S)</td>
+                                        <td className="border border-slate-400 p-2 text-center">0 ppm (불검출)</td>
+                                        <td className="border border-slate-400 p-2 text-center">-</td>
+                                        <td className="border border-slate-400 p-2 text-center text-red-600 font-bold">&gt; 0 ppm (즉시위험)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="border border-slate-400 p-2 font-bold text-center">일산화탄소 (CO)</td>
+                                        <td className="border border-slate-400 p-2 text-center">0 ppm</td>
+                                        <td className="border border-slate-400 p-2 text-center">1 ~ 25 ppm</td>
+                                        <td className="border border-slate-400 p-2 text-center text-red-600 font-bold">&gt; 25 ppm</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="border border-slate-400 p-2 font-bold text-center">가연성가스 (LEL)</td>
+                                        <td className="border border-slate-400 p-2 text-center">&lt; 5%</td>
+                                        <td className="border border-slate-400 p-2 text-center">5% ~ 10%</td>
+                                        <td className="border border-slate-400 p-2 text-center text-red-600 font-bold">&gt; 10%</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="border border-slate-400 p-2 font-bold text-center">이산화탄소 (CO2)</td>
+                                        <td className="border border-slate-400 p-2 text-center">&lt; 1.0%</td>
+                                        <td className="border border-slate-400 p-2 text-center">1.0% ~ 1.5%</td>
+                                        <td className="border border-slate-400 p-2 text-center text-red-600 font-bold">&gt; 1.5%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="text-xs text-gray-500 mt-1">* 관련 근거: KOSHA Guide 및 산업안전보건기준에 관한 규칙 제618조</p>
+                        </div>
+
+                        <div className="break-inside-avoid">
+                            <h3 className="font-bold text-lg mb-2 text-blue-900">3-2. 위험성평가 결과 요약</h3>
+                            <table className="w-full text-xs border-collapse border border-slate-400">
+                                <thead className="bg-slate-100">
+                                    <tr>
+                                        <th className="border border-slate-400 p-2 w-8">No</th>
+                                        <th className="border border-slate-400 p-2">명칭</th>
+                                        <th className="border border-slate-400 p-2">위치</th>
+                                        <th className="border border-slate-400 p-2">유해인자</th>
+                                        <th className="border border-slate-400 p-2 w-10">O2(%)</th>
+                                        <th className="border border-slate-400 p-2 w-12">H2S(ppm)</th>
+                                        <th className="border border-slate-400 p-2 w-12">CO(ppm)</th>
+                                        <th className="border border-slate-400 p-2 w-12">LEL(%)</th>
+                                        <th className="border border-slate-400 p-2 w-12">CO2(%)</th>
+                                        <th className="border border-slate-400 p-2 w-16">판정</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {spaces.length === 0 ? (
+                                        <tr><td colSpan="10" className="border border-slate-400 p-4 text-center">등록된 밀폐공간이 없습니다.</td></tr>
+                                    ) : (
+                                        spaces.map((s, idx) => (
+                                            <tr key={s.id} className="text-center break-inside-avoid">
+                                                <td className="border border-slate-400 p-2">{s.id.split('-')[1]}</td>
+                                                <td className="border border-slate-400 p-2 font-bold text-left">{s.name}</td>
+                                                <td className="border border-slate-400 p-2 text-left">{s.location}</td>
+                                                <td className="border border-slate-400 p-2 text-[10px]">{s.hazards}</td>
+                                                <td className={`border border-slate-400 p-2 ${(s.gas.o2 < 19.5 || s.gas.o2 > 23.5) ? 'text-red-600 font-bold' : ''}`}>{s.gas.o2}</td>
+                                                <td className={`border border-slate-400 p-2 ${s.gas.h2s > 0 ? 'text-red-600 font-bold' : ''}`}>{s.gas.h2s}</td>
+                                                <td className={`border border-slate-400 p-2 ${s.gas.co > 25 ? 'text-red-600 font-bold' : s.gas.co > 0 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.co}</td>
+                                                <td className={`border border-slate-400 p-2 ${s.gas.lel > 10 ? 'text-red-600 font-bold' : s.gas.lel >= 5 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.lel}</td>
+                                                <td className={`border border-slate-400 p-2 ${s.gas.co2 > 1.5 ? 'text-red-600 font-bold' : s.gas.co2 >= 1.0 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.co2}</td>
+                                                <td className={`border border-slate-400 p-2 font-bold ${s.risk.level === 'HIGH' ? 'bg-red-100 text-red-600' : s.risk.level === 'MEDIUM' ? 'bg-yellow-100 text-yellow-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                    {s.risk.level === 'HIGH' ? '고위험' : s.risk.level === 'MEDIUM' ? '중위험' : '저위험'}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* [문제 5, 6, 7 완벽 해결] 6. 개별 상세 현황 (무조건 1페이지 고정) */}
+                    {spaces.map((s, idx) => (
+                        <div key={s.id} className="print-page print-fixed-page">
+                            <h2 className="shrink-0 text-2xl font-bold border-b-2 border-black pb-2 mb-3">4-{idx + 1}. {s.name} 상세 현황</h2>
+
+                            <div className="shrink-0 flex justify-between items-end mb-2">
+                                <div className="text-lg">
+                                    <span className="font-bold text-gray-600 mr-2">위치:</span> {s.location}
+                                    <span className="mx-3 text-gray-300">|</span>
+                                    <span className="font-bold text-gray-600 mr-2">관리번호:</span> {s.id}
+                                </div>
+                                <div className={`px-4 py-1 rounded-lg font-bold text-white shadow ${s.risk.level === 'HIGH' ? 'bg-red-600' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`}>
+                                    {s.risk.label}
+                                </div>
+                            </div>
+
+                            {/* 💡 핵심 수술: 사진 박스 높이를 70mm(7cm)로 철창치듯 완전히 고정!! 절대 늘어나지 않음!! */}
+                            <div className="w-full flex items-center justify-center mb-3 border-2 border-slate-300 bg-slate-50 overflow-hidden rounded-lg shrink-0" style={{ height: '70mm' }}>
+                                {s.photo ? (
+                                    <img src={s.photo} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                    <span className="text-slate-400 text-xl font-bold">현장 사진 없음</span>
+                                )}
+                            </div>
+
+                            <div className="shrink-0 mb-3">
+                                <h3 className="font-bold text-lg mb-1 text-slate-700">📌 기본 정보 및 측정 데이터</h3>
+                                <table className="w-full border-collapse border border-slate-400 text-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th className="border border-slate-400 bg-slate-100 p-2 w-1/4">출입 주기</th>
+                                            <td className="border border-slate-400 p-2 w-1/4">{s.cycle}</td>
+                                            <th className="border border-slate-400 bg-slate-100 p-2 w-1/4">작업 인원</th>
+                                            <td className="border border-slate-400 p-2 w-1/4">{s.personnel}</td>
+                                        </tr>
+                                        <tr>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">면적/체적 (㎥)</th>
+                                            <td className="border border-slate-400 p-2">{s.area}㎥</td>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">측정 시기</th>
+                                            <td className="border border-slate-400 p-2">{s.measureTime}</td>
+                                        </tr>
+                                        <tr>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">유해가스 농도</th>
+                                            <td colSpan="3" className="border border-slate-400 p-2 bg-slate-50">
+                                                <div className="grid grid-cols-5 gap-2 text-center font-bold">
+                                                    <div className={s.gas.o2 < 19.5 || s.gas.o2 > 23.5 ? 'text-red-600' : ''}>
+                                                        <div className="text-xs text-gray-500 font-normal">산소(O2)</div>
+                                                        {s.gas.o2}%
+                                                    </div>
+                                                    <div className={s.gas.h2s > 0 ? 'text-red-600' : ''}>
+                                                        <div className="text-xs text-gray-500 font-normal">황화수소(H2S)</div>
+                                                        {s.gas.h2s}ppm
+                                                    </div>
+                                                    <div className={s.gas.co > 25 ? 'text-red-600' : s.gas.co > 0 ? 'text-yellow-600' : ''}>
+                                                        <div className="text-xs text-gray-500 font-normal">일산화탄소(CO)</div>
+                                                        {s.gas.co}ppm
+                                                    </div>
+                                                    <div className={s.gas.lel > 10 ? 'text-red-600' : s.gas.lel >= 5 ? 'text-yellow-600' : ''}>
+                                                        <div className="text-xs text-gray-500 font-normal">가연성가스(LEL)</div>
+                                                        {s.gas.lel}%
+                                                    </div>
+                                                    <div className={s.gas.co2 > 1.5 ? 'text-red-600' : s.gas.co2 >= 1.0 ? 'text-yellow-600' : ''}>
+                                                        <div className="text-xs text-gray-500 font-normal">이산화탄소(CO2)</div>
+                                                        {s.gas.co2}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="shrink-0 border-t-2 border-dashed border-slate-300 pt-3">
+                                <h3 className="font-bold text-lg mb-1 text-blue-900 flex items-center gap-2">
+                                    <Icon name="clipboard-check" className="text-blue-600" /> 개선 권고 사항 (Action Plan)
+                                </h3>
+                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                                    <div className="font-bold text-base text-blue-800 mb-2">
+                                        💡 조치 방향: {s.riskSolution?.direction || "지속 관리"}
+                                    </div>
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700 text-sm">
+                                        {(s.riskSolution?.measures || ["기본 안전 수칙 준수"]).map((m, i) => (
+                                            <li key={i}>{m}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* 7. 종합 의견 (페이지 자동 넘어감) */}
+                    <div className="print-page print-flow-page">
+                        <div className="break-inside-avoid">
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">5. 종합 의견</h2>
+                            <div className="border border-gray-400 rounded-lg p-8 bg-white min-h-[300px]">
+                                <pre className="whitespace-pre-wrap font-sans text-lg leading-relaxed">{finalOpinion || "작성된 종합 의견이 없습니다."}</pre>
+                            </div>
+                            <div className="mt-10 text-right">
+                                <div className="text-2xl font-bold">대한산업보건협회 {reportInfo.agencyBranch}</div>
+                                <div className="text-gray-500 mt-2">평가자: (인) _________________</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
