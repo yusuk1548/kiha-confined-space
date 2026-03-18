@@ -1,0 +1,16 @@
+{
+  "name": "밀폐공간 위험성평가 솔루션 (KIHA)",
+  "short_name": "KIHA Safety",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "2026년 최신 KOSHA Guide 기반 밀폐공간 위험성평가 솔루션",
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

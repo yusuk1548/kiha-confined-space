@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="manifest" href="./manifest.json">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -272,6 +273,17 @@
                     document.title = '밀폐공간 위험성평가 솔루션 (KIHA)';
                 }
             }, [reportInfo.companyName]);
+
+            // 서비스 워커 등록 로직 (PWA 설치 인식 유도 및 인터넷 배지 제거)
+            useEffect(() => {
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('./sw.js')
+                            .then(reg => console.log('Service Worker Registered:', reg.scope))
+                            .catch(err => console.log('Service Worker Registration Failed:', err));
+                    });
+                }
+            }, []);
 
             const defectSummary = useMemo(() => {
                 const defects = [];
