@@ -438,21 +438,21 @@
 
         function StatusScreen({ spaces, setSpaces }) {
             const [form, setForm] = useState({
-                typeIdx: -1, typeDirect: '', location: '', area: '',
+                name: '', location: '', area: '',
                 gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
                 cycle: '청소시(비정기)', cycleDirect: '',
                 personnel: '2인 1조', personnelDirect: '',
                 measureTime: '환기 전', measureTimeDirect: ''
             });
+            const [isCustomName, setIsCustomName] = useState(false);
             const [isProcessing, setIsProcessing] = useState(false);
             const risk = getRiskLevel(form.gas);
 
             const handleSave = () => {
-                if (form.typeIdx === -1) return alert("설비를 선택하세요");
-                const type = SPACE_TYPES[form.typeIdx];
-                const isOther = type.label === '기타 밀폐공간';
-                if (isOther && !form.typeDirect.trim()) return alert("설비 명칭을 직접 입력하세요");
-                const finalName = isOther ? form.typeDirect.trim() : type.label;
+                if (!form.name.trim()) return alert("설비를 선택하거나 명칭을 입력하세요");
+                const matchedType = SPACE_TYPES.find(t => t.label === form.name);
+                const finalHazards = matchedType ? matchedType.hazards.join(', ') : '';
+                const finalLaw = matchedType ? matchedType.law : '규칙 별표18 제18호';
                 const finalCycle = form.cycle === '직접 입력' ? form.cycleDirect : form.cycle;
                 const finalPersonnel = form.personnel === '직접 입력' ? form.personnelDirect : form.personnel;
                 const finalTime = form.measureTime === '직접 입력' ? form.measureTimeDirect : form.measureTime;
@@ -462,19 +462,20 @@
 
                 setSpaces([...spaces, {
                     ...form, id: newId,
-                    name: finalName, risk, hazards: type.hazards.join(', '),
-                    legalBasis: type.law, locationMap: null,
+                    name: form.name.trim(), risk, hazards: finalHazards,
+                    legalBasis: finalLaw, locationMap: null,
                     cycle: finalCycle, personnel: finalPersonnel, measureTime: finalTime,
                     riskSolution
                 }]);
 
                 setForm({
-                    typeIdx: -1, typeDirect: '', location: '', area: '',
+                    name: '', location: '', area: '',
                     gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
                     cycle: '청소시(비정기)', cycleDirect: '',
                     personnel: '2인 1조', personnelDirect: '',
                     measureTime: '환기 전', measureTimeDirect: ''
                 });
+                setIsCustomName(false);
             };
 
             const handlePhoto = async (e) => {
@@ -494,17 +495,29 @@
                         <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="plus-circle" /> 신규 등록</h3>
                         <div className="space-y-4">
                             <div><label className="text-sm font-bold text-gray-600">설비 유형</label>
-                                <select className="w-full p-2 border rounded" value={form.typeIdx} onChange={e => setForm({ ...form, typeIdx: e.target.value, typeDirect: '' })}>
-                                    <option value={-1}>선택하세요</option>
-                                    {SPACE_TYPES.map((t, i) => <option key={i} value={i}>{t.label}</option>)}
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={isCustomName ? '기타 밀폐공간' : form.name}
+                                    onChange={(e) => {
+                                        if (e.target.value === '기타 밀폐공간') {
+                                            setIsCustomName(true);
+                                            setForm({ ...form, name: '' });
+                                        } else {
+                                            setIsCustomName(false);
+                                            setForm({ ...form, name: e.target.value });
+                                        }
+                                    }}
+                                >
+                                    <option value="">선택하세요</option>
+                                    {SPACE_TYPES.map((t, i) => <option key={i} value={t.label}>{t.label}</option>)}
                                 </select>
-                                {form.typeIdx !== -1 && SPACE_TYPES[form.typeIdx]?.label === '기타 밀폐공간' && (
+                                {isCustomName && (
                                     <input
                                         type="text"
-                                        className="w-full p-2 border rounded mt-1 border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                        placeholder="설비 명칭 직접 입력 (예: 특수 반응기)"
-                                        value={form.typeDirect}
-                                        onChange={e => setForm({ ...form, typeDirect: e.target.value })}
+                                        placeholder="설비 명칭 직접 입력 (예: 특수 발효조)"
+                                        className="w-full p-2 border border-gray-300 rounded-md mt-2 focus:ring-2 focus:ring-blue-500 bg-blue-50"
+                                        value={form.name}
+                                        onChange={(e) => setForm({ ...form, name: e.target.value })}
                                     />
                                 )}
                             </div>
