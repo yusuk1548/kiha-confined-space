@@ -318,6 +318,7 @@
                                 <MenuBtn active={activeTab === 'map'} onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }} icon="map-pin" text="4. 디지털 배치도" />
                                 <MenuBtn active={activeTab === 'conclusion'} onClick={() => { setActiveTab('conclusion'); setIsMobileMenuOpen(false); }} icon="pen-tool" text="5. 결론 및 의견" />
                                 <MenuBtn active={activeTab === 'download'} onClick={() => { setActiveTab('download'); setIsMobileMenuOpen(false); }} icon="folder-down" text="자료 다운로드" />
+                                <MenuBtn active={activeTab === 'guide'} onClick={() => { setActiveTab('guide'); setIsMobileMenuOpen(false); }} icon="book-open" text="밀폐공간이란?" />
                             </nav>
                             <div className="p-4 border-t border-slate-700 space-y-2">
                                 <div className="text-xs text-slate-400 font-bold mb-1">데이터 관리</div>
@@ -342,6 +343,7 @@
                             {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
                             {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
                             {activeTab === 'download' && <DownloadScreen />}
+                            {activeTab === 'guide' && <GuideScreen />}
                             {/* 관리자 정보 푸터 (인쇄 시 완벽 숨김 처리) */}
                             <footer className="mt-12 py-6 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50">
                                 <p className="font-bold text-gray-700 mb-2">시스템 오류 및 사용 문의</p>
@@ -753,6 +755,58 @@
                 </div>
             );
         }
+
+        const GuideScreen = () => {
+            const spaces = [
+                { id: 1, title: "우물·수직갱·터널·피트", desc: "우물, 수직갱, 터널, 잠함, 피트 또는 그 밖에 이와 유사한 것의 내부", icon: "arrow-down-circle" },
+                { id: 2, title: "암거·맨홀 또는 피트", desc: "암거, 맨홀 또는 피트의 내부 (가장 흔한 질식 사고 발생지)", icon: "circle-dot" },
+                { id: 3, title: "부패·산화 탱크 및 반응탑", desc: "부패하거나 산화되기 쉬운 물질이 들어있는 탱크, 보일러, 반응탑 등", icon: "cylinder" },
+                { id: 4, title: "석탄·황화광 하역/저장", desc: "석탄, 아갈탄, 황화광, 강재, 원목, 건성유, 어유 등 하역 및 저장 공간", icon: "box" },
+                { id: 5, title: "부패성 물질 저장소", desc: "명주, 모노륨, 가죽, 펄프 등 부패하기 쉬운 물질을 취급/저장하는 장소", icon: "package-open" },
+                { id: 6, title: "발효 시설", desc: "간장, 주류, 효모 등 발효하는 물품을 취급/저장하는 기구 및 설비 내부", icon: "beaker" },
+                { id: 7, title: "정화조·침전조·집수조", desc: "분뇨, 오염된 흙, 썩은 물, 폐수, 하수 등이 있는 정화조나 집수조 내부", icon: "droplet" },
+                { id: 8, title: "드라이아이스 냉동고", desc: "드라이아이스를 사용하는 냉장고, 냉동고, 냉동화물자동차 내부", icon: "snowflake" },
+                { id: 9, title: "불활성기체 설비", desc: "헬륨, 아르곤, 질소 등 불활성기체를 취급하는 파이프, 보일러 등 내부", icon: "wind" },
+                { id: 10, title: "산소결핍 발생 장소", desc: "산소 농도가 18% 미만, 23.5% 이상이거나 유해가스 농도 초과 장소", icon: "alert-triangle" },
+                { id: 11, title: "갈탄·목탄 사용 장소", desc: "콘크리트 양생 등을 위해 갈탄, 목탄, 연탄 등을 사용하는 장소", icon: "flame" },
+                { id: 12, title: "용접·용단 작업 장소", desc: "환기가 불충분한 공간에서 아르곤 가스 등을 사용하는 용접 작업장", icon: "zap" },
+                { id: 13, title: "소화설비 방출 구역", desc: "이산화탄소 등 가스계 소화설비가 설치된 방호 구역 내부", icon: "fire-extinguisher" },
+                { id: 14, title: "지하 케이블/관로", desc: "전력 통신 케이블, 가스 배관 등이 지나가는 지하 관로 및 암거", icon: "cable" },
+                { id: 15, title: "밀폐된 선박 내부", desc: "오랜 기간 밀폐되어 있던 선박의 창고, 밸러스트 탱크 내부", icon: "ship" },
+                { id: 16, title: "곡물/사료 저장 사일로", desc: "곡물, 사료 등을 대량으로 저장하여 발효/부패가 일어날 수 있는 사일로", icon: "wheat" },
+                { id: 17, title: "가스 배관 및 맨홀", desc: "천연가스, 도시가스 배관 점검을 위한 지하 밸브실 및 맨홀 내부", icon: "pipette" },
+                { id: 18, title: "기타 유해가스 정체 구역", desc: "기타 환기가 불충분하여 산소결핍이나 유해가스가 정체될 수 있는 모든 공간", icon: "help-circle" }
+            ];
+            return (
+                <div className="p-4 md:p-8 max-w-6xl mx-auto pb-20">
+                    <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg mb-8 shadow-sm">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <Icon name="book-open" className="text-blue-600" /> 법정 18대 밀폐공간 가이드
+                        </h2>
+                        <p className="text-gray-700 leading-relaxed">
+                            산업안전보건기준에 관한 규칙 [별표 18]에 따른 밀폐공간은 단순히 '사방이 막힌 곳'만이 아닙니다.<br/>
+                            환기가 불충분하고 산소결핍이나 유해가스로 인한 질식·화재·폭발 위험이 있는 장소는 <strong>천장이 뚫려있더라도 법적 밀폐공간에 해당</strong>합니다.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {spaces.map((space) => (
+                            <div key={space.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all group flex flex-col h-full relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <Icon name={space.icon || "alert-circle"} size={80} />
+                                </div>
+                                <div className="flex items-center gap-3 mb-3 z-10">
+                                    <div className="bg-blue-100 px-3 py-1 rounded-lg text-blue-700">
+                                        <span className="font-bold text-sm">NO.{space.id}</span>
+                                    </div>
+                                    <h3 className="font-bold text-lg text-gray-800 leading-tight">{space.title}</h3>
+                                </div>
+                                <p className="text-gray-600 text-sm flex-grow z-10">{space.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
 
         const DownloadScreen = () => {
             const files = [
