@@ -754,37 +754,43 @@
                 <div className="p-8 h-full flex flex-col overflow-auto">
                     <div className="mb-4"><button onClick={generate} className="px-4 py-2 bg-indigo-600 text-white font-bold rounded">초안 자동 작성</button></div>
 
-                    {/* 체크리스트 종합 평가 결과표 - 인쇄 전용 */}
-                    <div className="hidden print:block mb-8 print:mb-6 break-inside-avoid">
+                    {/* [인쇄 전용] 1-1. 종합 평가 결과표 */}
+                    <div className="hidden print:!block w-full mb-8 page-break-inside-avoid">
                         <h3 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">■ 1-1. 체크리스트 종합 평가 결과</h3>
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse border border-gray-300 text-sm">
-                                <thead className="bg-gray-100 print:bg-gray-200">
-                                    <tr>
-                                        <th className="border border-gray-300 p-2 w-12 text-center">NO</th>
-                                        <th className="border border-gray-300 p-2 text-center">점검 항목</th>
-                                        <th className="border border-gray-300 p-2 w-24 text-center">결과</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {CHECKLIST_MASTER.flatMap(cat => cat.items).map((item, index) => {
-                                        const status = checklistResults[item.id];
-                                        return (
-                                            <tr key={item.id} className="hover:bg-gray-50">
-                                                <td className="border border-gray-300 p-2 text-center text-gray-500">{index + 1}</td>
-                                                <td className="border border-gray-300 p-2 text-gray-800">{item.question}</td>
-                                                <td className="border border-gray-300 p-2 text-center font-bold">
-                                                    {status === 'PASS' && <span className="text-blue-600">적합</span>}
-                                                    {status === 'FAIL' && <span className="text-red-600 font-bold">부적합</span>}
-                                                    {status === 'NA' && <span className="text-gray-400">해당없음</span>}
-                                                    {!status && <span className="text-gray-300">-</span>}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        <table className="w-full border-collapse border border-gray-400 text-sm mb-6">
+                            <thead className="bg-gray-100 print:bg-gray-200">
+                                <tr>
+                                    <th className="border border-gray-400 p-2 w-12 text-center font-bold">NO</th>
+                                    <th className="border border-gray-400 p-2 text-center font-bold">점검 항목</th>
+                                    <th className="border border-gray-400 p-2 w-24 text-center font-bold">결과</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {CHECKLIST_MASTER.flatMap(cat => cat.items).map((item, index) => {
+                                    const status = checklistResults[item.id];
+                                    return (
+                                        <tr key={item.id}>
+                                            <td className="border border-gray-400 p-2 text-center text-gray-600">{index + 1}</td>
+                                            <td className="border border-gray-400 p-2 text-gray-800">{item.question}</td>
+                                            <td className="border border-gray-400 p-2 text-center font-bold">
+                                                {status === 'PASS' && <span className="text-blue-600">적합</span>}
+                                                {status === 'FAIL' && <span className="text-red-600">부적합</span>}
+                                                {status === 'NA' && <span className="text-gray-400">해당없음</span>}
+                                                {!status && <span className="text-gray-300">-</span>}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* [화면 & 인쇄 공통] 1-2. 부적합 항목 개선 대책 */}
+                    <div className="w-full mb-6 page-break-inside-avoid">
+                        <h3 className="text-xl font-bold text-red-600 mb-4 border-l-4 border-red-600 pl-3">
+                            <span className="print:hidden">■ 부적합 항목 개선 대책</span>
+                            <span className="hidden print:inline">■ 1-2. 부적합 항목 개선 대책</span>
+                        </h3>
                     </div>
 
                     <textarea className="flex-1 p-4 border rounded resize-none min-h-[300px]" value={finalOpinion} onChange={e => setFinalOpinion(e.target.value)} />
