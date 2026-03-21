@@ -872,7 +872,7 @@
 
                     {/* [화면 & 인쇄 공통] 1-2. 부적합 항목 개선 대책 */}
                     <div className="w-full mb-6 page-break-inside-avoid">
-                        <h3 className="text-xl font-bold text-red-600 mb-4 border-l-4 border-red-600 pl-3">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
                             <span className="print:hidden">■ 부적합 항목 개선 대책</span>
                             <span className="hidden print:inline">■ 1-2. 부적합 항목 개선 대책</span>
                         </h3>
@@ -1292,43 +1292,50 @@
                         </div>
 
                         <div className="break-inside-avoid">
-                            <h3 className="font-bold text-lg mb-2 text-blue-900">3-2. 위험성평가 결과 요약</h3>
-                            <table className="w-full text-xs border-collapse border border-slate-400">
-                                <thead className="bg-slate-100">
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">■ 3-2. 위험성평가 결과 요약</h3>
+                            <table className="w-full border-collapse border border-gray-400 text-xs text-center">
+                                <thead className="bg-gray-200">
                                     <tr>
-                                        <th className="border border-slate-400 p-2 w-8">No</th>
-                                        <th className="border border-slate-400 p-2">명칭</th>
-                                        <th className="border border-slate-400 p-2">위치</th>
-                                        <th className="border border-slate-400 p-2">유해인자</th>
-                                        <th className="border border-slate-400 p-2 w-10">O2(%)</th>
-                                        <th className="border border-slate-400 p-2 w-12">H2S(ppm)</th>
-                                        <th className="border border-slate-400 p-2 w-12">CO(ppm)</th>
-                                        <th className="border border-slate-400 p-2 w-12">LEL(%)</th>
-                                        <th className="border border-slate-400 p-2 w-12">CO2(%)</th>
-                                        <th className="border border-slate-400 p-2 w-16">판정</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>NO</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>밀폐공간 명칭 (위치)</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>1단계<br/>가스 판정</th>
+                                        <th className="border border-gray-400 p-1" colSpan={3}>2단계 매트릭스 변수</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>합산<br/>점수</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>최종 등급</th>
+                                    </tr>
+                                    <tr>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">A(구조)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">B(작업)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">C(제어)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {spaces.length === 0 ? (
-                                        <tr><td colSpan="10" className="border border-slate-400 p-4 text-center">등록된 밀폐공간이 없습니다.</td></tr>
-                                    ) : (
-                                        spaces.map((s, idx) => (
-                                            <tr key={s.id} className="text-center break-inside-avoid">
-                                                <td className="border border-slate-400 p-2">{s.id.split('-')[1]}</td>
-                                                <td className="border border-slate-400 p-2 font-bold text-left">{s.name}</td>
-                                                <td className="border border-slate-400 p-2 text-left">{s.location}</td>
-                                                <td className="border border-slate-400 p-2 text-[10px]">{s.hazards}</td>
-                                                <td className={`border border-slate-400 p-2 ${(s.gas.o2 < 19.5 || s.gas.o2 > 23.5) ? 'text-red-600 font-bold' : ''}`}>{s.gas.o2}</td>
-                                                <td className={`border border-slate-400 p-2 ${s.gas.h2s > 0 ? 'text-red-600 font-bold' : ''}`}>{s.gas.h2s}</td>
-                                                <td className={`border border-slate-400 p-2 ${s.gas.co > 25 ? 'text-red-600 font-bold' : s.gas.co > 0 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.co}</td>
-                                                <td className={`border border-slate-400 p-2 ${s.gas.lel > 10 ? 'text-red-600 font-bold' : s.gas.lel >= 5 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.lel}</td>
-                                                <td className={`border border-slate-400 p-2 ${s.gas.co2 > 1.5 ? 'text-red-600 font-bold' : s.gas.co2 >= 1.0 ? 'text-yellow-600 font-bold' : ''}`}>{s.gas.co2}</td>
-                                                <td className={`border border-slate-400 p-2 font-bold ${s.risk.level === 'HIGH' ? 'bg-red-100 text-red-600' : s.risk.level === 'MEDIUM' ? 'bg-yellow-100 text-yellow-600' : 'bg-blue-50 text-blue-600'}`}>
-                                                    {s.risk.level === 'HIGH' ? '고위험' : s.risk.level === 'MEDIUM' ? '중위험' : '저위험'}
-                                                </td>
+                                    {spaces && spaces.map((space, index) => {
+                                        const isGasOk = space.gas.o2 >= 18 && space.gas.o2 <= 23.5 && space.gas.h2s < 10 && space.gas.co < 30 && space.gas.lel < 10;
+                                        const gasText = isGasOk ? '적합' : '부적합(이탈)';
+                                        const gasColor = isGasOk ? 'text-blue-600' : 'text-red-600 font-bold';
+                                        const mA = Number(space.matrixA) || 1;
+                                        const mB = Number(space.matrixB) || 1;
+                                        const mC = Number(space.matrixC) || 1;
+                                        const score = mA * mB * mC;
+                                        let finalGrade = '', gradeColor = '';
+                                        if (!isGasOk || score >= 13) { finalGrade = '초고위험'; gradeColor = 'text-red-600 font-bold bg-red-50'; }
+                                        else if (score >= 9)         { finalGrade = '고위험';   gradeColor = 'text-orange-600 font-bold bg-orange-50'; }
+                                        else if (score >= 5)         { finalGrade = '중위험';   gradeColor = 'text-yellow-600 font-bold bg-yellow-50'; }
+                                        else                         { finalGrade = '저위험';   gradeColor = 'text-green-700 font-bold bg-green-50'; }
+                                        return (
+                                            <tr key={space.id || index}>
+                                                <td className="border border-gray-400 p-2 text-gray-600">{index + 1}</td>
+                                                <td className="border border-gray-400 p-2 text-left font-semibold">{space.name} <span className="text-gray-400 font-normal ml-1">({space.location})</span></td>
+                                                <td className={`border border-gray-400 p-2 ${gasColor}`}>{gasText}</td>
+                                                <td className="border border-gray-400 p-2">{mA}</td>
+                                                <td className="border border-gray-400 p-2">{mB}</td>
+                                                <td className="border border-gray-400 p-2">{mC}</td>
+                                                <td className="border border-gray-400 p-2 font-bold text-gray-800">{score}</td>
+                                                <td className={`border border-gray-400 p-2 ${gradeColor}`}>{finalGrade}</td>
                                             </tr>
-                                        ))
-                                    )}
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
