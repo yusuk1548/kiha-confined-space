@@ -297,7 +297,7 @@
                     question: item.question,
                     status: checklistResults[item.id] || null
                 })))
-            , [checklistResults]);
+                , [checklistResults]);
 
             return (
                 <React.Fragment>
@@ -470,10 +470,10 @@
             const matrixScore = form.matrixA * form.matrixB * form.matrixC;
             const getMatrixInfo = (s, gasExceeded) => {
                 if (gasExceeded) return { label: '초고위험 (적정공기 기준 이탈)', badge: 'bg-red-700 text-white', bar: 'bg-red-700' };
-                if (s <= 4)  return { label: `저위험 (${s}점)`,   badge: 'bg-green-100 text-green-800 border border-green-300',  bar: 'bg-green-500' };
-                if (s <= 8)  return { label: `중위험 (${s}점)`,   badge: 'bg-yellow-100 text-yellow-800 border border-yellow-300', bar: 'bg-yellow-400' };
-                if (s <= 12) return { label: `고위험 (${s}점)`,   badge: 'bg-orange-100 text-orange-800 border border-orange-300', bar: 'bg-orange-500' };
-                return              { label: `초고위험 (${s}점)`, badge: 'bg-red-100 text-red-800 border border-red-300',         bar: 'bg-red-600' };
+                if (s <= 4) return { label: `저위험 (${s}점)`, badge: 'bg-green-100 text-green-800 border border-green-300', bar: 'bg-green-500' };
+                if (s <= 8) return { label: `중위험 (${s}점)`, badge: 'bg-yellow-100 text-yellow-800 border border-yellow-300', bar: 'bg-yellow-400' };
+                if (s <= 12) return { label: `고위험 (${s}점)`, badge: 'bg-orange-100 text-orange-800 border border-orange-300', bar: 'bg-orange-500' };
+                return { label: `초고위험 (${s}점)`, badge: 'bg-red-100 text-red-800 border border-red-300', bar: 'bg-red-600' };
             };
             const matrixInfo = getMatrixInfo(matrixScore, isGasExceeded);
 
@@ -597,11 +597,11 @@
                         <div className="bg-gray-50 p-4 rounded-lg border">
                             <h4 className="font-bold text-sm mb-3 text-gray-700">가스 농도 (최고치)</h4>
                             <div className="space-y-2">
-                                <GasInput label="O2(%)"   val={form.gas.o2}  setVal={v => setForm({ ...form, gas: { ...form.gas, o2: v } })} />
+                                <GasInput label="O2(%)" val={form.gas.o2} setVal={v => setForm({ ...form, gas: { ...form.gas, o2: v } })} />
                                 <GasInput label="H2S(ppm)" val={form.gas.h2s} setVal={v => setForm({ ...form, gas: { ...form.gas, h2s: v } })} />
-                                <GasInput label="CO(ppm)"  val={form.gas.co}  setVal={v => setForm({ ...form, gas: { ...form.gas, co: v } })} />
-                                <GasInput label="LEL(%)"   val={form.gas.lel} setVal={v => setForm({ ...form, gas: { ...form.gas, lel: v } })} />
-                                <GasInput label="CO2(%)"   val={form.gas.co2} setVal={v => setForm({ ...form, gas: { ...form.gas, co2: v } })} />
+                                <GasInput label="CO(ppm)" val={form.gas.co} setVal={v => setForm({ ...form, gas: { ...form.gas, co: v } })} />
+                                <GasInput label="LEL(%)" val={form.gas.lel} setVal={v => setForm({ ...form, gas: { ...form.gas, lel: v } })} />
+                                <GasInput label="CO2(%)" val={form.gas.co2} setVal={v => setForm({ ...form, gas: { ...form.gas, co2: v } })} />
                             </div>
                         </div>
 
@@ -611,7 +611,7 @@
                             {[
                                 { key: 'matrixA', label: 'A. 구조/구출 난이도', opts: matrixOptions.A },
                                 { key: 'matrixB', label: 'B. 작업 동적 위험도', opts: matrixOptions.B },
-                                { key: 'matrixC', label: 'C. 환경 제어 수준',   opts: matrixOptions.C },
+                                { key: 'matrixC', label: 'C. 환경 제어 수준', opts: matrixOptions.C },
                             ].map(({ key, label, opts }) => (
                                 <div key={key} className="mb-3">
                                     <label className="text-xs font-bold text-indigo-700 block mb-1">{label}</label>
@@ -787,14 +787,14 @@
                 let dynamicUsage = "";
                 const usageMap = {};
                 spaces.forEach(s => {
-                    if(!usageMap[s.name]) usageMap[s.name] = new Set();
-                    if(s.cycle) usageMap[s.name].add(s.cycle);
+                    if (!usageMap[s.name]) usageMap[s.name] = new Set();
+                    if (s.cycle) usageMap[s.name].add(s.cycle);
                 });
                 Object.entries(usageMap).forEach(([name, cycles]) => {
                     const cycleText = Array.from(cycles).join(', ');
                     dynamicUsage += ` - ${name} (${cycleText} 등 내부 진입 및 점검 작업 시 사용)\n`;
                 });
-                if(!dynamicUsage) dynamicUsage = " - 등록된 밀폐공간 현황 데이터가 없습니다.\n";
+                if (!dynamicUsage) dynamicUsage = " - 등록된 밀폐공간 현황 데이터가 없습니다.\n";
 
                 // 보고서 텍스트 조립
                 let t = `[1. 평가 개요]\n`;
@@ -937,7 +937,7 @@
                                     <div className="bg-slate-50 border border-slate-200 p-8 rounded-xl text-center">
                                         <div className="inline-block p-4 bg-green-100 text-green-600 rounded-full mb-4"><Icon name="smile" size={40} /></div>
                                         <h3 className="text-2xl font-bold text-slate-800 mb-2">밀폐공간 관리 대상 아님</h3>
-                                        <p className="text-gray-600">현재 사업장에 법적 밀폐공간이 없으므로, 관련된 추가 조치는 필요하지 않습니다.<br/>(단, 향후 설비 신설 시 재평가 필요)</p>
+                                        <p className="text-gray-600">현재 사업장에 법적 밀폐공간이 없으므로, 관련된 추가 조치는 필요하지 않습니다.<br />(단, 향후 설비 신설 시 재평가 필요)</p>
                                     </div>
                                 )}
                                 {hasSpace === true && hasWork === false && (
@@ -1012,7 +1012,7 @@
                             <Icon name="book-open" className="text-blue-600" /> 법정 18대 밀폐공간 가이드
                         </h2>
                         <p className="text-gray-700 leading-relaxed">
-                            산업안전보건기준에 관한 규칙 [별표 18]에 따른 밀폐공간은 단순히 '사방이 막힌 곳'만이 아닙니다.<br/>
+                            산업안전보건기준에 관한 규칙 [별표 18]에 따른 밀폐공간은 단순히 '사방이 막힌 곳'만이 아닙니다.<br />
                             환기가 불충분하고 산소결핍이나 유해가스로 인한 질식·화재·폭발 위험이 있는 장소는 <strong>천장이 뚫려있더라도 법적 밀폐공간에 해당</strong>합니다.
                         </p>
                     </div>
@@ -1057,13 +1057,13 @@
                                     <span className="font-semibold text-gray-700 text-lg">{file.title}</span>
                                     <div className="flex flex-wrap gap-2">
                                         {file.hwpx && (
-                                            <a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16}/> HWPX 다운로드</a>
+                                            <a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16} /> HWPX 다운로드</a>
                                         )}
                                         {file.pdf && (
-                                            <a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16}/> PDF 다운로드</a>
+                                            <a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16} /> PDF 다운로드</a>
                                         )}
                                         {file.extraPdf && (
-                                            <a href={file.extraPdf.url} download className="px-4 py-2 bg-rose-50 text-rose-600 rounded-md font-medium hover:bg-rose-100 flex items-center gap-1"><Icon name="book-open" size={16}/> {file.extraPdf.label}</a>
+                                            <a href={file.extraPdf.url} download className="px-4 py-2 bg-rose-50 text-rose-600 rounded-md font-medium hover:bg-rose-100 flex items-center gap-1"><Icon name="book-open" size={16} /> {file.extraPdf.label}</a>
                                         )}
                                     </div>
                                 </li>
@@ -1222,7 +1222,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-green-700 bg-green-50">저위험<br/>(안전 유지)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-green-700 bg-green-50">저위험<br />(안전 유지)</td>
                                             <td className="border border-gray-400 p-1">19.5% ~ 23.5% 미만</td>
                                             <td className="border border-gray-400 p-1">0 ~ 4 ppm</td>
                                             <td className="border border-gray-400 p-1">0 ~ 14 ppm</td>
@@ -1230,7 +1230,7 @@
                                             <td className="border border-gray-400 p-1">0 ~ 4%</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-yellow-600 bg-yellow-50">중위험<br/>(1차 경보)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-yellow-600 bg-yellow-50">중위험<br />(1차 경보)</td>
                                             <td className="border border-gray-400 p-1">18.0% 이상 ~ 19.5% 미만</td>
                                             <td className="border border-gray-400 p-1">5 ppm 이상 ~ 10 ppm 미만</td>
                                             <td className="border border-gray-400 p-1">15 ppm 이상 ~ 30 ppm 미만</td>
@@ -1238,7 +1238,7 @@
                                             <td className="border border-gray-400 p-1">5% 이상 ~ 10% 미만</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-orange-600 bg-orange-50">고위험<br/>(법적 이탈)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-orange-600 bg-orange-50">고위험<br />(법적 이탈)</td>
                                             <td className="border border-gray-400 p-1">10.0%~18.0% 미만 / 23.5% 이상</td>
                                             <td className="border border-gray-400 p-1">10 ppm 이상 ~ 99 ppm</td>
                                             <td className="border border-gray-400 p-1">30 ppm 이상 ~ 1,199 ppm</td>
@@ -1246,7 +1246,7 @@
                                             <td className="border border-gray-400 p-1">10% 이상 ~ 24%</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-red-600 bg-red-50">초고위험<br/>(IDLH/치사)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-red-600 bg-red-50">초고위험<br />(IDLH/치사)</td>
                                             <td className="border border-gray-400 p-1">10.0% 미만</td>
                                             <td className="border border-gray-400 p-1">100 ppm 이상</td>
                                             <td className="border border-gray-400 p-1">1,200 ppm 이상</td>
@@ -1320,91 +1320,114 @@
                         </div>
 
                         <div className="mb-8 page-break-inside-avoid">
-                          <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
-                            ■ 3-2. 위험성평가 결과 요약
-                          </h3>
-                          <table className="w-full border-collapse border border-gray-400 text-xs text-center">
-                            <thead className="bg-gray-200">
-                              <tr>
-                                <th className="border border-gray-400 p-2" rowSpan={2}>NO</th>
-                                <th className="border border-gray-400 p-2" rowSpan={2}>밀폐공간 명칭 (위치)</th>
-                                <th className="border border-gray-400 p-2" rowSpan={2}>1단계<br/>가스 판정</th>
-                                <th className="border border-gray-400 p-1" colSpan={3}>2단계 매트릭스 변수</th>
-                                <th className="border border-gray-400 p-2" rowSpan={2}>합산<br/>점수</th>
-                                <th className="border border-gray-400 p-2" rowSpan={2}>최종 등급</th>
-                              </tr>
-                              <tr>
-                                <th className="border border-gray-400 p-1 bg-gray-100">A(구조)</th>
-                                <th className="border border-gray-400 p-1 bg-gray-100">B(작업)</th>
-                                <th className="border border-gray-400 p-1 bg-gray-100">C(제어)</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {spaces && spaces.map((space, index) => {
-                                 // 1단계 가스 적합성 판정 (4단계 알고리즘 / NIOSH IDLH 적용)
-                                 const o2  = Number(space.gas ? space.gas.o2  : space.o2)  || 0;
-                                 const h2s = Number(space.gas ? space.gas.h2s : space.h2s) || 0;
-                                 const co  = Number(space.gas ? space.gas.co  : space.co)  || 0;
-                                 const lel = Number(space.gas ? space.gas.lel : space.lel) || 0;
-                                 const co2 = Number(space.gas ? space.gas.co2 : space.co2) || 0;
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
+                                ■ 3-2. 위험성평가 결과 요약
+                            </h3>
+                            <table className="w-full border-collapse border border-gray-400 text-xs text-center">
+                                <thead className="bg-gray-200">
+                                    <tr>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>NO</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>밀폐공간 명칭 (위치)</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>1단계<br />가스 판정</th>
+                                        <th className="border border-gray-400 p-1" colSpan={3}>2단계 매트릭스 변수</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>합산<br />점수</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>최종 등급</th>
+                                    </tr>
+                                    <tr>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">A(구조)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">B(작업)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">C(제어)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {spaces && spaces.map((space, index) => {
+                                        // 1단계 가스 적합성 판정
+                                        const isGasOk = space.gas && space.gas.o2 >= 18 && space.gas.o2 <= 23.5 && space.gas.h2s < 10 && space.gas.co < 30 && space.gas.lel < 10;
+                                        const gasText = isGasOk ? '적합' : '이탈';
+                                        const gasColor = isGasOk ? 'text-blue-600' : 'text-red-600 font-bold';
 
-                                 let gasLevel = 1;
-                                 let gasText = '저위험';
-                                 let gasColor = 'text-green-700 font-bold';
+                                        // 2단계 매트릭스 점수 산출
+                                        const mA = Number(space.matrixA) || 1;
+                                        const mB = Number(space.matrixB) || 1;
+                                        const mC = Number(space.matrixC) || 1;
+                                        const score = mA * mB * mC;
 
-                                 if (o2 < 10.0 || h2s >= 100 || co >= 1200 || lel >= 25 || co2 >= 4.0) {
-                                   gasLevel = 4; gasText = '초고위험(IDLH)'; gasColor = 'text-red-600 font-bold';
-                                 } else if ((o2 >= 10.0 && o2 < 18.0) || o2 >= 23.5 || (h2s >= 10 && h2s < 100) || (co >= 30 && co < 1200) || (lel >= 10 && lel < 25) || (co2 >= 1.5 && co2 < 4.0)) {
-                                   gasLevel = 3; gasText = '고위험(법적이탈)'; gasColor = 'text-orange-600 font-bold';
-                                 } else if ((o2 >= 18.0 && o2 < 19.5) || (h2s >= 5 && h2s < 10) || (co >= 15 && co < 30) || (lel >= 5 && lel < 10) || (co2 >= 0.5 && co2 < 1.5)) {
-                                   gasLevel = 2; gasText = '중위험(경계)'; gasColor = 'text-yellow-600 font-bold';
-                                 }
+                                        // 최종 등급 판정
+                                        let finalGrade = '';
+                                        let gradeColor = '';
+                                        if (!isGasOk || score >= 13) {
+                                            finalGrade = '초고위험'; gradeColor = 'text-red-600 font-bold bg-red-50';
+                                        } else if (score >= 9) {
+                                            finalGrade = '고위험'; gradeColor = 'text-orange-600 font-bold bg-orange-50';
+                                        } else if (score >= 5) {
+                                            finalGrade = '중위험'; gradeColor = 'text-yellow-600 font-bold bg-yellow-50';
+                                        } else {
+                                            finalGrade = '저위험'; gradeColor = 'text-green-700 font-bold bg-green-50';
+                                        }
 
-                                 // 2단계 매트릭스 점수 산출
-                                 const mA = Number(space.matrixA) || 1;
-                                 const mB = Number(space.matrixB) || 1;
-                                 const mC = Number(space.matrixC) || 1;
-                                 const score = mA * mB * mC;
-
-                                 let matrixLevel = 1;
-                                 if (score >= 13) matrixLevel = 4;
-                                 else if (score >= 9) matrixLevel = 3;
-                                 else if (score >= 5) matrixLevel = 2;
-
-                                 // 최종 등급 판정 (Max Rule)
-                                 const finalLevel = Math.max(gasLevel, matrixLevel);
-                                 let finalGrade = '';
-                                 let gradeColor = '';
-                                 if (finalLevel === 4) {
-                                   finalGrade = '초고위험'; gradeColor = 'text-red-600 font-bold bg-red-50';
-                                 } else if (finalLevel === 3) {
-                                   finalGrade = '고위험'; gradeColor = 'text-orange-600 font-bold bg-orange-50';
-                                 } else if (finalLevel === 2) {
-                                   finalGrade = '중위험'; gradeColor = 'text-yellow-600 font-bold bg-yellow-50';
-                                 } else {
-                                   finalGrade = '저위험'; gradeColor = 'text-green-700 font-bold bg-green-50';
-                                 }
-
-                                return (
-                                  <tr key={space.id || index}>
-                                    <td className="border border-gray-400 p-2 text-gray-600">{index + 1}</td>
-                                    <td className="border border-gray-400 p-2 text-left font-semibold">{space.name} <span className="text-gray-400 font-normal ml-1">({space.location})</span></td>
-                                    <td className={`border border-gray-400 p-2 ${gasColor}`}>{gasText}</td>
-                                    <td className="border border-gray-400 p-2">{mA}</td>
-                                    <td className="border border-gray-400 p-2">{mB}</td>
-                                    <td className="border border-gray-400 p-2">{mC}</td>
-                                    <td className="border border-gray-400 p-2 font-bold text-gray-800">{score}</td>
-                                    <td className={`border border-gray-400 p-2 ${gradeColor}`}>{finalGrade}</td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
+                                        return (
+                                            <tr key={space.id || index}>
+                                                <td className="border border-gray-400 p-2 text-gray-600">{index + 1}</td>
+                                                <td className="border border-gray-400 p-2 text-left font-semibold">{space.name} <span className="text-gray-400 font-normal ml-1">({space.location})</span></td>
+                                                <td className={`border border-gray-400 p-2 ${gasColor}`}>{gasText}</td>
+                                                <td className="border border-gray-400 p-2">{mA}</td>
+                                                <td className="border border-gray-400 p-2">{mB}</td>
+                                                <td className="border border-gray-400 p-2">{mC}</td>
+                                                <td className="border border-gray-400 p-2 font-bold text-gray-800">{score}</td>
+                                                <td className={`border border-gray-400 p-2 ${gradeColor}`}>{finalGrade}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     {/* [문제 5, 6, 7 완벽 해결] 6. 개별 상세 현황 (무조건 1페이지 고정) */}
-                    {spaces.map((s, idx) => (
+                    {spaces.map((s, idx) => {
+                        // 1단계 가스 적합성 판정 (4단계 알고리즘)
+                        const o2 = Number(s.gas && s.gas.o2) || 0;
+                        const h2s = Number(s.gas && s.gas.h2s) || 0;
+                        const co = Number(s.gas && s.gas.co) || 0;
+                        const lel = Number(s.gas && s.gas.lel) || 0;
+                        const co2 = Number(s.gas && s.gas.co2) || 0;
+
+                        let gasLevel = 1;
+                        if (o2 < 10.0 || h2s >= 100 || co >= 1200 || lel >= 25 || co2 >= 4.0) gasLevel = 4;
+                        else if ((o2 >= 10.0 && o2 < 18.0) || o2 >= 23.5 || (h2s >= 10 && h2s < 100) || (co >= 30 && co < 1200) || (lel >= 10 && lel < 25) || (co2 >= 1.5 && co2 < 4.0)) gasLevel = 3;
+                        else if ((o2 >= 18.0 && o2 < 19.5) || (h2s >= 5 && h2s < 10) || (co >= 15 && co < 30) || (lel >= 5 && lel < 10) || (co2 >= 0.5 && co2 < 1.5)) gasLevel = 2;
+
+                        // 2단계 매트릭스 점수 산출
+                        const mA = Number(s.matrixA) || 1;
+                        const mB = Number(s.matrixB) || 1;
+                        const mC = Number(s.matrixC) || 1;
+                        const score = mA * mB * mC;
+
+                        let matrixLevel = 1;
+                        if (score >= 13) matrixLevel = 4;
+                        else if (score >= 9) matrixLevel = 3;
+                        else if (score >= 5) matrixLevel = 2;
+
+                        // 최종 등급 판정 (Max Rule)
+                        const finalLevel = Math.max(gasLevel, matrixLevel);
+                        let badgeText = '';
+                        let badgeColor = '';
+
+                        if (finalLevel === 4) {
+                            badgeText = '초고위험';
+                            badgeColor = 'bg-red-600 text-white';
+                        } else if (finalLevel === 3) {
+                            badgeText = '고위험';
+                            badgeColor = 'bg-orange-500 text-white';
+                        } else if (finalLevel === 2) {
+                            badgeText = '중위험';
+                            badgeColor = 'bg-yellow-500 text-white';
+                        } else {
+                            badgeText = '저위험';
+                            badgeColor = 'bg-green-600 text-white';
+                        }
+
+                        return (
                         <div key={s.id} className="print-page print-fixed-page">
                             <h2 className="shrink-0 text-2xl font-bold border-b-2 border-black pb-2 mb-3">4-{idx + 1}. {s.name} 상세 현황</h2>
 
@@ -1414,8 +1437,8 @@
                                     <span className="mx-3 text-gray-300">|</span>
                                     <span className="font-bold text-gray-600 mr-2">관리번호:</span> {s.id}
                                 </div>
-                                <div className={`px-4 py-1 rounded-lg font-bold text-white shadow ${s.risk.level === 'HIGH' ? 'bg-red-600' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`}>
-                                    {s.risk.label}
+                                <div className={`px-4 py-1 rounded-full text-sm font-bold ${badgeColor} print:border print:border-gray-300`}>
+                                    {badgeText}
                                 </div>
                             </div>
 
@@ -1491,7 +1514,8 @@
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
 
                     {/* 7. 종합 의견 (페이지 자동 넘어감) */}
                     <div className="print-page print-flow-page">
