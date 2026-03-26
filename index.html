@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>밀폐공간 위험성평가 솔루션 (KIHA)</title>
+    <title>밀?�공�??�험?�평가 ?�루??(KIHA)</title>
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,7 +19,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* 화면용 기본 스타일 */
+        /* ?�면??기본 ?��???*/
         body {
             margin: 0;
             padding: 0;
@@ -34,14 +34,14 @@
             position: relative;
         }
 
-        /* 인쇄 전용 완벽 제어 스타일 */
+        /* ?�쇄 ?�용 ?�벽 ?�어 ?��???*/
         @media print {
             @page {
                 size: A4;
                 margin: 15mm;
             }
 
-            /* 안전한 여백 확보 */
+            /* ?�전???�백 ?�보 */
 
             html,
             body,
@@ -59,7 +59,7 @@
                 display: none !important;
             }
 
-            /* 모든 인쇄 페이지 공통 */
+            /* 모든 ?�쇄 ?�이지 공통 */
             .print-page {
                 width: 100% !important;
                 margin: 0 !important;
@@ -71,8 +71,8 @@
                 border: none !important;
             }
 
-            /* [핵심 1] 1장으로 무조건 끝나야 하는 페이지 (표지, 도면, 상세현황) */
-            /* A4 용지 안쪽에 무조건 들어오도록 260mm로 철창 고정! (빈 페이지 원천 차단) */
+            /* [?�심 1] 1?�으�?무조�??�나???�는 ?�이지 (?��?, ?�면, ?�세?�황) */
+            /* A4 ?��? ?�쪽??무조�??�어?�도�?260mm�?철창 고정! (�??�이지 ?�천 차단) */
             .print-fixed-page {
                 height: 260mm !important;
                 overflow: hidden !important;
@@ -81,7 +81,7 @@
                 page-break-inside: avoid !important;
             }
 
-            /* [핵심 2] 내용이 넘어가면 자연스럽게 다음 장으로 이어지는 페이지 (체크리스트, 의견) */
+            /* [?�심 2] ?�용???�어가�??�연?�럽�??�음 ?�으�??�어지???�이지 (체크리스?? ?�견) */
             .print-flow-page {
                 height: auto !important;
                 overflow: visible !important;
@@ -132,77 +132,77 @@
             });
         };
 
-        const KIHA_REGIONS = ["대구지역본부", "서울지역본부", "부산지역본부", "부산경남지역본부(부산남부)", "경북지역본부", "광주전남지역본부", "대전세종충남지역본부", "충북지역본부", "전북지역본부", "경남지역본부", "울산지역본부", "경기지역본부", "경기북부지역본부", "경기서부지역본부"];
-        const KIHA_CENTERS = ["강원산업보건센터", "충남산업보건센터", "전북서부산업보건센터", "인천산업보건센터", "제주산업보건센터"];
+        const KIHA_REGIONS = ["?�구�???��부", "?�울지??��부", "부?��???��부", "부?�경?��???��부(부?�남부)", "경북지??��부", "광주?�남지??��부", "?�?�세종충?��???��부", "충북지??��부", "?�북지??��부", "경남지??��부", "?�산지??��부", "경기지??��부", "경기북�?지??��부", "경기?��?지??��부"];
+        const KIHA_CENTERS = ["강원?�업보건?�터", "충남?�업보건?�터", "?�북?��??�업보건?�터", "?�천?�업보건?�터", "?�주?�업보건?�터"];
         const SPACE_TYPES = [
-            { label: '오폐수 처리조 / 정화조', law: '규칙 별표18 제11호', hazards: ['황화수소(H2S)', '산소결핍', '메탄'] },
-            { label: '통신 / 전력구 맨홀', law: '규칙 별표18 제3호', hazards: ['산소결핍', '일산화탄소(CO)'] },
-            { label: '화학물질 반응기 / 탱크', law: '규칙 별표18 제16호', hazards: ['화학물질 중독', '질식', '화재폭발'] },
-            { label: '빗물 / 우수 맨홀', law: '규칙 별표18 제4호', hazards: ['산소결핍', '미생물 호흡'] },
-            { label: '저장 탱크 (불활성가스)', law: '규칙 별표18 제13호', hazards: ['질식(N2, Ar, CO2)'] },
-            { label: '양생 작업장 (갈탄/연탄)', law: '규칙 별표18 제15호', hazards: ['일산화탄소(CO) 중독'] },
-            { label: '기타 밀폐공간', law: '규칙 별표18 제18호', hazards: [] }
+            { label: '?�폐??처리�?/ ?�화�?, law: '규칙 별표18 ??1??, hazards: ['?�화?�소(H2S)', '?�소결핍', '메탄'] },
+            { label: '?�신 / ?�력�?맨�?', law: '규칙 별표18 ????, hazards: ['?�소결핍', '?�산?�탄??CO)'] },
+            { label: '?�학물질 반응�?/ ?�크', law: '규칙 별표18 ??6??, hazards: ['?�학물질 중독', '질식', '?�재??��'] },
+            { label: '빗물 / ?�수 맨�?', law: '규칙 별표18 ????, hazards: ['?�소결핍', '미생�??�흡'] },
+            { label: '?�???�크 (불활?��???', law: '규칙 별표18 ??3??, hazards: ['질식(N2, Ar, CO2)'] },
+            { label: '?�생 ?�업??(갈탄/?�탄)', law: '규칙 별표18 ??5??, hazards: ['?�산?�탄??CO) 중독'] },
+            { label: '기�? 밀?�공�?, law: '규칙 별표18 ??8??, hazards: [] }
         ];
 
-        const CYCLE_OPTIONS = ['청소시(비정기)', '점검시(비정기)', '반기별 1회', '분기별 1회', '잠재적밀폐공간', '직접 입력'];
-        const PERSONNEL_OPTIONS = ['2인 1조', '3인 1조', '직접 입력'];
-        const TIME_OPTIONS = ['환기 전', '환기 후', '직접 입력'];
+        const CYCLE_OPTIONS = ['�?��??비정�?', '?��???비정�?', '반기�?1??, '분기�?1??, '?�재?��??�공�?, '직접 ?�력'];
+        const PERSONNEL_OPTIONS = ['2??1�?, '3??1�?, '직접 ?�력'];
+        const TIME_OPTIONS = ['?�기 ??, '?�기 ??, '직접 ?�력'];
 
         const RISK_SOLUTIONS = {
             'LOW': {
-                direction: "적정공기 상태 유지 및 기본 안전 절차의 엄격한 준수",
+                direction: "?�정공기 ?�태 ?��? �?기본 ?�전 ?�차???�격??준??,
                 measures: [
-                    "밀폐공간 출입금지 경고 표지 부착 및 물리적 접근 통제 확인 (규칙 제620조)",
-                    "가스 농도 측정 장비의 공식 지급 및 초기 공기 질 측정 감독 (규칙 제619조의2)",
-                    "작업 전 체적의 10배 이상, 작업 중 시간당 20회 이상 환기 설비 가동 검증 (KOSHA Guide)",
-                    "근로자 위험성 숙지 상태 확인 및 특별안전보건교육 실시 (규칙 제641조)",
-                    "2시간 간격 주기적 측정, 영상물 등 현장 기록물 3년 보존 (규칙 제619조의2)",
-                    "전담 감시인 지정 및 외부 모니터링, 작업 종료 후 인원 대조 및 출입구 폐쇄"
+                    "밀?�공�?출입금�? 경고 ?��? 부�?�?물리???�근 ?�제 ?�인 (규칙 ??20�?",
+                    "가???�도 측정 ?�비??공식 지�?�?초기 공기 �?측정 감독 (규칙 ??19조의2)",
+                    "?�업 ??체적??10�??�상, ?�업 �??�간??20???�상 ?�기 ?�비 가??검�?(KOSHA Guide)",
+                    "근로???�험???��? ?�태 ?�인 �??�별?�전보건교육 ?�시 (규칙 ??41�?",
+                    "2?�간 간격 주기??측정, ?�상�????�장 기록�?3??보존 (규칙 ??19조의2)",
+                    "?�담 감시??지??�??��? 모니?�링, ?�업 종료 ???�원 ?��?�?출입�??�쇄"
                 ]
             },
             'MEDIUM': {
-                direction: "공정 에너지 차단(LOTO), 상시 환기 및 작업허가 통제 강화",
+                direction: "공정 ?�너지 차단(LOTO), ?�시 ?�기 �??�업?��? ?�제 강화",
                 measures: [
-                    "위험 물질 배관 차단, 맹판(Blind) 설치 및 기계/전기 동력원 LOTO 조치 검증",
-                    "오염원 근처 배기(Pull)와 반대편 급기(Push)를 동시 가동하여 일방향 기류(Sweep) 형성",
-                    "작업자 휴대용 측정기 부착 등 경보 알람이 설정된 상시 유해공기 모니터링 구축",
-                    "안전작업허가서(PTW) 필수 확인항목의 현장 교차 검증 및 엄격한 심사",
-                    "수직 밀폐공간 대피용 삼각대, 윈치, 전체식 안전대 등 비치 및 훈련 (규칙 제625조)"
+                    "?�험 물질 배�? 차단, 맹판(Blind) ?�치 �?기계/?�기 ?�력??LOTO 조치 검�?,
+                    "?�염??근처 배기(Pull)?� 반�???급기(Push)�??�시 가?�하???�방??기류(Sweep) ?�성",
+                    "?�업???��???측정�?부�???경보 ?�람???�정???�시 ?�해공기 모니?�링 구축",
+                    "?�전?�업?��???PTW) ?�수 ?�인??��???�장 교차 검�?�??�격???�사",
+                    "?�직 밀?�공�??�?�용 ?�각?�, ?�치, ?�체???�전?� ??비치 �??�련 (규칙 ??25�?"
                 ]
             },
             'HIGH': {
-                direction: "위험의 원천적 차단 및 최상위 수준의 생명 보호 조치(공기호흡기 등) 발동",
+                direction: "?�험???�천??차단 �?최상???��????�명 보호 조치(공기?�흡�??? 발동",
                 measures: [
-                    "작업의 공학적 대체 가능성 최우선 평가 및 배관 이중 차단(또는 맹판) 기밀 확인",
-                    "방독마스크 절대 금지, 공기호흡기(SCBA) 또는 송기마스크 강제 지급 및 공기 질 확인",
-                    "점화원 차단을 위한 본질안전 방폭형(Ex) 전기기계기구 반입 통제 및 사용 승인",
-                    "복수(2인 이상)의 감시인 배치 및 윈치-구명줄 체결 상시 유지",
-                    "가스 측정 및 안전 조치 전 과정의 방폭형 바디캠 영상물 기록·보존 (규칙 제619조의2)",
-                    "사고 발생 시 119 지체 없는 즉각 신고 원칙(직접 구조 절대 금지) 확립 (규칙 제623조)"
+                    "?�업??공학???��?가?�성 최우???��? �?배�? ?�중 차단(?�는 맹판) 기�? ?�인",
+                    "방독마스???��? 금�?, 공기?�흡�?SCBA) ?�는 ?�기마스??강제 지�?�?공기 �??�인",
+                    "?�화??차단???�한 본질?�전 방폭??Ex) ?�기기계기구 반입 ?�제 �??�용 ?�인",
+                    "복수(2???�상)??감시??배치 �??�치-구명�?체결 ?�시 ?��?",
+                    "가??측정 �??�전 조치 ??과정??방폭??바디�??�상�?기록·보존 (규칙 ??19조의2)",
+                    "?�고 발생 ??119 지�??�는 즉각 ?�고 ?�칙(직접 구조 ?��? 금�?) ?�립 (규칙 ??23�?"
                 ]
             }
         };
 
         const CHECKLIST_MASTER = [
-            { category: "1. 관리 및 장비 지급 (최근 강화)", items: [{ id: "1-1", question: "사업주는 지정된 측정자에게 산소 및 유해가스 농도 측정 장비를 지급하였는가?", law: "규칙 제619조의2 (측정장비 지급)", action: "장비 미보유 시 안전보건공단 '찾아가는 질식재해예방 원콜서비스(1644-8595)' 신청하여 측정기 무상 대여 활용" }, { id: "1-2", question: "해당 설비의 출입구에 관계자 외 출입금지 및 위험 경고 표지를 부착하였는가?", law: "규칙 제619조 (출입금지 등)", action: "법정 서식(규칙 별지 제4호서식) 표지 부착 / 밀폐공간 장소명 및 관리책임자 기재" }] },
-            { category: "2. 교육 및 숙지 상태 (최근 강화)", items: [{ id: "2-1", question: "작업 전, 측정자는 측정 장비의 조작 방법, 이상 유무 확인, 적정공기 기준을 정확히 숙지하고 있는가?", law: "규칙 제619조의2 (숙지 여부 확인)", action: "측정 미숙 시 원콜서비스(1644-8595) 신청하여 전문가의 '측정자 양성 교육' 및 현장 지도 받기" }, { id: "2-2", question: "작업자, 감시인, 측정자 전원에게 작업 전 특별안전보건교육(TBM)을 실시하고 내용을 주지시켰는가? (위험성, 응급조치, 119 신고 요령, 측정방법 등)", law: "규칙 제619조의2, 법 제29조", action: "TBM 일지 작성 및 전원 서명 / 감시인에게 119 신고 의무 강조" }] },
-            { category: "3. 환경 측정 & 환기", items: [{ id: "3-1", question: "작업 전 및 재출입 시 산소 및 유해가스 농도를 측정하고, 결과를 3년간 보존(영상 포함)하는가?", law: "규칙 제619조의2 (기록 보존)", action: "자체 측정 곤란 시 작업 3일 전 원콜서비스(1644-8595) 신청하여 전문가 측정 지원 요청 / 결과 보존" }, { id: "3-2", question: "적정공기 기준(O2: 18~23.5%, CO2: 1.5%↓, H2S: 10ppm ↓, CO: 30ppm↓, LEL: 10% ↓)을 충족하는가?", law: "규칙 제618조 (정의)", action: "기준 미달 시 즉시 작업 중지 및 강제 환기 실시 후 재측정 / 측정기 교정 상태 확인" }, { id: "3-3", question: "작업 전 기적(체적)의 10배 이상 충분한 환기를 실시하고, 작업 중 지속 가동하는가?", law: "KOSHA Guide", action: "환기팬 미보유 사업장은 원콜서비스를 통해 환기팬 무상 대여 후 충분한 급배기 실시" }] },
-            { category: "4. 감시 및 비상 대응", items: [{ id: "4-1", question: "감시인을 외부에 배치하고, 내부 작업자와 상시 연락 체계를 유지하는가?", law: "규칙 제623조 (감시인 배치)", action: "무전기/호각 테스트 / 감시인 이석 절대 금지 교육" }, { id: "4-2", question: "사고 발생 시 감시인이 지체 없이 119에 신고하도록 절차가 마련되어 있는가?", law: "규칙 제623조 (119 신고 의무)", action: "비상연락망 최상단에 119 및 인근 병원 기재 / 자체 구조 시도 금지(보호구 없이 진입 금지)" }, { id: "4-3", question: "비상 시 피난 및 구출을 위한 기구(송기마스크, 삼각대 등) 작업장소 바로 옆에 비치하였는가?", law: "규칙 제625조 (대피용 기구)", action: "구조장비 미보유 시 원콜서비스(1644-8595)로 송기마스크 등 필수 장비 무상 대여 활용" }] },
-            { category: "5. 기타 안전", items: [{ id: "5-1", question: "밀폐공간 작업은 최소 2인 1조 이상으로 진행하며, 입/퇴장 시 인원 점검을 하는가?", law: "작업안전수칙", action: "인원 점검표 작성 (들어간 사람 = 나온 사람) / 단독 작업 금지" }, { id: "5-2", question: "출입문이 내부에서 임의로 잠기지 않도록 조치하고, 추락 위험 시 안전대를 착용하였는가?", law: "안전작업수칙", action: "문 고정 장치 설치 / 수직 이동 시 추락방지대 체결" }] }
+            { category: "1. 관�?�??�비 지�?(최근 강화)", items: [{ id: "1-1", question: "?�업주는 지?�된 측정?�에�??�소 �??�해가???�도 측정 ?�비�?지급하?�?��??", law: "규칙 ??19조의2 (측정?�비 지�?", action: "?�비 미보?????�전보건공단 '찾아가??질식?�해?�방 ?�콜?�비??1644-8595)' ?�청?�여 측정�?무상 ?�???�용" }, { id: "1-2", question: "?�당 ?�비??출입구에 관계자 ??출입금�? �??�험 경고 ?��?�?부착하?�?��??", law: "규칙 ??19�?(출입금�? ??", action: "법정 ?�식(규칙 별�? ???�서?? ?��? 부�?/ 밀?�공�??�소�?�?관리책?�자 기재" }] },
+            { category: "2. 교육 �??��? ?�태 (최근 강화)", items: [{ id: "2-1", question: "?�업 ?? 측정?�는 측정 ?�비??조작 방법, ?�상 ?�무 ?�인, ?�정공기 기�????�확???��??�고 ?�는가?", law: "규칙 ??19조의2 (?��? ?��? ?�인)", action: "측정 미숙 ???�콜?�비??1644-8595) ?�청?�여 ?�문가??'측정???�성 교육' �??�장 지??받기" }, { id: "2-2", question: "?�업?? 감시?? 측정???�원?�게 ?�업 ???�별?�전보건교육(TBM)???�시?�고 ?�용??주�??�켰?��?? (?�험?? ?�급조치, 119 ?�고 ?�령, 측정방법 ??", law: "규칙 ??19조의2, �???9�?, action: "TBM ?��? ?�성 �??�원 ?�명 / 감시?�에�?119 ?�고 ?�무 강조" }] },
+            { category: "3. ?�경 측정 & ?�기", items: [{ id: "3-1", question: "?�업 ??�??�출?????�소 �??�해가???�도�?측정?�고, 결과�?3?�간 보존(?�상 ?�함)?�는가?", law: "규칙 ??19조의2 (기록 보존)", action: "?�체 측정 곤�? ???�업 3?????�콜?�비??1644-8595) ?�청?�여 ?�문가 측정 지???�청 / 결과 보존" }, { id: "3-2", question: "?�정공기 기�?(O2: 18~23.5%, CO2: 1.5%?? H2S: 10ppm ?? CO: 30ppm?? LEL: 10% ????충족?�는가?", law: "규칙 ??18�?(?�의)", action: "기�? 미달 ??즉시 ?�업 중�? �?강제 ?�기 ?�시 ???�측??/ 측정�?교정 ?�태 ?�인" }, { id: "3-3", question: "?�업 ??기적(체적)??10�??�상 충분???�기�??�시?�고, ?�업 �?지??가?�하?��??", law: "KOSHA Guide", action: "?�기??미보???�업?��? ?�콜?�비?��? ?�해 ?�기??무상 ?�????충분??급배�??�시" }] },
+            { category: "4. 감시 �?비상 ?�??, items: [{ id: "4-1", question: "감시?�을 ?��???배치?�고, ?��? ?�업?��? ?�시 ?�락 체계�??��??�는가?", law: "규칙 ??23�?(감시??배치)", action: "무전�??�각 ?�스??/ 감시???�석 ?��? 금�? 교육" }, { id: "4-2", question: "?�고 발생 ??감시?�이 지�??�이 119???�고?�도�??�차가 마련?�어 ?�는가?", law: "규칙 ??23�?(119 ?�고 ?�무)", action: "비상?�락�?최상?�에 119 �??�근 병원 기재 / ?�체 구조 ?�도 금�?(보호�??�이 진입 금�?)" }, { id: "4-3", question: "비상 ???�난 �?구출???�한 기구(?�기마스?? ?�각?� ?? ?�업?�소 바로 ?�에 비치?��??��??", law: "규칙 ??25�?(?�?�용 기구)", action: "구조?�비 미보?????�콜?�비??1644-8595)�??�기마스?????�수 ?�비 무상 ?�???�용" }] },
+            { category: "5. 기�? ?�전", items: [{ id: "5-1", question: "밀?�공�??�업?� 최소 2??1�??�상?�로 진행?�며, ???�장 ???�원 ?��????�는가?", law: "?�업?�전?�칙", action: "?�원 ?��????�성 (?�어�??�람 = ?�온 ?�람) / ?�독 ?�업 금�?" }, { id: "5-2", question: "출입문이 ?��??�서 ?�의�??�기지 ?�도�?조치?�고, 추락 ?�험 ???�전?��?착용?��??��??", law: "?�전?�업?�칙", action: "�?고정 ?�치 ?�치 / ?�직 ?�동 ??추락방�??� 체결" }] }
         ];
 
         const getRiskLevel = (gas) => {
             const { o2, co, h2s, lel, co2 } = gas;
-            if (o2 < 19.5 || o2 > 23.5) return { level: 'HIGH', label: '🔴 고위험 (산소)', color: 'bg-red-100 text-red-700' };
-            if (h2s > 0) return { level: 'HIGH', label: '🔴 고위험 (H2S)', color: 'bg-red-100 text-red-700' };
-            if (co > 25 || lel > 10 || co2 > 1.5) return { level: 'HIGH', label: '🔴 고위험', color: 'bg-red-100 text-red-700' };
-            if (co > 0 || (lel >= 5 && lel <= 10) || (co2 >= 1.0 && co2 <= 1.5)) return { level: 'MEDIUM', label: '🟡 중위험', color: 'bg-yellow-100 text-yellow-700' };
-            return { level: 'LOW', label: '🔵 저위험 (안전)', color: 'bg-blue-100 text-blue-700' };
+            if (o2 < 19.5 || o2 > 23.5) return { level: 'HIGH', label: '?�� 고위??(?�소)', color: 'bg-red-100 text-red-700' };
+            if (h2s > 0) return { level: 'HIGH', label: '?�� 고위??(H2S)', color: 'bg-red-100 text-red-700' };
+            if (co > 25 || lel > 10 || co2 > 1.5) return { level: 'HIGH', label: '?�� 고위??, color: 'bg-red-100 text-red-700' };
+            if (co > 0 || (lel >= 5 && lel <= 10) || (co2 >= 1.0 && co2 <= 1.5)) return { level: 'MEDIUM', label: '?�� 중위??, color: 'bg-yellow-100 text-yellow-700' };
+            return { level: 'LOW', label: '?�� ?�?�험 (?�전)', color: 'bg-blue-100 text-blue-700' };
         };
 
         function App() {
             const [activeTab, setActiveTab] = useState('cover');
-            const [reportInfo, setReportInfo] = useState({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1일간)", agencyType: 'region', agencyBranch: '대구지역본부' });
+            const [reportInfo, setReportInfo] = useState({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1?�간)", agencyType: 'region', agencyBranch: '?�구�???��부' });
             const [spaces, setSpaces] = useState([]);
             const [checklistResults, setChecklistResults] = useState({});
             const [mapImage, setMapImage] = useState(null);
@@ -216,7 +216,7 @@
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `${fileName}_밀폐공간평가_${new Date().toLocaleDateString().replace(/\./g, '').replace(/ /g, '')}.json`;
+                link.download = `${fileName}_밀?�공간평가_${new Date().toLocaleDateString().replace(/\./g, '').replace(/ /g, '')}.json`;
                 link.click();
             };
 
@@ -232,18 +232,18 @@
                         if (data.checklistResults) setChecklistResults(data.checklistResults);
                         if (data.finalOpinion) setFinalOpinion(data.finalOpinion);
                         if (data.mapImage) setMapImage(data.mapImage);
-                        alert("데이터 로드 완료");
-                    } catch (err) { alert("파일 오류"); }
+                        alert("?�이??로드 ?�료");
+                    } catch (err) { alert("?�일 ?�류"); }
                 };
                 reader.readAsText(file);
             };
 
             const handleReset = () => {
-                if (confirm(`⚠️ [${reportInfo.companyName}] 데이터를 모두 삭제하고 초기화하시겠습니까?`)) {
-                    setReportInfo({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1일간)", agencyType: 'region', agencyBranch: '대구지역본부' });
+                if (confirm(`?�️ [${reportInfo.companyName}] ?�이?��? 모두 ??��?�고 초기?�하?�겠?�니�?`)) {
+                    setReportInfo({ year: new Date().getFullYear(), companyName: '', period: new Date().toLocaleDateString() + " (1?�간)", agencyType: 'region', agencyBranch: '?�구�???��부' });
                     setSpaces([]); setChecklistResults({}); setMapImage(null); setFinalOpinion("");
                     localStorage.removeItem('kiha_data');
-                    alert("초기화 완료");
+                    alert("초기???�료");
                     setActiveTab('cover');
                 }
             };
@@ -265,16 +265,16 @@
                 } catch (e) { console.error("Storage Limit"); }
             }, [spaces, checklistResults, reportInfo, finalOpinion, mapImage]);
 
-            // PDF 출력 시 기본 파일명 자동 지정 로직 (사업장명 연동)
+            // PDF 출력 ??기본 ?�일�??�동 지??로직 (?�업?�명 ?�동)
             useEffect(() => {
                 if (reportInfo.companyName) {
-                    document.title = `${reportInfo.companyName}_밀폐공간 위험성평가 보고서(KIHA)`;
+                    document.title = `${reportInfo.companyName}_밀?�공�??�험?�평가 보고??KIHA)`;
                 } else {
-                    document.title = '밀폐공간 위험성평가 솔루션 (KIHA)';
+                    document.title = '밀?�공�??�험?�평가 ?�루??(KIHA)';
                 }
             }, [reportInfo.companyName]);
 
-            // 서비스 워커 등록 로직 (PWA 설치 인식 유도 및 인터넷 배지 제거)
+            // ?�비???�커 ?�록 로직 (PWA ?�치 ?�식 ?�도 �??�터??배�? ?�거)
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
                     window.addEventListener('load', () => {
@@ -301,48 +301,48 @@
 
             return (
                 <React.Fragment>
-                    {/* 인쇄 뷰 */}
+                    {/* ?�쇄 �?*/}
                     <ReportView reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} mapImage={mapImage} finalOpinion={finalOpinion} checklistAll={checklistAll} />
 
-                    {/* 화면 뷰 */}
+                    {/* ?�면 �?*/}
                     <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-100 relative">
 
-                        {/* 모바일 전용 상단 헤더 */}
+                        {/* 모바???�용 ?�단 ?�더 */}
                         <div className="md:hidden flex items-center justify-between bg-slate-900 text-white p-4 z-40 shrink-0">
                             <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> KIHA Safety</h1>
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}><Icon name={isMobileMenuOpen ? 'x' : 'menu'} /></button>
                         </div>
 
-                        {/* 사이드바 (모바일: 슬라이드오버 | PC: 고정) */}
+                        {/* ?�이?�바 (모바?? ?�라?�드?�버 | PC: 고정) */}
                         <aside className={`absolute md:relative z-50 w-64 h-full bg-slate-900 text-white flex flex-col shadow-lg transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
                             <div className="p-6 border-b border-slate-700">
                                 <h1 className="text-xl font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" /> KIHA Safety</h1>
-                                <p className="text-xs text-slate-400 mt-1">밀폐공간 위험성평가 Pro</p>
+                                <p className="text-xs text-slate-400 mt-1">밀?�공�??�험?�평가 Pro</p>
                             </div>
                             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                                <MenuBtn active={activeTab === 'guide'} onClick={() => { setActiveTab('guide'); setIsMobileMenuOpen(false); }} icon="book-open" text="밀폐공간이란?" />
-                                <MenuBtn active={activeTab === 'diagnosis'} onClick={() => { setActiveTab('diagnosis'); setIsMobileMenuOpen(false); }} icon="compass" text="밀폐공간 자가진단" />
-                                <MenuBtn active={activeTab === 'cover'} onClick={() => { setActiveTab('cover'); setIsMobileMenuOpen(false); }} icon="file-text" text="1. 보고서 표지" />
-                                <MenuBtn active={activeTab === 'status'} onClick={() => { setActiveTab('status'); setIsMobileMenuOpen(false); }} icon="layout-list" text="2. 밀폐공간 현황" />
-                                <MenuBtn active={activeTab === 'check'} onClick={() => { setActiveTab('check'); setIsMobileMenuOpen(false); }} icon="check-square" text="3. 체크리스트" />
-                                <MenuBtn active={activeTab === 'map'} onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }} icon="map-pin" text="4. 디지털 배치도" />
-                                <MenuBtn active={activeTab === 'conclusion'} onClick={() => { setActiveTab('conclusion'); setIsMobileMenuOpen(false); }} icon="pen-tool" text="5. 총평 및 의견" />
-                                <MenuBtn active={activeTab === 'download'} onClick={() => { setActiveTab('download'); setIsMobileMenuOpen(false); }} icon="folder-down" text="자료 다운로드" />
+                                <MenuBtn active={activeTab === 'guide'} onClick={() => { setActiveTab('guide'); setIsMobileMenuOpen(false); }} icon="book-open" text="밀?�공간이?�?" />
+                                <MenuBtn active={activeTab === 'diagnosis'} onClick={() => { setActiveTab('diagnosis'); setIsMobileMenuOpen(false); }} icon="compass" text="밀?�공�??��?진단" />
+                                <MenuBtn active={activeTab === 'cover'} onClick={() => { setActiveTab('cover'); setIsMobileMenuOpen(false); }} icon="file-text" text="1. 보고???��?" />
+                                <MenuBtn active={activeTab === 'status'} onClick={() => { setActiveTab('status'); setIsMobileMenuOpen(false); }} icon="layout-list" text="2. 밀?�공�??�황" />
+                                <MenuBtn active={activeTab === 'check'} onClick={() => { setActiveTab('check'); setIsMobileMenuOpen(false); }} icon="check-square" text="3. 체크리스?? />
+                                <MenuBtn active={activeTab === 'map'} onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }} icon="map-pin" text="4. ?��???배치?? />
+                                <MenuBtn active={activeTab === 'conclusion'} onClick={() => { setActiveTab('conclusion'); setIsMobileMenuOpen(false); }} icon="pen-tool" text="5. 총평 �??�견" />
+                                <MenuBtn active={activeTab === 'download'} onClick={() => { setActiveTab('download'); setIsMobileMenuOpen(false); }} icon="folder-down" text="?�료 ?�운로드" />
                             </nav>
                             <div className="p-4 border-t border-slate-700 space-y-2">
-                                <div className="text-xs text-slate-400 font-bold mb-1">데이터 관리</div>
-                                <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2 bg-blue-700 rounded text-sm font-bold"><Icon name="download" size={16} />저장</button>
-                                <button onClick={() => fileInputRef.current.click()} className="w-full flex gap-2 px-3 py-2 bg-slate-700 rounded text-sm"><Icon name="upload" size={16} />불러오기</button>
+                                <div className="text-xs text-slate-400 font-bold mb-1">?�이??관�?/div>
+                                <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2 bg-blue-700 rounded text-sm font-bold"><Icon name="download" size={16} />?�??/button>
+                                <button onClick={() => fileInputRef.current.click()} className="w-full flex gap-2 px-3 py-2 bg-slate-700 rounded text-sm"><Icon name="upload" size={16} />불러?�기</button>
                                 <input type="file" ref={fileInputRef} onChange={handleLoadFile} className="hidden" accept=".json" />
                                 <div className="h-px bg-slate-700 my-2"></div>
-                                <button onClick={handleReset} className="w-full flex gap-2 px-3 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold"><Icon name="rotate-ccw" size={16} /> 초기화</button>
+                                <button onClick={handleReset} className="w-full flex gap-2 px-3 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold"><Icon name="rotate-ccw" size={16} /> 초기??/button>
                             </div>
                             <div className="p-4 bg-slate-800">
                                 <button onClick={() => window.print()} className="w-full py-3 bg-teal-600 hover:bg-teal-500 rounded font-bold flex justify-center gap-2"><Icon name="printer" /> 출력</button>
                             </div>
                         </aside>
 
-                        {/* 모바일 메뉴 오버레이 배경 */}
+                        {/* 모바??메뉴 ?�버?�이 배경 */}
                         {isMobileMenuOpen && <div className="absolute inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>}
 
                         <main className="flex-1 bg-gray-100 overflow-auto">
@@ -354,13 +354,13 @@
                             {activeTab === 'download' && <DownloadScreen />}
                             {activeTab === 'guide' && <GuideScreen />}
                             {activeTab === 'diagnosis' && <DiagnosisScreen />}
-                            {/* 관리자 정보 푸터 (인쇄 시 완벽 숨김 처리) */}
+                            {/* 관리자 ?�보 ?�터 (?�쇄 ???�벽 ?��? 처리) */}
                             <footer className="mt-12 py-6 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50">
-                                <p className="font-bold text-gray-700 mb-2">시스템 오류 및 사용 문의</p>
-                                <p>대한산업보건협회 대구지역본부 보건관리국 | 정유석 과장</p>
+                                <p className="font-bold text-gray-700 mb-2">?�스???�류 �??�용 문의</p>
+                                <p>?�?�산?�보건협???�구�???��부 보건관리국 | ?�유??과장</p>
                                 <p className="mt-1">
-                                    <span className="inline-block mr-3">📞 010-2875-1548 / 053-659-0116</span>
-                                    <span className="inline-block">✉️ 2018006@kiha21.or.kr</span>
+                                    <span className="inline-block mr-3">?�� 010-2875-1548 / 053-659-0116</span>
+                                    <span className="inline-block">?�️ 2018006@kiha21.or.kr</span>
                                 </p>
                             </footer>
                         </main>
@@ -375,7 +375,7 @@
             </button>
         );
 
-        // ... (화면 렌더링용 컴포넌트들 생략, 기능은 동일) ...
+        // ... (?�면 ?�더링용 컴포?�트???�략, 기능?� ?�일) ...
         function CoverScreen({ data, setData }) {
             return (
                 <div className="h-full flex items-center justify-center p-4 md:p-8 pt-20 md:pt-8 overflow-auto">
@@ -383,24 +383,24 @@
                         <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
                         <div className="text-right w-full font-bold text-gray-400 mt-4">KIHA-2026-REPORT</div>
                         <div className="text-center mt-6 md:mt-10">
-                            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 md:mb-6 leading-tight text-center text-gray-900">밀폐공간 작업<br />위험성평가 보고서</h1>
+                            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 md:mb-6 leading-tight text-center text-gray-900">밀?�공�??�업<br />?�험?�평가 보고??/h1>
                             <p className="text-lg md:text-3xl text-center break-words whitespace-normal mt-2 text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
                         </div>
                         <div className="w-full max-w-lg mx-auto px-2 md:px-10 space-y-6 md:space-y-8 my-6 md:my-10">
                             <div className="border-b-2 border-gray-300 pb-2">
-                                <label className="text-sm font-bold text-gray-500">사업장명</label>
-                                <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-2xl md:text-3xl font-bold text-center bg-transparent outline-none" placeholder="사업장명 입력" />
+                                <label className="text-sm font-bold text-gray-500">?�업?�명</label>
+                                <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-2xl md:text-3xl font-bold text-center bg-transparent outline-none" placeholder="?�업?�명 ?�력" />
                             </div>
                             <div className="border-b-2 border-gray-300 pb-2">
-                                <label className="text-sm font-bold text-gray-500">평가 기간</label>
+                                <label className="text-sm font-bold text-gray-500">?��? 기간</label>
                                 <input type="text" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-xl md:text-2xl font-bold text-center bg-transparent outline-none" />
                             </div>
                             <div className="border-b-2 border-gray-300 pb-2 text-center">
-                                <label className="text-sm font-bold text-gray-500 block mb-2">평가 기관</label>
-                                <div className="text-xl md:text-2xl font-bold mb-2">(사)대한산업보건협회</div>
+                                <label className="text-sm font-bold text-gray-500 block mb-2">?��? 기�?</label>
+                                <div className="text-xl md:text-2xl font-bold mb-2">(???�?�산?�보건협??/div>
                                 <div className="flex flex-wrap justify-center gap-2">
                                     <select className="p-2 border rounded" value={data.agencyType} onChange={e => setData({ ...data, agencyType: e.target.value, agencyBranch: e.target.value === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0] })}>
-                                        <option value="region">지역본부</option><option value="center">센터</option>
+                                        <option value="region">지??��부</option><option value="center">?�터</option>
                                     </select>
                                     <select className="p-2 border rounded font-bold text-blue-900 bg-blue-50" value={data.agencyBranch} onChange={e => setData({ ...data, agencyBranch: e.target.value })}>
                                         {(data.agencyType === 'region' ? KIHA_REGIONS : KIHA_CENTERS).map(b => <option key={b} value={b}>{b}</option>)}
@@ -417,11 +417,11 @@
         }
 
         function ChecklistScreen({ results, setResults, defectSummary }) {
-            const [expanded, setExpanded] = useState("1. 관리 및 장비 지급 (최근 강화)");
+            const [expanded, setExpanded] = useState("1. 관�?�??�비 지�?(최근 강화)");
             return (
                 <div className="flex h-full p-6 gap-6">
                     <div className="flex-1 overflow-auto space-y-4">
-                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Icon name="check-square" className="text-blue-600" /> 체크리스트 점검</h2>
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Icon name="check-square" className="text-blue-600" /> 체크리스???��?</h2>
                         {CHECKLIST_MASTER.map((cat, idx) => (
                             <div key={idx} className="bg-white rounded-xl shadow p-6">
                                 <button onClick={() => setExpanded(expanded === cat.category ? null : cat.category)} className="w-full flex justify-between font-bold text-lg mb-2 text-slate-700 border-b pb-2">
@@ -436,11 +436,11 @@
                                             </div>
                                             <div className="flex gap-2 w-full md:w-auto justify-start md:justify-end">
                                                 {['PASS', 'FAIL', 'NA'].map(status => (
-                                                    <button key={status} onClick={() => setResults({ ...results, [item.id]: status })} className={`px-3 py-2 rounded text-sm font-bold border ${results[item.id] === status ? (status === 'PASS' ? 'bg-green-600 text-white' : status === 'FAIL' ? 'bg-red-600 text-white' : 'bg-gray-500 text-white') : 'bg-white hover:bg-gray-50'}`}>{status === 'PASS' ? '적합' : status === 'FAIL' ? '부적합' : '해당없음'}</button>
+                                                    <button key={status} onClick={() => setResults({ ...results, [item.id]: status })} className={`px-3 py-2 rounded text-sm font-bold border ${results[item.id] === status ? (status === 'PASS' ? 'bg-green-600 text-white' : status === 'FAIL' ? 'bg-red-600 text-white' : 'bg-gray-500 text-white') : 'bg-white hover:bg-gray-50'}`}>{status === 'PASS' ? '?�합' : status === 'FAIL' ? '부?�합' : '?�당?�음'}</button>
                                                 ))}
                                             </div>
                                         </div>
-                                        {results[item.id] === 'FAIL' && <div className="p-3 bg-red-50 text-red-700 rounded text-sm font-bold">💡 [자동대책] {item.action}</div>}
+                                        {results[item.id] === 'FAIL' && <div className="p-3 bg-red-50 text-red-700 rounded text-sm font-bold">?�� [?�동?��? {item.action}</div>}
                                     </div>
                                 ))}
                             </div>
@@ -453,38 +453,38 @@
             const [form, setForm] = useState({
                 name: '', location: '', area: '',
                 gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
-                cycle: '청소시(비정기)', cycleDirect: '',
-                personnel: '2인 1조', personnelDirect: '',
-                measureTime: '환기 전', measureTimeDirect: '',
+                cycle: '�?��??비정�?', cycleDirect: '',
+                personnel: '2??1�?, personnelDirect: '',
+                measureTime: '?�기 ??, measureTimeDirect: '',
                 matrixA: 1, matrixB: 1, matrixC: 1
             });
             const [isCustomName, setIsCustomName] = useState(false);
             const [isProcessing, setIsProcessing] = useState(false);
             const risk = getRiskLevel(form.gas);
 
-            // 가스 게이트키퍼 판단
+            // 가??게이?�키???�단
             const { o2, h2s, co, lel } = form.gas;
             const isGasExceeded = o2 < 18 || o2 > 23.5 || h2s >= 10 || co >= 30 || lel >= 10;
 
-            // 매트릭스 점수 및 최종 등급
+            // 매트�?�� ?�수 �?최종 ?�급
             const matrixScore = form.matrixA * form.matrixB * form.matrixC;
             const getMatrixInfo = (s, gasExceeded) => {
-                if (gasExceeded) return { label: '초고위험 (적정공기 기준 이탈)', badge: 'bg-red-700 text-white', bar: 'bg-red-700' };
-                if (s <= 4) return { label: `저위험 (${s}점)`, badge: 'bg-green-100 text-green-800 border border-green-300', bar: 'bg-green-500' };
-                if (s <= 8) return { label: `중위험 (${s}점)`, badge: 'bg-yellow-100 text-yellow-800 border border-yellow-300', bar: 'bg-yellow-400' };
-                if (s <= 12) return { label: `고위험 (${s}점)`, badge: 'bg-orange-100 text-orange-800 border border-orange-300', bar: 'bg-orange-500' };
-                return { label: `초고위험 (${s}점)`, badge: 'bg-red-100 text-red-800 border border-red-300', bar: 'bg-red-600' };
+                if (gasExceeded) return { label: '초고?�험 (?�정공기 기�? ?�탈)', badge: 'bg-red-700 text-white', bar: 'bg-red-700' };
+                if (s <= 4) return { label: `?�?�험 (${s}??`, badge: 'bg-green-100 text-green-800 border border-green-300', bar: 'bg-green-500' };
+                if (s <= 8) return { label: `중위??(${s}??`, badge: 'bg-yellow-100 text-yellow-800 border border-yellow-300', bar: 'bg-yellow-400' };
+                if (s <= 12) return { label: `고위??(${s}??`, badge: 'bg-orange-100 text-orange-800 border border-orange-300', bar: 'bg-orange-500' };
+                return { label: `초고?�험 (${s}??`, badge: 'bg-red-100 text-red-800 border border-red-300', bar: 'bg-red-600' };
             };
             const matrixInfo = getMatrixInfo(matrixScore, isGasExceeded);
 
             const handleSave = () => {
-                if (!form.name.trim()) return alert("설비를 선택하거나 명칭을 입력하세요");
+                if (!form.name.trim()) return alert("?�비�??�택?�거??명칭???�력?�세??);
                 const matchedType = SPACE_TYPES.find(t => t.label === form.name);
                 const finalHazards = matchedType ? matchedType.hazards.join(', ') : '';
-                const finalLaw = matchedType ? matchedType.law : '규칙 별표18 제18호';
-                const finalCycle = form.cycle === '직접 입력' ? form.cycleDirect : form.cycle;
-                const finalPersonnel = form.personnel === '직접 입력' ? form.personnelDirect : form.personnel;
-                const finalTime = form.measureTime === '직접 입력' ? form.measureTimeDirect : form.measureTime;
+                const finalLaw = matchedType ? matchedType.law : '규칙 별표18 ??8??;
+                const finalCycle = form.cycle === '직접 ?�력' ? form.cycleDirect : form.cycle;
+                const finalPersonnel = form.personnel === '직접 ?�력' ? form.personnelDirect : form.personnel;
+                const finalTime = form.measureTime === '직접 ?�력' ? form.measureTimeDirect : form.measureTime;
                 const newId = `CS-${String(spaces.length + 1).padStart(2, '0')}`;
                 const riskSolution = RISK_SOLUTIONS[risk.level] || RISK_SOLUTIONS['LOW'];
 
@@ -503,9 +503,9 @@
                 setForm({
                     name: '', location: '', area: '',
                     gas: { o2: 20.9, co: 0, h2s: 0, lel: 0, co2: 0.03 }, photo: null,
-                    cycle: '청소시(비정기)', cycleDirect: '',
-                    personnel: '2인 1조', personnelDirect: '',
-                    measureTime: '환기 전', measureTimeDirect: '',
+                    cycle: '�?��??비정�?', cycleDirect: '',
+                    personnel: '2??1�?, personnelDirect: '',
+                    measureTime: '?�기 ??, measureTimeDirect: '',
                     matrixA: 1, matrixB: 1, matrixC: 1
                 });
                 setIsCustomName(false);
@@ -518,84 +518,84 @@
                     try {
                         const compressedDataUrl = await compressImage(file);
                         setForm(prev => ({ ...prev, photo: compressedDataUrl }));
-                    } catch (err) { alert("이미지 오류"); } finally { setIsProcessing(false); }
+                    } catch (err) { alert("?��?지 ?�류"); } finally { setIsProcessing(false); }
                 }
             };
 
             const matrixOptions = {
                 A: [
-                    { val: 1, label: '1 — 수직 3m 미만, 개구부 충분' },
-                    { val: 2, label: '2 — 수직 3~6m, 표준 맨홀' },
-                    { val: 3, label: '3 — 수직 6m 초과, 제한적 접근' },
-                    { val: 4, label: '4 — 복합 경로 / 잠수 필요' },
+                    { val: 1, label: '1 ???�직 3m 미만, 개구부 충분' },
+                    { val: 2, label: '2 ???�직 3~6m, ?��? 맨�?' },
+                    { val: 3, label: '3 ???�직 6m 초과, ?�한???�근' },
+                    { val: 4, label: '4 ??복합 경로 / ?�수 ?�요' },
                 ],
                 B: [
-                    { val: 1, label: '1 — 정적 작업 (점검·육안)' },
-                    { val: 2, label: '2 — 반동적 작업 (청소·보수)' },
-                    { val: 3, label: '3 — 고동적 작업 (용접·굴착)' },
+                    { val: 1, label: '1 ???�적 ?�업 (?��?·?�안)' },
+                    { val: 2, label: '2 ??반동???�업 (�?��·보수)' },
+                    { val: 3, label: '3 ??고동???�업 (?�접·굴착)' },
                 ],
                 C: [
-                    { val: 1, label: '1 — 강제 환기 + 경보기 운영' },
-                    { val: 2, label: '2 — 자연 환기 또는 장치 없음' },
+                    { val: 1, label: '1 ??강제 ?�기 + 경보�??�영' },
+                    { val: 2, label: '2 ???�연 ?�기 ?�는 ?�치 ?�음' },
                 ],
             };
 
             return (
                 <div className="flex flex-col md:flex-row h-full p-4 md:p-6 gap-4 md:gap-6 overflow-auto">
-                    {/* ── 입력 폼 ── */}
+                    {/* ?�?� ?�력 ???�?� */}
                     <div className="w-full md:w-[420px] bg-white rounded-xl shadow p-6 overflow-auto space-y-4 shrink-0">
-                        <h3 className="font-bold text-lg flex items-center gap-2"><Icon name="plus-circle" /> 신규 등록</h3>
+                        <h3 className="font-bold text-lg flex items-center gap-2"><Icon name="plus-circle" /> ?�규 ?�록</h3>
 
-                        {/* 설비 유형 */}
+                        {/* ?�비 ?�형 */}
                         <div>
-                            <label className="text-sm font-bold text-gray-600">설비 유형</label>
+                            <label className="text-sm font-bold text-gray-600">?�비 ?�형</label>
                             <select className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={isCustomName ? '기타 밀폐공간' : form.name}
+                                value={isCustomName ? '기�? 밀?�공�? : form.name}
                                 onChange={(e) => {
-                                    if (e.target.value === '기타 밀폐공간') { setIsCustomName(true); setForm({ ...form, name: '' }); }
+                                    if (e.target.value === '기�? 밀?�공�?) { setIsCustomName(true); setForm({ ...form, name: '' }); }
                                     else { setIsCustomName(false); setForm({ ...form, name: e.target.value }); }
                                 }}>
-                                <option value="">선택하세요</option>
+                                <option value="">?�택?�세??/option>
                                 {SPACE_TYPES.map((t, i) => <option key={i} value={t.label}>{t.label}</option>)}
                             </select>
                             {isCustomName && (
-                                <input type="text" placeholder="설비 명칭 직접 입력" className="w-full p-2 border border-gray-300 rounded-md mt-2 focus:ring-2 focus:ring-blue-500 bg-blue-50"
+                                <input type="text" placeholder="?�비 명칭 직접 ?�력" className="w-full p-2 border border-gray-300 rounded-md mt-2 focus:ring-2 focus:ring-blue-500 bg-blue-50"
                                     value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                             )}
                         </div>
 
-                        {/* 위치·면적 */}
+                        {/* ?�치·면적 */}
                         <div className="grid grid-cols-2 gap-2">
-                            <div><label className="text-sm font-bold text-gray-600">위치</label><input type="text" className="w-full p-2 border rounded" placeholder="지하1층" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} /></div>
-                            <div><label className="text-sm font-bold text-gray-600">면적/체적</label><input type="text" className="w-full p-2 border rounded" placeholder="50㎥" value={form.area} onChange={e => setForm({ ...form, area: e.target.value })} /></div>
+                            <div><label className="text-sm font-bold text-gray-600">?�치</label><input type="text" className="w-full p-2 border rounded" placeholder="지??�? value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} /></div>
+                            <div><label className="text-sm font-bold text-gray-600">면적/체적</label><input type="text" className="w-full p-2 border rounded" placeholder="50?? value={form.area} onChange={e => setForm({ ...form, area: e.target.value })} /></div>
                         </div>
 
-                        {/* 출입 주기·인원·측정 시기 */}
+                        {/* 출입 주기·?�원·측정 ?�기 */}
                         <div>
                             <label className="text-sm font-bold text-gray-600">출입 주기</label>
                             <select className="w-full p-2 border rounded" value={form.cycle} onChange={e => setForm({ ...form, cycle: e.target.value })}>
                                 {CYCLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                             </select>
-                            {form.cycle === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="직접 입력" value={form.cycleDirect} onChange={e => setForm({ ...form, cycleDirect: e.target.value })} />}
+                            {form.cycle === '직접 ?�력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="직접 ?�력" value={form.cycleDirect} onChange={e => setForm({ ...form, cycleDirect: e.target.value })} />}
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <div><label className="text-sm font-bold text-gray-600">출입 인원</label>
+                            <div><label className="text-sm font-bold text-gray-600">출입 ?�원</label>
                                 <select className="w-full p-2 border rounded" value={form.personnel} onChange={e => setForm({ ...form, personnel: e.target.value })}>
                                     {PERSONNEL_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                                 </select>
-                                {form.personnel === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="N명" value={form.personnelDirect} onChange={e => setForm({ ...form, personnelDirect: e.target.value })} />}
+                                {form.personnel === '직접 ?�력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="N�? value={form.personnelDirect} onChange={e => setForm({ ...form, personnelDirect: e.target.value })} />}
                             </div>
-                            <div><label className="text-sm font-bold text-gray-600">측정 시기</label>
+                            <div><label className="text-sm font-bold text-gray-600">측정 ?�기</label>
                                 <select className="w-full p-2 border rounded" value={form.measureTime} onChange={e => setForm({ ...form, measureTime: e.target.value })}>
                                     {TIME_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                                 </select>
-                                {form.measureTime === '직접 입력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="00:00~" value={form.measureTimeDirect} onChange={e => setForm({ ...form, measureTimeDirect: e.target.value })} />}
+                                {form.measureTime === '직접 ?�력' && <input type="text" className="w-full p-2 border rounded mt-1" placeholder="00:00~" value={form.measureTimeDirect} onChange={e => setForm({ ...form, measureTimeDirect: e.target.value })} />}
                             </div>
                         </div>
 
-                        {/* 가스 농도 */}
+                        {/* 가???�도 */}
                         <div className="bg-gray-50 p-4 rounded-lg border">
-                            <h4 className="font-bold text-sm mb-3 text-gray-700">가스 농도 (최고치)</h4>
+                            <h4 className="font-bold text-sm mb-3 text-gray-700">가???�도 (최고�?</h4>
                             <div className="space-y-2">
                                 <GasInput label="O2(%)" val={form.gas.o2} setVal={v => setForm({ ...form, gas: { ...form.gas, o2: v } })} />
                                 <GasInput label="H2S(ppm)" val={form.gas.h2s} setVal={v => setForm({ ...form, gas: { ...form.gas, h2s: v } })} />
@@ -605,13 +605,13 @@
                             </div>
                         </div>
 
-                        {/* A×B×C 매트릭스 */}
+                        {/* A×B×C 매트�?�� */}
                         <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                            <h4 className="font-bold text-sm mb-3 text-indigo-800 flex items-center gap-2"><Icon name="layers" size={14} /> 다차원 매트릭스 (A × B × C)</h4>
+                            <h4 className="font-bold text-sm mb-3 text-indigo-800 flex items-center gap-2"><Icon name="layers" size={14} /> ?�차??매트�?�� (A × B × C)</h4>
                             {[
-                                { key: 'matrixA', label: 'A. 구조/구출 난이도', opts: matrixOptions.A },
-                                { key: 'matrixB', label: 'B. 작업 동적 위험도', opts: matrixOptions.B },
-                                { key: 'matrixC', label: 'C. 환경 제어 수준', opts: matrixOptions.C },
+                                { key: 'matrixA', label: 'A. 구조/구출 ?�이??, opts: matrixOptions.A },
+                                { key: 'matrixB', label: 'B. ?�업 ?�적 ?�험??, opts: matrixOptions.B },
+                                { key: 'matrixC', label: 'C. ?�경 ?�어 ?��?', opts: matrixOptions.C },
                             ].map(({ key, label, opts }) => (
                                 <div key={key} className="mb-3">
                                     <label className="text-xs font-bold text-indigo-700 block mb-1">{label}</label>
@@ -624,34 +624,34 @@
                             ))}
                         </div>
 
-                        {/* 실시간 최종 위험 등급 표시 */}
+                        {/* ?�시�?최종 ?�험 ?�급 ?�시 */}
                         {isGasExceeded ? (
                             <div className="p-3 bg-red-700 text-white rounded-xl font-bold text-center text-sm animate-pulse">
-                                🚨 초고위험 — 적정공기 기준 이탈 (출입 절대 금지)
+                                ?�� 초고?�험 ???�정공기 기�? ?�탈 (출입 ?��? 금�?)
                             </div>
                         ) : (
                             <div className={`p-3 rounded-xl font-bold text-center text-sm border ${matrixInfo.badge}`}>
-                                ⚠ 최종 위험 등급: {matrixInfo.label} ({form.matrixA}×{form.matrixB}×{form.matrixC}={matrixScore}점)
+                                ??최종 ?�험 ?�급: {matrixInfo.label} ({form.matrixA}×{form.matrixB}×{form.matrixC}={matrixScore}??
                             </div>
                         )}
 
-                        {/* 사진 */}
+                        {/* ?�진 */}
                         <div>
-                            <label className="text-sm font-bold text-gray-600 mb-1 block">현장 사진</label>
+                            <label className="text-sm font-bold text-gray-600 mb-1 block">?�장 ?�진</label>
                             <div className="flex items-center gap-2">
                                 <label className={`cursor-pointer bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded text-sm flex items-center gap-2 ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}>
-                                    <Icon name="camera" size={16} /> {isProcessing ? '압축 중...' : '사진 선택'}
+                                    <Icon name="camera" size={16} /> {isProcessing ? '?�축 �?..' : '?�진 ?�택'}
                                     <input type="file" className="hidden" accept="image/*" onChange={handlePhoto} disabled={isProcessing} />
                                 </label>
-                                {form.photo && <span className="text-xs text-blue-600">완료</span>}
+                                {form.photo && <span className="text-xs text-blue-600">?�료</span>}
                             </div>
                             {form.photo && <img src={form.photo} className="mt-2 h-20 w-auto rounded border" />}
                         </div>
 
-                        <button onClick={handleSave} disabled={isProcessing} className="w-full py-3 bg-slate-900 text-white font-bold rounded disabled:bg-gray-400">저장하기</button>
+                        <button onClick={handleSave} disabled={isProcessing} className="w-full py-3 bg-slate-900 text-white font-bold rounded disabled:bg-gray-400">?�?�하�?/button>
                     </div>
 
-                    {/* ── 등록된 현황 카드 목록 ── */}
+                    {/* ?�?� ?�록???�황 카드 목록 ?�?� */}
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 content-start overflow-auto">
                         {spaces.map(s => (
                             <div key={s.id} className="bg-white p-4 rounded-xl shadow border relative">
@@ -673,7 +673,7 @@
                                 </div>
                                 {s.finalRiskLabel && (
                                     <div className={`text-xs px-2 py-1 rounded font-bold text-center ${s.finalRiskBadge || 'bg-gray-100 text-gray-700'}`}>
-                                        매트릭스 최종: {s.finalRiskLabel}
+                                        매트�?�� 최종: {s.finalRiskLabel}
                                     </div>
                                 )}
                                 <button onClick={() => setSpaces(spaces.filter(x => x.id !== s.id))} className="absolute top-2 right-2 text-gray-300 hover:text-red-500"><Icon name="trash-2" size={16} /></button>
@@ -719,9 +719,9 @@
                 <div className="flex h-full p-6 gap-6">
                     <div className="flex-1 bg-white rounded shadow overflow-hidden relative flex flex-col">
                         <div className="p-4 bg-slate-800 text-white flex justify-between items-center">
-                            <h3 className="font-bold flex items-center gap-2"><Icon name="map" /> 디지털 배치도</h3>
+                            <h3 className="font-bold flex items-center gap-2"><Icon name="map" /> ?��???배치??/h3>
                             <label className="cursor-pointer bg-slate-600 hover:bg-slate-500 px-3 py-1 rounded text-xs">
-                                이미지 업로드 <input type="file" className="hidden" accept="image/*" onChange={e => {
+                                ?��?지 ?�로??<input type="file" className="hidden" accept="image/*" onChange={e => {
                                     const file = e.target.files[0];
                                     if (file) compressImage(file, 1024, 0.7).then(result => setMapImage(result));
                                 }} />
@@ -738,19 +738,19 @@
                                     ))}
                                     {pt && <div className="absolute w-4 h-4 bg-black rounded-full opacity-50 transform -translate-x-1/2 -translate-y-1/2" style={{ left: `${pt.x}%`, top: `${pt.y}%` }} />}
                                 </div>
-                            ) : <div className="text-gray-400">도면 이미지를 업로드하세요 (또는 드래그)</div>}
+                            ) : <div className="text-gray-400">?�면 ?��?지�??�로?�하?�요 (?�는 ?�래�?</div>}
                         </div>
                     </div>
                     {modal && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                             <div className="bg-white p-6 rounded w-96 max-h-[80vh] overflow-auto">
-                                <h3 className="font-bold mb-4">설비 배치</h3>
+                                <h3 className="font-bold mb-4">?�비 배치</h3>
                                 {unmapped.map(s => (
                                     <button key={s.id} onClick={() => { setSpaces(spaces.map(x => x.id === s.id ? { ...x, locationMap: pt } : x)); setModal(false); }} className="w-full text-left p-3 border mb-2 rounded hover:bg-gray-100 flex justify-between">
                                         <span>{s.name}</span> <span className={`text-xs px-2 rounded ${s.risk.color}`}>{s.risk.label}</span>
                                     </button>
                                 ))}
-                                <button onClick={() => setModal(false)} className="w-full p-2 bg-gray-200 rounded mt-4">닫기</button>
+                                <button onClick={() => setModal(false)} className="w-full p-2 bg-gray-200 rounded mt-4">?�기</button>
                             </div>
                         </div>
                     )}
@@ -765,25 +765,25 @@
                 const medium = spaces.filter(s => s.risk.level === 'MEDIUM').length;
                 const low = spaces.filter(s => s.risk.level === 'LOW').length;
 
-                // 설비 명칭별 개수 카운트
+                // ?�비 명칭�?개수 카운??
                 const spaceCounts = spaces.reduce((acc, s) => {
                     acc[s.name] = (acc[s.name] || 0) + 1;
                     return acc;
                 }, {});
                 const spaceDesc = Object.entries(spaceCounts).map(([name, count]) => `${name} ${count}개소`).join(', ');
 
-                // 초과된 주요 유해요인 추출
+                // 초과??주요 ?�해?�인 추출
                 const hazards = new Set();
                 spaces.forEach(s => {
-                    if (s.gas.o2 < 19.5 || s.gas.o2 > 23.5) hazards.add('산소(O2) 농도 이상');
-                    if (s.gas.h2s > 0) hazards.add('황화수소(H2S) 검출');
-                    if (s.gas.co > 25) hazards.add('일산화탄소(CO) 초과');
-                    if (s.gas.lel > 10) hazards.add('가연성가스(LEL) 초과');
-                    if (s.gas.co2 > 1.5) hazards.add('이산화탄소(CO2) 초과');
+                    if (s.gas.o2 < 19.5 || s.gas.o2 > 23.5) hazards.add('?�소(O2) ?�도 ?�상');
+                    if (s.gas.h2s > 0) hazards.add('?�화?�소(H2S) 검�?);
+                    if (s.gas.co > 25) hazards.add('?�산?�탄??CO) 초과');
+                    if (s.gas.lel > 10) hazards.add('가?�성가??LEL) 초과');
+                    if (s.gas.co2 > 1.5) hazards.add('?�산?�탄??CO2) 초과');
                 });
-                const hazardText = hazards.size > 0 ? Array.from(hazards).join(', ') : '특이사항 없음';
+                const hazardText = hazards.size > 0 ? Array.from(hazards).join(', ') : '?�이?�항 ?�음';
 
-                // 등록된 데이터를 바탕으로 동적 사용용도 리스트 생성
+                // ?�록???�이?��? 바탕?�로 ?�적 ?�용?�도 리스???�성
                 let dynamicUsage = "";
                 const usageMap = {};
                 spaces.forEach(s => {
@@ -792,61 +792,61 @@
                 });
                 Object.entries(usageMap).forEach(([name, cycles]) => {
                     const cycleText = Array.from(cycles).join(', ');
-                    dynamicUsage += ` - ${name} (${cycleText} 등 내부 진입 및 점검 작업 시 사용)\n`;
+                    dynamicUsage += ` - ${name} (${cycleText} ???��? 진입 �??��? ?�업 ???�용)\n`;
                 });
-                if (!dynamicUsage) dynamicUsage = " - 등록된 밀폐공간 현황 데이터가 없습니다.\n";
+                if (!dynamicUsage) dynamicUsage = " - ?�록??밀?�공�??�황 ?�이?��? ?�습?�다.\n";
 
-                // 보고서 텍스트 조립
-                let t = `[1. 평가 개요]\n`;
-                t += `1. 대상 사업장: ${reportInfo.companyName || '미입력'}\n`;
-                t += `2. 평가 대상: 밀폐공간 총 ${total}개소 (${spaceDesc})\n`;
-                t += `3. 평가 기간: ${reportInfo.period}\n`;
-                t += `4. 평가 주관: (사)대한산업보건협회 ${reportInfo.agencyBranch}\n`;
-                t += `5. 평가 목적:\n`;
-                t += ` 1) 중대재해처벌법 제4조(사업주와 경영책임자등의 안전 및 보건 확보의무)\n`;
-                t += ` 2) 산업안전보건법 제39조(보건조치)에 따른 밀폐공간에 의한 작업 시 발생 할 수 있는 산소결핍 등 밀폐공간 위험성 사전 파악\n`;
-                t += ` 3) 밀폐공간 질식·중독·화재 등 중대 재해 예방\n`;
-                t += ` 4) 안전보건관리 대책 수립 및 보완점 도출\n\n`;
+                // 보고???�스??조립
+                let t = `[1. ?��? 개요]\n`;
+                t += `1. ?�???�업?? ${reportInfo.companyName || '미입??}\n`;
+                t += `2. ?��? ?�?? 밀?�공�?�?${total}개소 (${spaceDesc})\n`;
+                t += `3. ?��? 기간: ${reportInfo.period}\n`;
+                t += `4. ?��? 주�?: (???�?�산?�보건협??${reportInfo.agencyBranch}\n`;
+                t += `5. ?��? 목적:\n`;
+                t += ` 1) 중�??�해처벌�???�??�업주�? 경영책임?�등???�전 �?보건 ?�보?�무)\n`;
+                t += ` 2) ?�업?�전보건�???9�?보건조치)???�른 밀?�공간에 ?�한 ?�업 ??발생 ?????�는 ?�소결핍 ??밀?�공�??�험???�전 ?�악\n`;
+                t += ` 3) 밀?�공�?질식·중독·?�재 ??중�? ?�해 ?�방\n`;
+                t += ` 4) ?�전보건관�??��??�립 �?보완???�출\n\n`;
 
-                t += `[2. 밀폐공간 현황 및 사용용도]\n`;
-                t += `본 사업장의 밀폐공간은 총 ${total}개소로 파악되며, 위험도 평가 결과에 따라 고위험 ${high}개소, 중위험 ${medium}개소, 저위험 ${low}개소로 분류되었습니다.\n`;
-                t += `주요 밀폐공간의 사용 용도는 다음과 같습니다.\n`;
-                t += dynamicUsage; // 동적으로 생성된 리스트 삽입
-                t += `해당 밀폐공간은 산소결핍, 유해가스 축적, 화재·폭발 위험 등 중대 재해 위험이 상존하므로, 용도별 특성을 고려한 맞춤형 안전보건조치가 요구됩니다.\n\n`;
+                t += `[2. 밀?�공�??�황 �??�용?�도]\n`;
+                t += `�??�업?�의 밀?�공간�? �?${total}개소�??�악?�며, ?�험???��? 결과???�라 고위??${high}개소, 중위??${medium}개소, ?�?�험 ${low}개소�?분류?�었?�니??\n`;
+                t += `주요 밀?�공간의 ?�용 ?�도???�음�?같습?�다.\n`;
+                t += dynamicUsage; // ?�적?�로 ?�성??리스???�입
+                t += `?�당 밀?�공간�? ?�소결핍, ?�해가??축적, ?�재·??�� ?�험 ??중�? ?�해 ?�험???�존?��?�? ?�도�??�성??고려??맞춤???�전보건조치가 ?�구?�니??\n\n`;
 
-                t += `[3. 결론 및 권고사항]\n`;
-                t += `${reportInfo.period.split('(')[0].trim()} 실시한 위험성평가에 따라 총 ${total}곳의 밀폐공간에 대한 평가를 완료하였습니다.\n`;
+                t += `[3. 결론 �?권고?�항]\n`;
+                t += `${reportInfo.period.split('(')[0].trim()} ?�시???�험?�평가???�라 �?${total}곳의 밀?�공간에 ?�???��?�??�료?��??�니??\n`;
 
                 if (high > 0 || medium > 0) {
-                    t += `평가 결과, 일부 공간은 산소결핍 및 유해가스 농도가 허용기준을 초과하는 등 즉각적인 개선이 필요한 위험 공간으로 분류되었습니다. 주요 위험 요소로는 [${hazardText}] 등이 확인되어 해당 항목의 위험도가 높게 나타났습니다.\n`;
+                    t += `?��? 결과, ?��? 공간?� ?�소결핍 �??�해가???�도가 ?�용기�???초과?�는 ??즉각?�인 개선???�요???�험 공간?�로 분류?�었?�니?? 주요 ?�험 ?�소로는 [${hazardText}] ?�이 ?�인?�어 ?�당 ??��???�험?��? ?�게 ?��??�습?�다.\n`;
                 } else {
-                    t += `평가 결과, 유해가스 농도가 기준치 이내로 유지되는 등 전반적인 가스 농도 상태는 양호한 것으로 판단됩니다. 그러나 밀폐공간 특성상 작업 시 언제든 급격한 환경 변화가 발생할 수 있으므로 철저한 대비가 필요합니다.\n`;
+                    t += `?��? 결과, ?�해가???�도가 기�?�??�내�??��??�는 ???�반?�인 가???�도 ?�태???�호??것으�??�단?�니?? 그러??밀?�공�??�성???�업 ???�제??급격???�경 변?��? 발생?????�으므�?철�????�비�? ?�요?�니??\n`;
                 }
 
-                t += `이에 따라 관련 법령 및 KOSHA 가이드라인(KOSHA CODE H-63)에 의거하여, 사업장에서는 다음의 <질식재해 예방 조치사항>을 반드시 이행할 것을 권고 드립니다.\n\n`;
-                t += `<질식재해 예방 조치사항>\n`;
-                t += `(1) 밀폐공간의 확인과 출입금지 조치\n`;
-                t += `(2) 밀폐공간 작업허가서(PTW) 발급 및 준수\n`;
-                t += `(3) 작업 전 및 작업 중 10배 이상 충분한 환기 실시\n`;
-                t += `(4) 유해가스 농도 지속 측정 및 모니터링\n`;
-                t += `(5) 비상 구출용 보호구 및 장비 비치\n`;
-                t += `(6) 작업자, 감시인 대상 특별안전보건교육 훈련\n`;
-                t += `(7) 사업장 자체 밀폐공간 작업 프로그램 수립 및 이행`;
+                t += `?�에 ?�라 관??법령 �?KOSHA 가?�드?�인(KOSHA CODE H-63)???�거?�여, ?�업?�에?�는 ?�음??<질식?�해 ?�방 조치?�항>??반드???�행??것을 권고 ?�립?�다.\n\n`;
+                t += `<질식?�해 ?�방 조치?�항>\n`;
+                t += `(1) 밀?�공간의 ?�인�?출입금�? 조치\n`;
+                t += `(2) 밀?�공�??�업?��???PTW) 발급 �?준??n`;
+                t += `(3) ?�업 ??�??�업 �?10�??�상 충분???�기 ?�시\n`;
+                t += `(4) ?�해가???�도 지??측정 �?모니?�링\n`;
+                t += `(5) 비상 구출??보호�?�??�비 비치\n`;
+                t += `(6) ?�업?? 감시???�???�별?�전보건교육 ?�련\n`;
+                t += `(7) ?�업???�체 밀?�공�??�업 ?�로그램 ?�립 �??�행`;
 
                 setFinalOpinion(t);
             };
             return (
                 <div className="p-8 h-full flex flex-col overflow-auto">
-                    <div className="mb-4"><button onClick={generate} className="px-4 py-2 bg-indigo-600 text-white font-bold rounded">초안 자동 작성</button></div>
+                    <div className="mb-4"><button onClick={generate} className="px-4 py-2 bg-indigo-600 text-white font-bold rounded">초안 ?�동 ?�성</button></div>
 
-                    {/* [인쇄 전용] 1-1. 종합 평가 결과표 */}
+                    {/* [?�쇄 ?�용] 1-1. 종합 ?��? 결과??*/}
                     <div className="hidden print:!block w-full mb-8 page-break-inside-avoid">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">■ 1-1. 체크리스트 종합 평가 결과</h3>
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">??1-1. 체크리스??종합 ?��? 결과</h3>
                         <table className="w-full border-collapse border border-gray-400 text-sm mb-6">
                             <thead className="bg-gray-100 print:bg-gray-200">
                                 <tr>
                                     <th className="border border-gray-400 p-2 w-12 text-center font-bold">NO</th>
-                                    <th className="border border-gray-400 p-2 text-center font-bold">점검 항목</th>
+                                    <th className="border border-gray-400 p-2 text-center font-bold">?��? ??��</th>
                                     <th className="border border-gray-400 p-2 w-24 text-center font-bold">결과</th>
                                 </tr>
                             </thead>
@@ -858,9 +858,9 @@
                                             <td className="border border-gray-400 p-2 text-center text-gray-600">{index + 1}</td>
                                             <td className="border border-gray-400 p-2 text-gray-800">{item.question}</td>
                                             <td className="border border-gray-400 p-2 text-center font-bold">
-                                                {status === 'PASS' && <span className="text-blue-600">적합</span>}
-                                                {status === 'FAIL' && <span className="text-red-600">부적합</span>}
-                                                {status === 'NA' && <span className="text-gray-400">해당없음</span>}
+                                                {status === 'PASS' && <span className="text-blue-600">?�합</span>}
+                                                {status === 'FAIL' && <span className="text-red-600">부?�합</span>}
+                                                {status === 'NA' && <span className="text-gray-400">?�당?�음</span>}
                                                 {!status && <span className="text-gray-300">-</span>}
                                             </td>
                                         </tr>
@@ -870,11 +870,11 @@
                         </table>
                     </div>
 
-                    {/* [화면 & 인쇄 공통] 1-2. 부적합 항목 개선 대책 */}
+                    {/* [?�면 & ?�쇄 공통] 1-2. 부?�합 ??�� 개선 ?��?*/}
                     <div className="w-full mb-6 page-break-inside-avoid">
                         <h3 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
-                            <span className="print:hidden">■ 부적합 항목 개선 대책</span>
-                            <span className="hidden print:inline">■ 1-2. 부적합 항목 개선 대책</span>
+                            <span className="print:hidden">??부?�합 ??�� 개선 ?��?/span>
+                            <span className="hidden print:inline">??1-2. 부?�합 ??�� 개선 ?��?/span>
                         </h3>
                     </div>
 
@@ -891,7 +891,7 @@
             return (
                 <div className="p-4 md:p-8 max-w-4xl mx-auto">
                     <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Icon name="compass" className="text-blue-600" /> 사업장 밀폐공간 자가진단
+                        <Icon name="compass" className="text-blue-600" /> ?�업??밀?�공�??��?진단
                     </h2>
                     <div className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-200 min-h-[400px] flex flex-col justify-center items-center text-center">
 
@@ -900,14 +900,14 @@
                                 <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <Icon name="search" size={32} />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-4">Q1. 우리 사업장에 '밀폐공간'이 존재합니까?</h3>
-                                <p className="text-gray-500 mb-8">(※ 환기가 불충분하거나 유해가스가 정체될 수 있는 정화조, 맨홀, 탱크, 핏트 등)</p>
+                                <h3 className="text-2xl font-bold mb-4">Q1. ?�리 ?�업?�에 '밀?�공�???존재?�니�?</h3>
+                                <p className="text-gray-500 mb-8">(???�기가 불충분하거나 ?�해가?��? ?�체?????�는 ?�화�? 맨�?, ?�크, ?�트 ??</p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                     <button onClick={() => { setHasSpace(true); setStep(2); }} className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
-                                        <Icon name="check-circle" /> 네, 존재합니다
+                                        <Icon name="check-circle" /> ?? 존재?�니??
                                     </button>
                                     <button onClick={() => { setHasSpace(false); setStep(3); }} className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-300 transition-all flex items-center justify-center gap-2">
-                                        <Icon name="x-circle" /> 아니요, 없습니다
+                                        <Icon name="x-circle" /> ?�니?? ?�습?�다
                                     </button>
                                 </div>
                             </div>
@@ -918,14 +918,14 @@
                                 <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <Icon name="users" size={32} />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-4">Q2. 해당 밀폐공간 내부로 근로자가 출입하여 '작업'을 합니까?</h3>
-                                <p className="text-gray-500 mb-8">(※ 청소, 점검, 보수, 구출 등 일체의 출입 행위 포함)</p>
+                                <h3 className="text-2xl font-bold mb-4">Q2. ?�당 밀?�공�??��?�?근로?��? 출입?�여 '?�업'???�니�?</h3>
+                                <p className="text-gray-500 mb-8">(??�?��, ?��?, 보수, 구출 ???�체??출입 ?�위 ?�함)</p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                     <button onClick={() => { setHasWork(true); setStep(3); }} className="px-8 py-4 bg-orange-500 text-white rounded-xl font-bold text-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2">
-                                        <Icon name="check-circle" /> 네, 출입하여 작업합니다
+                                        <Icon name="check-circle" /> ?? 출입?�여 ?�업?�니??
                                     </button>
                                     <button onClick={() => { setHasWork(false); setStep(3); }} className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-300 transition-all flex items-center justify-center gap-2">
-                                        <Icon name="x-circle" /> 아니요, 출입하지 않습니다
+                                        <Icon name="x-circle" /> ?�니?? 출입?��? ?�습?�다
                                     </button>
                                 </div>
                             </div>
@@ -936,29 +936,29 @@
                                 {hasSpace === false && (
                                     <div className="bg-slate-50 border border-slate-200 p-8 rounded-xl text-center">
                                         <div className="inline-block p-4 bg-green-100 text-green-600 rounded-full mb-4"><Icon name="smile" size={40} /></div>
-                                        <h3 className="text-2xl font-bold text-slate-800 mb-2">밀폐공간 관리 대상 아님</h3>
-                                        <p className="text-gray-600">현재 사업장에 법적 밀폐공간이 없으므로, 관련된 추가 조치는 필요하지 않습니다.<br />(단, 향후 설비 신설 시 재평가 필요)</p>
+                                        <h3 className="text-2xl font-bold text-slate-800 mb-2">밀?�공�?관�??�???�님</h3>
+                                        <p className="text-gray-600">?�재 ?�업?�에 법적 밀?�공간이 ?�으므�? 관?�된 추�? 조치???�요?��? ?�습?�다.<br />(?? ?�후 ?�비 ?�설 ???�평가 ?�요)</p>
                                     </div>
                                 )}
                                 {hasSpace === true && hasWork === false && (
                                     <div className="bg-yellow-50 border border-yellow-200 p-6 md:p-8 rounded-xl">
                                         <div className="flex items-center gap-3 mb-4">
                                             <div className="p-3 bg-yellow-100 text-yellow-600 rounded-full"><Icon name="lock" size={28} /></div>
-                                            <h3 className="text-2xl font-bold text-yellow-800">기본 유지관리 대상 (작업 금지)</h3>
+                                            <h3 className="text-2xl font-bold text-yellow-800">기본 ?��?관�??�??(?�업 금�?)</h3>
                                         </div>
-                                        <p className="text-yellow-700 mb-6 font-medium">밀폐공간은 존재하지만 출입 작업이 없는 경우, 무단 출입으로 인한 사고를 막기 위해 아래 3가지 법적 의무를 반드시 이행해야 합니다.</p>
+                                        <p className="text-yellow-700 mb-6 font-medium">밀?�공간�? 존재?��?�?출입 ?�업???�는 경우, 무단 출입?�로 ?�한 ?�고�?막기 ?�해 ?�래 3가지 법적 ?�무�?반드???�행?�야 ?�니??</p>
                                         <ul className="space-y-4">
                                             <li className="bg-white p-4 rounded-lg border border-yellow-100 shadow-sm">
-                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span>밀폐공간 파악 및 목록화 (안전보건규칙 제619조의2)</strong>
-                                                <p className="text-gray-600 mt-1 text-sm pl-8">밀폐공간의 위치, 종류, 수량, 위험 요인 등을 사전에 파악하여 목록화하고 해당 문서를 보존해야 합니다.</p>
+                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span>밀?�공�??�악 �?목록??(?�전보건규칙 ??19조의2)</strong>
+                                                <p className="text-gray-600 mt-1 text-sm pl-8">밀?�공간의 ?�치, 종류, ?�량, ?�험 ?�인 ?�을 ?�전???�악?�여 목록?�하�??�당 문서�?보존?�야 ?�니??</p>
                                             </li>
                                             <li className="bg-white p-4 rounded-lg border border-yellow-100 shadow-sm">
-                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">2</span>출입금지 표지 부착 (안전보건규칙 제620조)</strong>
-                                                <p className="text-gray-600 mt-1 text-sm pl-8">누구나 쉽게 볼 수 있도록 밀폐공간 입구 근처에 법적 양식(별지 제4호서식)에 따른 '출입금지 표지'를 훼손되지 않게 게시해야 합니다.</p>
+                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">2</span>출입금�? ?��? 부�?(?�전보건규칙 ??20�?</strong>
+                                                <p className="text-gray-600 mt-1 text-sm pl-8">?�구???�게 �????�도�?밀?�공�??�구 근처??법적 ?�식(별�? ???�서?????�른 '출입금�? ?��?'�??�손?��? ?�게 게시?�야 ?�니??</p>
                                             </li>
                                             <li className="bg-white p-4 rounded-lg border border-yellow-100 shadow-sm">
-                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">3</span>출입 통제 및 시건장치 설치 (안전보건규칙 제620조)</strong>
-                                                <p className="text-gray-600 mt-1 text-sm pl-8">비인가자의 호기심이나 실수로 인한 출입을 원천 통제하기 위해, 해당 밀폐공간 출입구에 자물쇠 등 시건장치를 설치하고 관리자가 열쇠를 통제해야 합니다.</p>
+                                                <strong className="text-gray-800 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">3</span>출입 ?�제 �??�건?�치 ?�치 (?�전보건규칙 ??20�?</strong>
+                                                <p className="text-gray-600 mt-1 text-sm pl-8">비인가?�의 ?�기?�이???�수�??�한 출입???�천 ?�제?�기 ?�해, ?�당 밀?�공�?출입구에 ?�물?????�건?�치�??�치?�고 관리자가 ?�쇠�??�제?�야 ?�니??</p>
                                             </li>
                                         </ul>
                                     </div>
@@ -966,14 +966,14 @@
                                 {hasSpace === true && hasWork === true && (
                                     <div className="bg-red-50 border border-red-200 p-6 md:p-8 rounded-xl text-center">
                                         <div className="inline-block p-4 bg-red-100 text-red-600 rounded-full mb-4"><Icon name="alert-triangle" size={40} /></div>
-                                        <h3 className="text-2xl font-bold text-red-800 mb-2">고위험 밀폐공간 작업 대상</h3>
-                                        <p className="text-red-700 mb-6">사전 위험성평가, 작업허가서 발급, 산소/유해가스 측정, 환기 등 엄격한 절차가 필요합니다.</p>
-                                        <p className="text-gray-700 font-bold bg-white inline-block px-6 py-3 rounded-lg border border-red-100">👉 좌측 메뉴의 [현황 및 체크리스트] 탭을 눌러 즉시 위험성평가를 시작하십시오!</p>
+                                        <h3 className="text-2xl font-bold text-red-800 mb-2">고위??밀?�공�??�업 ?�??/h3>
+                                        <p className="text-red-700 mb-6">?�전 ?�험?�평가, ?�업?��???발급, ?�소/?�해가??측정, ?�기 ???�격???�차가 ?�요?�니??</p>
+                                        <p className="text-gray-700 font-bold bg-white inline-block px-6 py-3 rounded-lg border border-red-100">?�� 좌측 메뉴??[?�황 �?체크리스?? ??�� ?�러 즉시 ?�험?�평가�??�작?�십?�오!</p>
                                     </div>
                                 )}
                                 <div className="mt-8 text-center">
                                     <button onClick={reset} className="px-6 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mx-auto">
-                                        <Icon name="rotate-ccw" size={16} /> 다시 진단하기
+                                        <Icon name="rotate-ccw" size={16} /> ?�시 진단?�기
                                     </button>
                                 </div>
                             </div>
@@ -986,34 +986,34 @@
 
         const GuideScreen = () => {
             const spaces = [
-                { id: 1, title: "우물·수직갱·터널·피트", desc: "우물, 수직갱, 터널, 잠함, 피트 또는 그 밖에 이와 유사한 것의 내부", icon: "arrow-down-circle" },
-                { id: 2, title: "암거·맨홀 또는 피트", desc: "암거, 맨홀 또는 피트의 내부 (가장 흔한 질식 사고 발생지)", icon: "circle-dot" },
-                { id: 3, title: "부패·산화 탱크 및 반응탑", desc: "부패하거나 산화되기 쉬운 물질이 들어있는 탱크, 보일러, 반응탑 등", icon: "cylinder" },
-                { id: 4, title: "석탄·황화광 하역/저장", desc: "석탄, 아갈탄, 황화광, 강재, 원목, 건성유, 어유 등 하역 및 저장 공간", icon: "box" },
-                { id: 5, title: "부패성 물질 저장소", desc: "명주, 모노륨, 가죽, 펄프 등 부패하기 쉬운 물질을 취급/저장하는 장소", icon: "package-open" },
-                { id: 6, title: "발효 시설", desc: "간장, 주류, 효모 등 발효하는 물품을 취급/저장하는 기구 및 설비 내부", icon: "beaker" },
-                { id: 7, title: "정화조·침전조·집수조", desc: "분뇨, 오염된 흙, 썩은 물, 폐수, 하수 등이 있는 정화조나 집수조 내부", icon: "droplet" },
-                { id: 8, title: "드라이아이스 냉동고", desc: "드라이아이스를 사용하는 냉장고, 냉동고, 냉동화물자동차 내부", icon: "snowflake" },
-                { id: 9, title: "불활성기체 설비", desc: "헬륨, 아르곤, 질소 등 불활성기체를 취급하는 파이프, 보일러 등 내부", icon: "wind" },
-                { id: 10, title: "산소결핍 발생 장소", desc: "산소 농도가 18% 미만, 23.5% 이상이거나 유해가스 농도 초과 장소", icon: "alert-triangle" },
-                { id: 11, title: "갈탄·목탄 사용 장소", desc: "콘크리트 양생 등을 위해 갈탄, 목탄, 연탄 등을 사용하는 장소", icon: "flame" },
-                { id: 12, title: "용접·용단 작업 장소", desc: "환기가 불충분한 공간에서 아르곤 가스 등을 사용하는 용접 작업장", icon: "zap" },
-                { id: 13, title: "소화설비 방출 구역", desc: "이산화탄소 등 가스계 소화설비가 설치된 방호 구역 내부", icon: "fire-extinguisher" },
-                { id: 14, title: "지하 케이블/관로", desc: "전력 통신 케이블, 가스 배관 등이 지나가는 지하 관로 및 암거", icon: "cable" },
-                { id: 15, title: "밀폐된 선박 내부", desc: "오랜 기간 밀폐되어 있던 선박의 창고, 밸러스트 탱크 내부", icon: "ship" },
-                { id: 16, title: "곡물/사료 저장 사일로", desc: "곡물, 사료 등을 대량으로 저장하여 발효/부패가 일어날 수 있는 사일로", icon: "wheat" },
-                { id: 17, title: "가스 배관 및 맨홀", desc: "천연가스, 도시가스 배관 점검을 위한 지하 밸브실 및 맨홀 내부", icon: "pipette" },
-                { id: 18, title: "기타 유해가스 정체 구역", desc: "기타 환기가 불충분하여 산소결핍이나 유해가스가 정체될 수 있는 모든 공간", icon: "help-circle" }
+                { id: 1, title: "?�물·?�직갱·터?�·피??, desc: "?�물, ?�직�? ?�널, ?�함, ?�트 ?�는 �?밖에 ?��? ?�사??것의 ?��?", icon: "arrow-down-circle" },
+                { id: 2, title: "?�거·맨�? ?�는 ?�트", desc: "?�거, 맨�? ?�는 ?�트???��? (가???�한 질식 ?�고 발생지)", icon: "circle-dot" },
+                { id: 3, title: "부?�·산???�크 �?반응??, desc: "부?�하거나 ?�화?�기 ?�운 물질???�어?�는 ?�크, 보일?? 반응????, icon: "cylinder" },
+                { id: 4, title: "?�탄·?�화�??�역/?�??, desc: "?�탄, ?�갈?? ?�화�? 강재, ?�목, 건성?? ?�유 ???�역 �??�??공간", icon: "box" },
+                { id: 5, title: "부?�성 물질 ?�?�소", desc: "명주, 모노�? 가�? ?�프 ??부?�하�??�운 물질??취급/?�?�하???�소", icon: "package-open" },
+                { id: 6, title: "발효 ?�설", desc: "간장, 주류, ?�모 ??발효?�는 물품??취급/?�?�하??기구 �??�비 ?��?", icon: "beaker" },
+                { id: 7, title: "?�화조·침?�조·집수�?, desc: "분뇨, ?�염???? ?��? �? ?�수, ?�수 ?�이 ?�는 ?�화조나 집수�??��?", icon: "droplet" },
+                { id: 8, title: "?�라?�아?�스 ?�동�?, desc: "?�라?�아?�스�??�용?�는 ?�장�? ?�동�? ?�동?�물?�동�??��?", icon: "snowflake" },
+                { id: 9, title: "불활?�기�??�비", desc: "?�륨, ?�르�? 질소 ??불활?�기체�? 취급?�는 ?�이?? 보일?????��?", icon: "wind" },
+                { id: 10, title: "?�소결핍 발생 ?�소", desc: "?�소 ?�도가 18% 미만, 23.5% ?�상?�거???�해가???�도 초과 ?�소", icon: "alert-triangle" },
+                { id: 11, title: "갈탄·목탄 ?�용 ?�소", desc: "콘크리트 ?�생 ?�을 ?�해 갈탄, 목탄, ?�탄 ?�을 ?�용?�는 ?�소", icon: "flame" },
+                { id: 12, title: "?�접·?�단 ?�업 ?�소", desc: "?�기가 불충분한 공간?�서 ?�르�?가???�을 ?�용?�는 ?�접 ?�업??, icon: "zap" },
+                { id: 13, title: "?�화?�비 방출 구역", desc: "?�산?�탄????가?�계 ?�화?�비가 ?�치??방호 구역 ?��?", icon: "fire-extinguisher" },
+                { id: 14, title: "지??케?�블/관�?, desc: "?�력 ?�신 케?�블, 가??배�? ?�이 지?��???지??관�?�??�거", icon: "cable" },
+                { id: 15, title: "밀?�된 ?�박 ?��?", desc: "?�랜 기간 밀?�되???�던 ?�박??창고, 밸러?�트 ?�크 ?��?", icon: "ship" },
+                { id: 16, title: "곡물/?�료 ?�???�일�?, desc: "곡물, ?�료 ?�을 ?�?�으�??�?�하??발효/부?��? ?�어?????�는 ?�일�?, icon: "wheat" },
+                { id: 17, title: "가??배�? �?맨�?", desc: "천연가?? ?�시가??배�? ?��????�한 지??밸브??�?맨�? ?��?", icon: "pipette" },
+                { id: 18, title: "기�? ?�해가???�체 구역", desc: "기�? ?�기가 불충분하???�소결핍?�나 ?�해가?��? ?�체?????�는 모든 공간", icon: "help-circle" }
             ];
             return (
                 <div className="p-4 md:p-8 max-w-6xl mx-auto pb-20">
                     <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg mb-8 shadow-sm">
                         <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Icon name="book-open" className="text-blue-600" /> 법정 18대 밀폐공간 가이드
+                            <Icon name="book-open" className="text-blue-600" /> 법정 18?� 밀?�공�?가?�드
                         </h2>
                         <p className="text-gray-700 leading-relaxed">
-                            산업안전보건기준에 관한 규칙 [별표 18]에 따른 밀폐공간은 단순히 '사방이 막힌 곳'만이 아닙니다.<br />
-                            환기가 불충분하고 산소결핍이나 유해가스로 인한 질식·화재·폭발 위험이 있는 장소는 <strong>천장이 뚫려있더라도 법적 밀폐공간에 해당</strong>합니다.
+                            ?�업?�전보건기�???관??규칙 [별표 18]???�른 밀?�공간�? ?�순??'?�방??막힌 �?만이 ?�닙?�다.<br />
+                            ?�기가 불충분하�??�소결핍?�나 ?�해가?�로 ?�한 질식·?�재·??�� ?�험???�는 ?�소??<strong>천장???�려?�더?�도 법적 밀?�공간에 ?�당</strong>?�니??
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -1038,17 +1038,17 @@
 
         const DownloadScreen = () => {
             const files = [
-                { title: "1. 밀폐공간 출입금지 표지 (별지 제4호서식)", pdf: "./downloads/sign.pdf" },
-                { title: "2. 밀폐공간 작업허가서", hwpx: "./downloads/ptw.hwpx", pdf: "./downloads/ptw.pdf" },
-                { title: "3. 특별안전보건교육 (일지 및 교안)", hwpx: "./downloads/edu_special.hwpx", pdf: "./downloads/edu_special.pdf", extraPdf: { label: "교안 PDF", url: "./downloads/edu_special_book.pdf" } },
-                { title: "4. 작업 전 교육 (일지 및 교안)", hwpx: "./downloads/edu_pre.hwpx", pdf: "./downloads/edu_pre.pdf", extraPdf: { label: "교안 PDF", url: "./downloads/edu_pre_book.pdf" } },
-                { title: "5. 밀폐공간 긴급구조 훈련 (일지 및 시나리오)", hwpx: "./downloads/rescue.hwpx", pdf: "./downloads/rescue.pdf" },
-                { title: "6. 밀폐공간 작업프로그램", hwpx: "./downloads/program.hwpx", pdf: "./downloads/program.pdf" }
+                { title: "1. 밀?�공�?출입금�? ?��? (별�? ???�서??", pdf: "./downloads/sign.pdf" },
+                { title: "2. 밀?�공�??�업?��???, hwpx: "./downloads/ptw.hwpx", pdf: "./downloads/ptw.pdf" },
+                { title: "3. ?�별?�전보건교육 (?��? �?교안)", hwpx: "./downloads/edu_special.hwpx", pdf: "./downloads/edu_special.pdf", extraPdf: { label: "교안 PDF", url: "./downloads/edu_special_book.pdf" } },
+                { title: "4. ?�업 ??교육 (?��? �?교안)", hwpx: "./downloads/edu_pre.hwpx", pdf: "./downloads/edu_pre.pdf", extraPdf: { label: "교안 PDF", url: "./downloads/edu_pre_book.pdf" } },
+                { title: "5. 밀?�공�?긴급구조 ?�련 (?��? �??�나리오)", hwpx: "./downloads/rescue.hwpx", pdf: "./downloads/rescue.pdf" },
+                { title: "6. 밀?�공�??�업?�로그램", hwpx: "./downloads/program.hwpx", pdf: "./downloads/program.pdf" }
             ];
             return (
                 <div className="p-4 md:p-8 max-w-5xl mx-auto">
                     <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Icon name="folder-down" className="text-blue-600" /> 필수 법정 양식 다운로드
+                        <Icon name="folder-down" className="text-blue-600" /> ?�수 법정 ?�식 ?�운로드
                     </h2>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <ul className="divide-y divide-gray-100">
@@ -1057,10 +1057,10 @@
                                     <span className="font-semibold text-gray-700 text-lg">{file.title}</span>
                                     <div className="flex flex-wrap gap-2">
                                         {file.hwpx && (
-                                            <a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16} /> HWPX 다운로드</a>
+                                            <a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16} /> HWPX ?�운로드</a>
                                         )}
                                         {file.pdf && (
-                                            <a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16} /> PDF 다운로드</a>
+                                            <a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16} /> PDF ?�운로드</a>
                                         )}
                                         {file.extraPdf && (
                                             <a href={file.extraPdf.url} download className="px-4 py-2 bg-rose-50 text-rose-600 rounded-md font-medium hover:bg-rose-100 flex items-center gap-1"><Icon name="book-open" size={16} /> {file.extraPdf.label}</a>
@@ -1070,7 +1070,7 @@
                             ))}
                         </ul>
                     </div>
-                    <p className="mt-4 text-sm text-gray-500 text-center">※ 제공된 양식은 사업장 특성에 맞게 내용을 수정하여 사용하시기 바랍니다.</p>
+                    <p className="mt-4 text-sm text-gray-500 text-center">???�공???�식?� ?�업???�성??맞게 ?�용???�정?�여 ?�용?�시�?바랍?�다.</p>
                 </div>
             );
         };
@@ -1079,62 +1079,62 @@
             return (
                 <div className="hidden print:block w-full bg-white text-black">
 
-                    {/* [문제 1 완벽 해결] 1. 표지 (무조건 1페이지 고정) */}
+                    {/* [문제 1 ?�벽 ?�결] 1. ?��? (무조�?1?�이지 고정) */}
                     <div className="print-page print-fixed-page border-4 border-double">
                         <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
                         <div className="text-right w-full font-bold text-gray-400 mt-2">KIHA-2026-REPORT</div>
 
                         <div className="flex-1 flex flex-col items-center justify-center w-full">
                             <div className="text-center">
-                                <h1 className="text-5xl font-extrabold mb-4 leading-tight text-gray-900">밀폐공간 작업<br />위험성평가 보고서</h1>
+                                <h1 className="text-5xl font-extrabold mb-4 leading-tight text-gray-900">밀?�공�??�업<br />?�험?�평가 보고??/h1>
                                 <p className="text-xl text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
                             </div>
 
                             <div className="w-full px-20 space-y-6 mt-10 mb-6">
                                 <div className="border-b-2 border-gray-300 pb-2">
-                                    <div className="text-sm font-bold text-gray-500 text-center">사업장명</div>
-                                    <div className="w-full text-3xl font-bold text-center mt-2">{reportInfo.companyName || "사업장명 미입력"}</div>
+                                    <div className="text-sm font-bold text-gray-500 text-center">?�업?�명</div>
+                                    <div className="w-full text-3xl font-bold text-center mt-2">{reportInfo.companyName || "?�업?�명 미입??}</div>
                                 </div>
                                 <div className="border-b-2 border-gray-300 pb-2">
-                                    <div className="text-sm font-bold text-gray-500 text-center">평가 기간</div>
+                                    <div className="text-sm font-bold text-gray-500 text-center">?��? 기간</div>
                                     <div className="w-full text-2xl font-bold text-center mt-2">{reportInfo.period}</div>
                                 </div>
                                 <div className="border-b-2 border-gray-300 pb-2 text-center">
-                                    <div className="text-sm font-bold text-gray-500 text-center mb-2">평가 기관</div>
-                                    <div className="text-2xl font-bold mb-2">(사)대한산업보건협회 {reportInfo.agencyBranch}</div>
+                                    <div className="text-sm font-bold text-gray-500 text-center mb-2">?��? 기�?</div>
+                                    <div className="text-2xl font-bold mb-2">(???�?�산?�보건협??{reportInfo.agencyBranch}</div>
                                 </div>
                             </div>
                         </div>
-                        {/* 로고가 밀리지 않도록 고정 */}
+                        {/* 로고가 밀리�? ?�도�?고정 */}
                         <div className="mb-2 text-center shrink-0">
                             <img src="./logo.png" className="h-16 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
                         </div>
                     </div>
 
-                    {/* 2. 목차 (무조건 1페이지 고정) */}
+                    {/* 2. 목차 (무조�?1?�이지 고정) */}
                     <div className="print-page print-fixed-page">
-                        <h2 className="text-3xl font-bold border-b-2 border-black pb-4 mb-8">목 차</h2>
+                        <h2 className="text-3xl font-bold border-b-2 border-black pb-4 mb-8">�?�?/h2>
                         <ul className="space-y-6 text-xl text-black">
-                            <li className="flex justify-between border-b border-dotted pb-2"><span>1. 체크리스트 결과</span><span>3p</span></li>
-                            <li className="flex justify-between border-b border-dotted pb-2"><span>2. 현황 배치도</span><span>4p</span></li>
-                            <li className="flex justify-between border-b border-dotted pb-2"><span>3. 위험성평가 결과 및 등급</span><span>5p</span></li>
-                            <li className="flex justify-between border-b border-dotted pb-2"><span>4. 밀폐공간별 상세 현황</span><span>6p~</span></li>
-                            <li className="flex justify-between border-b border-dotted pb-2"><span>5. 종합 의견</span><span>End</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>1. 체크리스??결과</span><span>3p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>2. ?�황 배치??/span><span>4p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>3. ?�험?�평가 결과 �??�급</span><span>5p</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>4. 밀?�공간별 ?�세 ?�황</span><span>6p~</span></li>
+                            <li className="flex justify-between border-b border-dotted pb-2"><span>5. 종합 ?�견</span><span>End</span></li>
                         </ul>
                     </div>
 
-                    {/* 3. 체크리스트 결과 (페이지 자동 넘어감) */}
+                    {/* 3. 체크리스??결과 (?�이지 ?�동 ?�어�? */}
                     <div className="print-page print-flow-page">
 
-                        {/* 1-1. 체크리스트 종합 평가 결과표 */}
+                        {/* 1-1. 체크리스??종합 ?��? 결과??*/}
                         <div className="break-inside-avoid mb-8">
-                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4">1. 체크리스트 결과</h2>
-                            <h3 className="text-lg font-bold text-gray-800 mb-3 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">■ 1-1. 체크리스트 종합 평가 결과</h3>
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4">1. 체크리스??결과</h2>
+                            <h3 className="text-lg font-bold text-gray-800 mb-3 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">??1-1. 체크리스??종합 ?��? 결과</h3>
                             <table className="w-full border-collapse border border-gray-400 text-sm">
                                 <thead className="bg-gray-200">
                                     <tr>
                                         <th className="border border-gray-400 p-2 w-12 text-center font-bold">NO</th>
-                                        <th className="border border-gray-400 p-2 text-center font-bold">점검 항목</th>
+                                        <th className="border border-gray-400 p-2 text-center font-bold">?��? ??��</th>
                                         <th className="border border-gray-400 p-2 w-20 text-center font-bold">결과</th>
                                     </tr>
                                 </thead>
@@ -1144,9 +1144,9 @@
                                             <td className="border border-gray-400 p-2 text-center text-gray-600">{index + 1}</td>
                                             <td className="border border-gray-400 p-2 text-gray-800">{item.question}</td>
                                             <td className="border border-gray-400 p-2 text-center font-bold">
-                                                {item.status === 'PASS' && <span className="text-blue-600">적합</span>}
-                                                {item.status === 'FAIL' && <span className="text-red-600">부적합</span>}
-                                                {item.status === 'NA' && <span className="text-gray-400">해당없음</span>}
+                                                {item.status === 'PASS' && <span className="text-blue-600">?�합</span>}
+                                                {item.status === 'FAIL' && <span className="text-red-600">부?�합</span>}
+                                                {item.status === 'NA' && <span className="text-gray-400">?�당?�음</span>}
                                                 {!item.status && <span className="text-gray-300">-</span>}
                                             </td>
                                         </tr>
@@ -1155,15 +1155,15 @@
                             </table>
                         </div>
 
-                        {/* 1-2. 부적합 항목 개선 대책 (기존 로직 유지) */}
+                        {/* 1-2. 부?�합 ??�� 개선 ?��?(기존 로직 ?��?) */}
                         <div className="break-inside-avoid">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">■ 1-2. 부적합 항목 개선 대책</h3>
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">??1-2. 부?�합 ??�� 개선 ?��?/h3>
                             {defectSummary.length === 0
-                                ? <div className="text-center p-10 bg-gray-100 break-inside-avoid">지적사항 없음</div>
+                                ? <div className="text-center p-10 bg-gray-100 break-inside-avoid">지?�사???�음</div>
                                 : defectSummary.map((d, i) => (
                                     <div key={i} className="mb-4 border border-red-200 p-4 rounded bg-red-50 break-inside-avoid">
-                                        <div className="text-red-600 font-bold mb-1">[개선 필요 {i + 1}] {d.question}</div>
-                                        <div className="font-bold">➤ 권고: {d.action}</div>
+                                        <div className="text-red-600 font-bold mb-1">[개선 ?�요 {i + 1}] {d.question}</div>
+                                        <div className="font-bold">??권고: {d.action}</div>
                                     </div>
                                 ))
                             }
@@ -1171,58 +1171,92 @@
 
                     </div>
 
-                    {/* [문제 3 완벽 해결] 4. 현황 배치도 및 범례 (무조건 1페이지 고정) */}
+                    {/* [문제 3 ?�벽 ?�결] 4. ?�황 배치??�?범�? (무조�?1?�이지 고정) */}
                     <div className="print-page print-fixed-page">
-                        <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4 shrink-0">2. 현황 배치도</h2>
-                        {/* 도면 박스 높이를 140mm로 고정하여 범례가 들어갈 자리를 확실히 확보 */}
+                        <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4 shrink-0">2. ?�황 배치??/h2>
+                        {/* ?�면 박스 ?�이�?140mm�?고정?�여 범�?가 ?�어�??�리�??�실???�보 */}
                         <div className="flex-1 w-full border flex items-center justify-center relative overflow-hidden" style={{ maxHeight: '140mm' }}>
                             {mapImage ? (
                                 <div className="relative inline-block w-full h-full flex justify-center items-center">
                                     <img src={mapImage} className="max-w-full max-h-full object-contain" />
-                                    {spaces.filter(s => s.locationMap).map(s => (
-                                        <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${s.risk.level === 'HIGH' ? 'bg-red-600 animate-bounce' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
-                                            {s.id.split('-')[1]}
-                                        </div>
-                                    ))}
+                                    {spaces.filter(s => s.locationMap).map(s => {
+                                        // 1?�계 가???�합???�정
+                                        const o2 = Number(s.gas && s.gas.o2) || 0;
+                                        const h2s = Number(s.gas && s.gas.h2s) || 0;
+                                        const co = Number(s.gas && s.gas.co) || 0;
+                                        const lel = Number(s.gas && s.gas.lel) || 0;
+                                        const co2 = Number(s.gas && s.gas.co2) || 0;
+
+                                        let gasLevel = 1;
+                                        if (o2 < 10.0 || h2s >= 100 || co >= 1200 || lel >= 25 || co2 >= 4.0) gasLevel = 4;
+                                        else if ((o2 >= 10.0 && o2 < 18.0) || o2 >= 23.5 || (h2s >= 10 && h2s < 100) || (co >= 30 && co < 1200) || (lel >= 10 && lel < 25) || (co2 >= 1.5 && co2 < 4.0)) gasLevel = 3;
+                                        else if ((o2 >= 18.0 && o2 < 19.5) || (h2s >= 5 && h2s < 10) || (co >= 15 && co < 30) || (lel >= 5 && lel < 10) || (co2 >= 0.5 && co2 < 1.5)) gasLevel = 2;
+
+                                        // 2?�계 매트�?�� ?�수 ?�출
+                                        const mA = Number(s.matrixA) || 1;
+                                        const mB = Number(s.matrixB) || 1;
+                                        const mC = Number(s.matrixC) || 1;
+                                        const score = mA * mB * mC;
+
+                                        let matrixLevel = 1;
+                                        if (score >= 13) matrixLevel = 4;
+                                        else if (score >= 9) matrixLevel = 3;
+                                        else if (score >= 5) matrixLevel = 2;
+
+                                        // 최종 ?�급 ?�정 (Max Rule)
+                                        const finalLevel = Math.max(gasLevel, matrixLevel);
+                                        let markerColor = '';
+                                        if (finalLevel === 4) markerColor = 'bg-red-600 border-red-800';
+                                        else if (finalLevel === 3) markerColor = 'bg-orange-500 border-orange-700';
+                                        else if (finalLevel === 2) markerColor = 'bg-yellow-500 border-yellow-700';
+                                        else markerColor = 'bg-green-600 border-green-800';
+
+                                        return (
+                                            <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${markerColor}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
+                                                {s.id.split('-')[1]}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            ) : <span className="text-gray-400">배치도 이미지 없음</span>}
+                            ) : <span className="text-gray-400">배치???��?지 ?�음</span>}
                         </div>
-                        {/* 8페이지로 도망가던 범례를 도면 바로 밑으로 고정 */}
-                        <div className="shrink-0 flex justify-center gap-6 text-sm font-bold mt-4 mb-2">
-                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-600 rounded-full border"></span> 고위험</span>
-                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-500 rounded-full border"></span> 중위험</span>
-                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-blue-600 rounded-full border"></span> 저위험</span>
-                        </div>
+                        {/* 8?�이지�??�망가??범�?�??�면 바로 밑으�?고정 */}
+                                                <div className="shrink-0 flex justify-center gap-6 text-sm font-bold mt-4 mb-2">
+                             <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-600 rounded-full border border-red-800"></span> 초고위험</span>
+                             <span className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-500 rounded-full border border-orange-700"></span> 고위험</span>
+                             <span className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-500 rounded-full border border-yellow-700"></span> 중위험</span>
+                             <span className="flex items-center gap-1"><span className="w-4 h-4 bg-green-600 rounded-full border border-green-800"></span> 저위험</span>
+                         </div>
                     </div>
 
-                    {/* 5. 위험성평가 결과 요약 (페이지 자동 넘어감) */}
+                    {/* 5. ?�험?�평가 결과 ?�약 (?�이지 ?�동 ?�어�? */}
                     <div className="print-page print-flow-page">
                         <div className="break-inside-avoid">
-                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">3. 위험성평가 결과 및 등급 분류</h2>
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">3. ?�험?�평가 결과 �??�급 분류</h2>
                         </div>
 
                         <div className="mb-8 page-break-inside-avoid">
                             <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
-                                ■ 3-1. 위험성평가 등급 분류 기준 (2단계 통합 평가)
+                                ??3-1. ?�험?�평가 ?�급 분류 기�? (2?�계 ?�합 ?��?)
                             </h3>
 
-                            {/* 1단계: 4단계 가스 기준표 (NIOSH IDLH) */}
+                            {/* 1?�계: 4?�계 가??기�???(NIOSH IDLH) */}
                             <div className="mb-4">
-                                <p className="font-bold text-gray-700 mb-2 text-sm">▶ 1단계: 가스 농도 기반 위험성 평가 (안전보건규칙 및 NIOSH IDLH 기준 적용)</p>
+                                <p className="font-bold text-gray-700 mb-2 text-sm">??1?�계: 가???�도 기반 ?�험???��? (?�전보건규칙 �?NIOSH IDLH 기�? ?�용)</p>
                                 <table className="w-full border-collapse border border-gray-400 text-[11px] text-center">
                                     <thead className="bg-gray-200">
                                         <tr>
-                                            <th className="border border-gray-400 p-1">위험 등급</th>
-                                            <th className="border border-gray-400 p-1">산소 (O2)</th>
-                                            <th className="border border-gray-400 p-1">황화수소 (H2S)</th>
-                                            <th className="border border-gray-400 p-1">일산화탄소 (CO)</th>
-                                            <th className="border border-gray-400 p-1">이산화탄소 (CO2)</th>
-                                            <th className="border border-gray-400 p-1">가연성가스 (LEL)</th>
+                                            <th className="border border-gray-400 p-1">?�험 ?�급</th>
+                                            <th className="border border-gray-400 p-1">?�소 (O2)</th>
+                                            <th className="border border-gray-400 p-1">?�화?�소 (H2S)</th>
+                                            <th className="border border-gray-400 p-1">?�산?�탄??(CO)</th>
+                                            <th className="border border-gray-400 p-1">?�산?�탄??(CO2)</th>
+                                            <th className="border border-gray-400 p-1">가?�성가??(LEL)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-green-700 bg-green-50">저위험<br />(안전 유지)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-green-700 bg-green-50">?�?�험<br />(?�전 ?��?)</td>
                                             <td className="border border-gray-400 p-1">19.5% ~ 23.5% 미만</td>
                                             <td className="border border-gray-400 p-1">0 ~ 4 ppm</td>
                                             <td className="border border-gray-400 p-1">0 ~ 14 ppm</td>
@@ -1230,56 +1264,56 @@
                                             <td className="border border-gray-400 p-1">0 ~ 4%</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-yellow-600 bg-yellow-50">중위험<br />(1차 경보)</td>
-                                            <td className="border border-gray-400 p-1">18.0% 이상 ~ 19.5% 미만</td>
-                                            <td className="border border-gray-400 p-1">5 ppm 이상 ~ 10 ppm 미만</td>
-                                            <td className="border border-gray-400 p-1">15 ppm 이상 ~ 30 ppm 미만</td>
-                                            <td className="border border-gray-400 p-1">0.5% 이상 ~ 1.5% 미만</td>
-                                            <td className="border border-gray-400 p-1">5% 이상 ~ 10% 미만</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-yellow-600 bg-yellow-50">중위??br />(1�?경보)</td>
+                                            <td className="border border-gray-400 p-1">18.0% ?�상 ~ 19.5% 미만</td>
+                                            <td className="border border-gray-400 p-1">5 ppm ?�상 ~ 10 ppm 미만</td>
+                                            <td className="border border-gray-400 p-1">15 ppm ?�상 ~ 30 ppm 미만</td>
+                                            <td className="border border-gray-400 p-1">0.5% ?�상 ~ 1.5% 미만</td>
+                                            <td className="border border-gray-400 p-1">5% ?�상 ~ 10% 미만</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-orange-600 bg-orange-50">고위험<br />(법적 이탈)</td>
-                                            <td className="border border-gray-400 p-1">10.0%~18.0% 미만 / 23.5% 이상</td>
-                                            <td className="border border-gray-400 p-1">10 ppm 이상 ~ 99 ppm</td>
-                                            <td className="border border-gray-400 p-1">30 ppm 이상 ~ 1,199 ppm</td>
-                                            <td className="border border-gray-400 p-1">1.5% 이상 ~ 3.99%</td>
-                                            <td className="border border-gray-400 p-1">10% 이상 ~ 24%</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-orange-600 bg-orange-50">고위??br />(법적 ?�탈)</td>
+                                            <td className="border border-gray-400 p-1">10.0%~18.0% 미만 / 23.5% ?�상</td>
+                                            <td className="border border-gray-400 p-1">10 ppm ?�상 ~ 99 ppm</td>
+                                            <td className="border border-gray-400 p-1">30 ppm ?�상 ~ 1,199 ppm</td>
+                                            <td className="border border-gray-400 p-1">1.5% ?�상 ~ 3.99%</td>
+                                            <td className="border border-gray-400 p-1">10% ?�상 ~ 24%</td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-gray-400 p-1 font-bold text-red-600 bg-red-50">초고위험<br />(IDLH/치사)</td>
+                                            <td className="border border-gray-400 p-1 font-bold text-red-600 bg-red-50">초고?�험<br />(IDLH/치사)</td>
                                             <td className="border border-gray-400 p-1">10.0% 미만</td>
-                                            <td className="border border-gray-400 p-1">100 ppm 이상</td>
-                                            <td className="border border-gray-400 p-1">1,200 ppm 이상</td>
-                                            <td className="border border-gray-400 p-1">4.0% 이상</td>
-                                            <td className="border border-gray-400 p-1">25% 이상</td>
+                                            <td className="border border-gray-400 p-1">100 ppm ?�상</td>
+                                            <td className="border border-gray-400 p-1">1,200 ppm ?�상</td>
+                                            <td className="border border-gray-400 p-1">4.0% ?�상</td>
+                                            <td className="border border-gray-400 p-1">25% ?�상</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
-                            {/* 2단계: 매트릭스 및 최종 등급표 */}
+                            {/* 2?�계: 매트�?�� �?최종 ?�급??*/}
                             <div>
-                                <p className="font-bold text-gray-700 mb-2 text-sm">▶ 2단계: 다차원 매트릭스 평가 (가스 기준 충족 시 A × B × C 산출)</p>
+                                <p className="font-bold text-gray-700 mb-2 text-sm">??2?�계: ?�차??매트�?�� ?��? (가??기�? 충족 ??A × B × C ?�출)</p>
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <table className="w-full md:w-1/2 border-collapse border border-gray-400 text-xs">
                                         <thead className="bg-gray-100">
                                             <tr>
-                                                <th className="border border-gray-400 p-1">변수 (Variables)</th>
-                                                <th className="border border-gray-400 p-1">배점 기준</th>
+                                                <th className="border border-gray-400 p-1">변??(Variables)</th>
+                                                <th className="border border-gray-400 p-1">배점 기�?</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-left">
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">A. 구조/난이도</td>
-                                                <td className="border border-gray-400 p-1">1(얕음/직접구조) ~ 4(복잡/매몰위험)</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">A. 구조/?�이??/td>
+                                                <td className="border border-gray-400 p-1">1(?�음/직접구조) ~ 4(복잡/매몰?�험)</td>
                                             </tr>
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">B. 작업 위험성</td>
-                                                <td className="border border-gray-400 p-1">1(단순점검) ~ 3(화기/유기용제 취급)</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">B. ?�업 ?�험??/td>
+                                                <td className="border border-gray-400 p-1">1(?�순?��?) ~ 3(?�기/?�기?�제 취급)</td>
                                             </tr>
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">C. 환경 제어</td>
-                                                <td className="border border-gray-400 p-1">1(완벽 통제) ~ 2(통제 미흡/누락)</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-center bg-gray-50">C. ?�경 ?�어</td>
+                                                <td className="border border-gray-400 p-1">1(?�벽 ?�제) ~ 2(?�제 미흡/?�락)</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1287,31 +1321,31 @@
                                     <table className="w-full md:w-1/2 border-collapse border border-gray-400 text-xs">
                                         <thead className="bg-gray-200">
                                             <tr>
-                                                <th className="border border-gray-400 p-1 w-20">최종 등급</th>
-                                                <th className="border border-gray-400 p-1 w-16">점수</th>
-                                                <th className="border border-gray-400 p-1">관리 및 조치 기준</th>
+                                                <th className="border border-gray-400 p-1 w-20">최종 ?�급</th>
+                                                <th className="border border-gray-400 p-1 w-16">?�수</th>
+                                                <th className="border border-gray-400 p-1">관�?�?조치 기�?</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-center">
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-green-700">저위험</td>
-                                                <td className="border border-gray-400 p-1">1~4점</td>
-                                                <td className="border border-gray-400 p-1 text-left">일반 절차 준수 및 기본 보호구 착용</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-green-700">?�?�험</td>
+                                                <td className="border border-gray-400 p-1">1~4??/td>
+                                                <td className="border border-gray-400 p-1 text-left">?�반 ?�차 준??�?기본 보호�?착용</td>
                                             </tr>
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-yellow-600">중위험</td>
-                                                <td className="border border-gray-400 p-1">5~8점</td>
-                                                <td className="border border-gray-400 p-1 text-left">작업허가서(PTW) 엄격 적용, 지속 환기</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-yellow-600">중위??/td>
+                                                <td className="border border-gray-400 p-1">5~8??/td>
+                                                <td className="border border-gray-400 p-1 text-left">?�업?��???PTW) ?�격 ?�용, 지???�기</td>
                                             </tr>
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-orange-600">고위험</td>
-                                                <td className="border border-gray-400 p-1">9~12점</td>
-                                                <td className="border border-gray-400 p-1 text-left">구출장비 사전 세팅, 호흡용 보호구 대기</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-orange-600">고위??/td>
+                                                <td className="border border-gray-400 p-1">9~12??/td>
+                                                <td className="border border-gray-400 p-1 text-left">구출?�비 ?�전 ?�팅, ?�흡??보호�??��?/td>
                                             </tr>
                                             <tr>
-                                                <td className="border border-gray-400 p-1 font-bold text-red-600">초고위험</td>
-                                                <td className="border border-gray-400 p-1">13점 이상</td>
-                                                <td className="border border-gray-400 p-1 text-left font-bold">출입 절대 금지 / 작업 방식 전면 재검토</td>
+                                                <td className="border border-gray-400 p-1 font-bold text-red-600">초고?�험</td>
+                                                <td className="border border-gray-400 p-1">13???�상</td>
+                                                <td className="border border-gray-400 p-1 text-left font-bold">출입 ?��? 금�? / ?�업 방식 ?�면 ?��???/td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1321,48 +1355,48 @@
 
                         <div className="mb-8 page-break-inside-avoid">
                             <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3 bg-gray-50 py-1">
-                                ■ 3-2. 위험성평가 결과 요약
+                                ??3-2. ?�험?�평가 결과 ?�약
                             </h3>
                             <table className="w-full border-collapse border border-gray-400 text-xs text-center">
                                 <thead className="bg-gray-200">
                                     <tr>
                                         <th className="border border-gray-400 p-2" rowSpan={2}>NO</th>
-                                        <th className="border border-gray-400 p-2" rowSpan={2}>밀폐공간 명칭 (위치)</th>
-                                        <th className="border border-gray-400 p-2" rowSpan={2}>1단계<br />가스 판정</th>
-                                        <th className="border border-gray-400 p-1" colSpan={3}>2단계 매트릭스 변수</th>
-                                        <th className="border border-gray-400 p-2" rowSpan={2}>합산<br />점수</th>
-                                        <th className="border border-gray-400 p-2" rowSpan={2}>최종 등급</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>밀?�공�?명칭 (?�치)</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>1?�계<br />가???�정</th>
+                                        <th className="border border-gray-400 p-1" colSpan={3}>2?�계 매트�?�� 변??/th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>?�산<br />?�수</th>
+                                        <th className="border border-gray-400 p-2" rowSpan={2}>최종 ?�급</th>
                                     </tr>
                                     <tr>
                                         <th className="border border-gray-400 p-1 bg-gray-100">A(구조)</th>
-                                        <th className="border border-gray-400 p-1 bg-gray-100">B(작업)</th>
-                                        <th className="border border-gray-400 p-1 bg-gray-100">C(제어)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">B(?�업)</th>
+                                        <th className="border border-gray-400 p-1 bg-gray-100">C(?�어)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {spaces && spaces.map((space, index) => {
-                                        // 1단계 가스 적합성 판정
+                                        // 1?�계 가???�합???�정
                                         const isGasOk = space.gas && space.gas.o2 >= 18 && space.gas.o2 <= 23.5 && space.gas.h2s < 10 && space.gas.co < 30 && space.gas.lel < 10;
-                                        const gasText = isGasOk ? '적합' : '이탈';
+                                        const gasText = isGasOk ? '?�합' : '?�탈';
                                         const gasColor = isGasOk ? 'text-blue-600' : 'text-red-600 font-bold';
 
-                                        // 2단계 매트릭스 점수 산출
+                                        // 2?�계 매트�?�� ?�수 ?�출
                                         const mA = Number(space.matrixA) || 1;
                                         const mB = Number(space.matrixB) || 1;
                                         const mC = Number(space.matrixC) || 1;
                                         const score = mA * mB * mC;
 
-                                        // 최종 등급 판정
+                                        // 최종 ?�급 ?�정
                                         let finalGrade = '';
                                         let gradeColor = '';
                                         if (!isGasOk || score >= 13) {
-                                            finalGrade = '초고위험'; gradeColor = 'text-red-600 font-bold bg-red-50';
+                                            finalGrade = '초고?�험'; gradeColor = 'text-red-600 font-bold bg-red-50';
                                         } else if (score >= 9) {
-                                            finalGrade = '고위험'; gradeColor = 'text-orange-600 font-bold bg-orange-50';
+                                            finalGrade = '고위??; gradeColor = 'text-orange-600 font-bold bg-orange-50';
                                         } else if (score >= 5) {
-                                            finalGrade = '중위험'; gradeColor = 'text-yellow-600 font-bold bg-yellow-50';
+                                            finalGrade = '중위??; gradeColor = 'text-yellow-600 font-bold bg-yellow-50';
                                         } else {
-                                            finalGrade = '저위험'; gradeColor = 'text-green-700 font-bold bg-green-50';
+                                            finalGrade = '?�?�험'; gradeColor = 'text-green-700 font-bold bg-green-50';
                                         }
 
                                         return (
@@ -1383,9 +1417,9 @@
                         </div>
                     </div>
 
-                    {/* [문제 5, 6, 7 완벽 해결] 6. 개별 상세 현황 (무조건 1페이지 고정) */}
+                    {/* [문제 5, 6, 7 ?�벽 ?�결] 6. 개별 ?�세 ?�황 (무조�?1?�이지 고정) */}
                     {spaces.map((s, idx) => {
-                        // 1단계 가스 적합성 판정 (4단계 알고리즘)
+                        // 1?�계 가???�합???�정 (4?�계 ?�고리즘)
                         const o2 = Number(s.gas && s.gas.o2) || 0;
                         const h2s = Number(s.gas && s.gas.h2s) || 0;
                         const co = Number(s.gas && s.gas.co) || 0;
@@ -1397,7 +1431,7 @@
                         else if ((o2 >= 10.0 && o2 < 18.0) || o2 >= 23.5 || (h2s >= 10 && h2s < 100) || (co >= 30 && co < 1200) || (lel >= 10 && lel < 25) || (co2 >= 1.5 && co2 < 4.0)) gasLevel = 3;
                         else if ((o2 >= 18.0 && o2 < 19.5) || (h2s >= 5 && h2s < 10) || (co >= 15 && co < 30) || (lel >= 5 && lel < 10) || (co2 >= 0.5 && co2 < 1.5)) gasLevel = 2;
 
-                        // 2단계 매트릭스 점수 산출
+                        // 2?�계 매트�?�� ?�수 ?�출
                         const mA = Number(s.matrixA) || 1;
                         const mB = Number(s.matrixB) || 1;
                         const mC = Number(s.matrixC) || 1;
@@ -1408,87 +1442,87 @@
                         else if (score >= 9) matrixLevel = 3;
                         else if (score >= 5) matrixLevel = 2;
 
-                        // 최종 등급 판정 (Max Rule)
+                        // 최종 ?�급 ?�정 (Max Rule)
                         const finalLevel = Math.max(gasLevel, matrixLevel);
                         let badgeText = '';
                         let badgeColor = '';
 
                         if (finalLevel === 4) {
-                            badgeText = '초고위험';
+                            badgeText = '초고?�험';
                             badgeColor = 'bg-red-600 text-white';
                         } else if (finalLevel === 3) {
-                            badgeText = '고위험';
+                            badgeText = '고위??;
                             badgeColor = 'bg-orange-500 text-white';
                         } else if (finalLevel === 2) {
-                            badgeText = '중위험';
+                            badgeText = '중위??;
                             badgeColor = 'bg-yellow-500 text-white';
                         } else {
-                            badgeText = '저위험';
+                            badgeText = '?�?�험';
                             badgeColor = 'bg-green-600 text-white';
                         }
 
                         return (
                         <div key={s.id} className="print-page print-fixed-page">
-                            <h2 className="shrink-0 text-2xl font-bold border-b-2 border-black pb-2 mb-3">4-{idx + 1}. {s.name} 상세 현황</h2>
+                            <h2 className="shrink-0 text-2xl font-bold border-b-2 border-black pb-2 mb-3">4-{idx + 1}. {s.name} ?�세 ?�황</h2>
 
                             <div className="shrink-0 flex justify-between items-end mb-2">
                                 <div className="text-lg">
-                                    <span className="font-bold text-gray-600 mr-2">위치:</span> {s.location}
+                                    <span className="font-bold text-gray-600 mr-2">?�치:</span> {s.location}
                                     <span className="mx-3 text-gray-300">|</span>
-                                    <span className="font-bold text-gray-600 mr-2">관리번호:</span> {s.id}
+                                    <span className="font-bold text-gray-600 mr-2">관리번??</span> {s.id}
                                 </div>
                                 <div className={`px-4 py-1 rounded-full text-sm font-bold ${badgeColor} print:border print:border-gray-300`}>
                                     {badgeText}
                                 </div>
                             </div>
 
-                            {/* 💡 핵심 수술: 사진 박스 높이를 70mm(7cm)로 철창치듯 완전히 고정!! 절대 늘어나지 않음!! */}
+                            {/* ?�� ?�심 ?�술: ?�진 박스 ?�이�?70mm(7cm)�?철창치듯 ?�전??고정!! ?��? ?�어?��? ?�음!! */}
                             <div className="w-full flex items-center justify-center mb-3 border-2 border-slate-300 bg-slate-50 overflow-hidden rounded-lg shrink-0" style={{ height: '70mm' }}>
                                 {s.photo ? (
                                     <img src={s.photo} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                                 ) : (
-                                    <span className="text-slate-400 text-xl font-bold">현장 사진 없음</span>
+                                    <span className="text-slate-400 text-xl font-bold">?�장 ?�진 ?�음</span>
                                 )}
                             </div>
 
                             <div className="shrink-0 mb-3">
-                                <h3 className="font-bold text-lg mb-1 text-slate-700">📌 기본 정보 및 측정 데이터</h3>
+                                <h3 className="font-bold text-lg mb-1 text-slate-700">?�� 기본 ?�보 �?측정 ?�이??/h3>
                                 <table className="w-full border-collapse border border-slate-400 text-sm">
                                     <tbody>
                                         <tr>
                                             <th className="border border-slate-400 bg-slate-100 p-2 w-1/4">출입 주기</th>
                                             <td className="border border-slate-400 p-2 w-1/4">{s.cycle}</td>
-                                            <th className="border border-slate-400 bg-slate-100 p-2 w-1/4">작업 인원</th>
+                                            <th className="border border-slate-400 bg-slate-100 p-2 w-1/4">?�업 ?�원</th>
                                             <td className="border border-slate-400 p-2 w-1/4">{s.personnel}</td>
                                         </tr>
                                         <tr>
-                                            <th className="border border-slate-400 bg-slate-100 p-2">면적/체적 (㎥)</th>
-                                            <td className="border border-slate-400 p-2">{s.area}㎥</td>
-                                            <th className="border border-slate-400 bg-slate-100 p-2">측정 시기</th>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">면적/체적 (??</th>
+                                            <td className="border border-slate-400 p-2">{s.area}??/td>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">측정 ?�기</th>
                                             <td className="border border-slate-400 p-2">{s.measureTime}</td>
                                         </tr>
                                         <tr>
-                                            <th className="border border-slate-400 bg-slate-100 p-2">유해가스 농도</th>
+                                            <th className="border border-slate-400 bg-slate-100 p-2">?�해가???�도</th>
                                             <td colSpan="3" className="border border-slate-400 p-2 bg-slate-50">
                                                 <div className="grid grid-cols-5 gap-2 text-center font-bold">
                                                     <div className={s.gas.o2 < 19.5 || s.gas.o2 > 23.5 ? 'text-red-600' : ''}>
-                                                        <div className="text-xs text-gray-500 font-normal">산소(O2)</div>
+                                                        <div className="text-xs text-gray-500 font-normal">?�소(O2)</div>
                                                         {s.gas.o2}%
                                                     </div>
                                                     <div className={s.gas.h2s > 0 ? 'text-red-600' : ''}>
-                                                        <div className="text-xs text-gray-500 font-normal">황화수소(H2S)</div>
+                                                        <div className="text-xs text-gray-500 font-normal">?�화?�소(H2S)</div>
                                                         {s.gas.h2s}ppm
                                                     </div>
                                                     <div className={s.gas.co > 25 ? 'text-red-600' : s.gas.co > 0 ? 'text-yellow-600' : ''}>
-                                                        <div className="text-xs text-gray-500 font-normal">일산화탄소(CO)</div>
+                                                        <div className="text-xs text-gray-500 font-normal">?�산?�탄??CO)</div>
                                                         {s.gas.co}ppm
                                                     </div>
                                                     <div className={s.gas.lel > 10 ? 'text-red-600' : s.gas.lel >= 5 ? 'text-yellow-600' : ''}>
-                                                        <div className="text-xs text-gray-500 font-normal">가연성가스(LEL)</div>
+                                                        <div className="text-xs text-gray-500 font-normal">가?�성가??LEL)</div>
                                                         {s.gas.lel}%
                                                     </div>
                                                     <div className={s.gas.co2 > 1.5 ? 'text-red-600' : s.gas.co2 >= 1.0 ? 'text-yellow-600' : ''}>
-                                                        <div className="text-xs text-gray-500 font-normal">이산화탄소(CO2)</div>
+                                                        <div className="text-xs text-gray-500 font-normal">?�산?�탄??CO2)</div>
                                                         {s.gas.co2}%
                                                     </div>
                                                 </div>
@@ -1500,14 +1534,14 @@
 
                             <div className="shrink-0 border-t-2 border-dashed border-slate-300 pt-3">
                                 <h3 className="font-bold text-lg mb-1 text-blue-900 flex items-center gap-2">
-                                    <Icon name="clipboard-check" className="text-blue-600" /> 개선 권고 사항 (Action Plan)
+                                    <Icon name="clipboard-check" className="text-blue-600" /> 개선 권고 ?�항 (Action Plan)
                                 </h3>
                                 <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
                                     <div className="font-bold text-base text-blue-800 mb-2">
-                                        💡 조치 방향: {s.riskSolution?.direction || "지속 관리"}
+                                        ?�� 조치 방향: {s.riskSolution?.direction || "지??관�?}
                                     </div>
                                     <ul className="list-disc pl-5 space-y-1 text-slate-700 text-sm">
-                                        {(s.riskSolution?.measures || ["기본 안전 수칙 준수"]).map((m, i) => (
+                                        {(s.riskSolution?.measures || ["기본 ?�전 ?�칙 준??]).map((m, i) => (
                                             <li key={i}>{m}</li>
                                         ))}
                                     </ul>
@@ -1517,16 +1551,16 @@
                         );
                     })}
 
-                    {/* 7. 종합 의견 (페이지 자동 넘어감) */}
+                    {/* 7. 종합 ?�견 (?�이지 ?�동 ?�어�? */}
                     <div className="print-page print-flow-page">
                         <div className="break-inside-avoid">
-                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">5. 종합 의견</h2>
+                            <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">5. 종합 ?�견</h2>
                             <div className="border border-gray-400 rounded-lg p-8 bg-white min-h-[300px]">
-                                <pre className="whitespace-pre-wrap font-sans text-lg leading-relaxed">{finalOpinion || "작성된 종합 의견이 없습니다."}</pre>
+                                <pre className="whitespace-pre-wrap font-sans text-lg leading-relaxed">{finalOpinion || "?�성??종합 ?�견???�습?�다."}</pre>
                             </div>
                             <div className="mt-10 text-right">
-                                <div className="text-2xl font-bold">대한산업보건협회 {reportInfo.agencyBranch}</div>
-                                <div className="text-gray-500 mt-2">평가자: (인) _________________</div>
+                                <div className="text-2xl font-bold">?�?�산?�보건협??{reportInfo.agencyBranch}</div>
+                                <div className="text-gray-500 mt-2">?��??? (?? _________________</div>
                             </div>
                         </div>
                     </div>
