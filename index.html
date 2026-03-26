@@ -1179,19 +1179,59 @@
                             {mapImage ? (
                                 <div className="relative inline-block w-full h-full flex justify-center items-center">
                                     <img src={mapImage} className="max-w-full max-h-full object-contain" />
-                                    {spaces.filter(s => s.locationMap).map(s => (
-                                        <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${s.risk.level === 'HIGH' ? 'bg-red-600 animate-bounce' : s.risk.level === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-600'}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
-                                            {s.id.split('-')[1]}
-                                        </div>
-                                    ))}
+                                    {spaces.filter(s => s.locationMap).map(s => {
+                                        // 1단계 가스 적합성 판정
+                                        const o2 = Number(s.o2) || 0;
+                                        const h2s = Number(s.h2s) || 0;
+                                        const co = Number(s.co) || 0;
+                                        const lel = Number(s.lel) || 0;
+                                        const co2 = Number(s.co2) || 0;
+
+                                        let gasLevel = 1;
+                                        if (o2 < 10.0 || h2s >= 100 || co >= 1200 || lel >= 25 || co2 >= 4.0) gasLevel = 4;
+                                        else if ((o2 >= 10.0 && o2 < 18.0) || o2 >= 23.5 || (h2s >= 10 && h2s < 100) || (co >= 30 && co < 1200) || (lel >= 10 && lel < 25) || (co2 >= 1.5 && co2 < 4.0)) gasLevel = 3;
+                                        else if ((o2 >= 18.0 && o2 < 19.5) || (h2s >= 5 && h2s < 10) || (co >= 15 && co < 30) || (lel >= 5 && lel < 10) || (co2 >= 0.5 && co2 < 1.5)) gasLevel = 2;
+
+                                        // 2단계 매트릭스 점수 산출
+                                        const mA = Number(s.matrixA) || 1;
+                                        const mB = Number(s.matrixB) || 1;
+                                        const mC = Number(s.matrixC) || 1;
+                                        const score = mA * mB * mC;
+
+                                        let matrixLevel = 1;
+                                        if (score >= 13) matrixLevel = 4;
+                                        else if (score >= 9) matrixLevel = 3;
+                                        else if (score >= 5) matrixLevel = 2;
+
+                                        // 최종 등급 판정 (Max Rule)
+                                        const finalLevel = Math.max(gasLevel, matrixLevel);
+
+                                        let markerClass = '';
+                                        if (finalLevel === 4) {
+                                            markerClass = 'bg-red-600 animate-bounce'; // 초고위험 (뛰는 애니메이션)
+                                        } else if (finalLevel === 3) {
+                                            markerClass = 'bg-orange-500'; // 고위험
+                                        } else if (finalLevel === 2) {
+                                            markerClass = 'bg-yellow-500'; // 중위험
+                                        } else {
+                                            markerClass = 'bg-green-600'; // 저위험
+                                        }
+
+                                        return (
+                                            <div key={s.id} className={`absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${markerClass}`} style={{ left: `${s.locationMap.x}%`, top: `${s.locationMap.y}%` }}>
+                                                {s.id.split('-')[1]}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : <span className="text-gray-400">배치도 이미지 없음</span>}
                         </div>
                         {/* 8페이지로 도망가던 범례를 도면 바로 밑으로 고정 */}
                         <div className="shrink-0 flex justify-center gap-6 text-sm font-bold mt-4 mb-2">
-                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-600 rounded-full border"></span> 고위험</span>
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-600 rounded-full border"></span> 초고위험</span>
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-500 rounded-full border"></span> 고위험</span>
                             <span className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-500 rounded-full border"></span> 중위험</span>
-                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-blue-600 rounded-full border"></span> 저위험</span>
+                            <span className="flex items-center gap-1"><span className="w-4 h-4 bg-green-600 rounded-full border"></span> 저위험</span>
                         </div>
                     </div>
 
