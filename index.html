@@ -985,50 +985,68 @@
         };
 
         const GuideScreen = () => {
-            const spaces = [
-                { id: 1, title: "우물·수직갱·터널·피트", desc: "우물, 수직갱, 터널, 잠함, 피트 또는 그 밖에 이와 유사한 것의 내부", icon: "arrow-down-circle" },
-                { id: 2, title: "암거·맨홀 또는 피트", desc: "암거, 맨홀 또는 피트의 내부 (가장 흔한 질식 사고 발생지)", icon: "circle-dot" },
-                { id: 3, title: "부패·산화 탱크 및 반응탑", desc: "부패하거나 산화되기 쉬운 물질이 들어있는 탱크, 보일러, 반응탑 등", icon: "cylinder" },
-                { id: 4, title: "석탄·황화광 하역/저장", desc: "석탄, 아갈탄, 황화광, 강재, 원목, 건성유, 어유 등 하역 및 저장 공간", icon: "box" },
-                { id: 5, title: "부패성 물질 저장소", desc: "명주, 모노륨, 가죽, 펄프 등 부패하기 쉬운 물질을 취급/저장하는 장소", icon: "package-open" },
-                { id: 6, title: "발효 시설", desc: "간장, 주류, 효모 등 발효하는 물품을 취급/저장하는 기구 및 설비 내부", icon: "beaker" },
-                { id: 7, title: "정화조·침전조·집수조", desc: "분뇨, 오염된 흙, 썩은 물, 폐수, 하수 등이 있는 정화조나 집수조 내부", icon: "droplet" },
-                { id: 8, title: "드라이아이스 냉동고", desc: "드라이아이스를 사용하는 냉장고, 냉동고, 냉동화물자동차 내부", icon: "snowflake" },
-                { id: 9, title: "불활성기체 설비", desc: "헬륨, 아르곤, 질소 등 불활성기체를 취급하는 파이프, 보일러 등 내부", icon: "wind" },
-                { id: 10, title: "산소결핍 발생 장소", desc: "산소 농도가 18% 미만, 23.5% 이상이거나 유해가스 농도 초과 장소", icon: "alert-triangle" },
-                { id: 11, title: "갈탄·목탄 사용 장소", desc: "콘크리트 양생 등을 위해 갈탄, 목탄, 연탄 등을 사용하는 장소", icon: "flame" },
-                { id: 12, title: "용접·용단 작업 장소", desc: "환기가 불충분한 공간에서 아르곤 가스 등을 사용하는 용접 작업장", icon: "zap" },
-                { id: 13, title: "소화설비 방출 구역", desc: "이산화탄소 등 가스계 소화설비가 설치된 방호 구역 내부", icon: "fire-extinguisher" },
-                { id: 14, title: "지하 케이블/관로", desc: "전력 통신 케이블, 가스 배관 등이 지나가는 지하 관로 및 암거", icon: "cable" },
-                { id: 15, title: "밀폐된 선박 내부", desc: "오랜 기간 밀폐되어 있던 선박의 창고, 밸러스트 탱크 내부", icon: "ship" },
-                { id: 16, title: "곡물/사료 저장 사일로", desc: "곡물, 사료 등을 대량으로 저장하여 발효/부패가 일어날 수 있는 사일로", icon: "wheat" },
-                { id: 17, title: "가스 배관 및 맨홀", desc: "천연가스, 도시가스 배관 점검을 위한 지하 밸브실 및 맨홀 내부", icon: "pipette" },
-                { id: 18, title: "기타 유해가스 정체 구역", desc: "기타 환기가 불충분하여 산소결핍이나 유해가스가 정체될 수 있는 모든 공간", icon: "help-circle" }
+            const confinedSpaceExamples = [
+                { id: 1, name: '강제반응탑', desc: '화학물질 잔류 및 반응 가스 체류', imgSrc: '/images/space1.jpg' },
+                { id: 2, name: '보일러 연통 내부', desc: '일산화탄소 등 연소가스 체류', imgSrc: '/images/space2.jpg' },
+                { id: 3, name: '선창 내부', desc: '화물 산화로 인한 극심한 산소결핍', imgSrc: '/images/space3.jpg' },
+                { id: 4, name: '음식물 저장 호퍼', desc: '유기물 부패로 인한 황화수소 발생', imgSrc: '/images/space4.jpg' },
+                { id: 5, name: '주류발효탱크', desc: '발효 중 이산화탄소 급증 및 산소결핍', imgSrc: '/images/space5.jpg' },
+                { id: 6, name: '식품발효 및 저장조', desc: '발효 가스 생성 및 산소 소모', imgSrc: '/images/space6.jpg' },
+                { id: 7, name: '하수처리장 침전지', desc: '슬러지 부패로 인한 황화수소 중독', imgSrc: '/images/space7.jpg' },
+                { id: 8, name: '오수처리장 정화조', desc: '고농도 황화수소 및 메탄가스 발생', imgSrc: '/images/space8.jpg' },
+                { id: 9, name: '분뇨 처리장', desc: '복합 유해가스 및 산소결핍', imgSrc: '/images/space9.jpg' },
+                { id: 10, name: '냉동창고 내부', desc: '냉매 누출 및 드라이아이스 승화 위험', imgSrc: '/images/space10.jpg' },
+                { id: 11, name: '폐수침전조', desc: '폐수 찌꺼기 부패로 인한 독성 가스', imgSrc: '/images/space11.jpg' },
+                { id: 12, name: '반응기', desc: '세척용제 증기 및 잔류 가스 중독', imgSrc: '/images/space12.jpg' },
+                { id: 13, name: '원료저장탱크', desc: '내부 산화 및 유기용제 증기 체류', imgSrc: '/images/space13.jpg' },
+                { id: 14, name: '용접/비파괴 배관 내부', desc: '아르곤 등 불활성기체로 인한 산소결핍', imgSrc: '/images/space14.jpg' },
+                { id: 15, name: '공기정화장치 내부', desc: '유해물질 축적 및 환기 불량', imgSrc: '/images/space15.jpg' },
+                { id: 16, name: '지하 피트', desc: '환기 불량으로 인한 각종 유해가스 정체', imgSrc: '/images/space16.jpg' },
+                { id: 17, name: '콘크리트 양생장소', desc: '갈탄/목탄 연소에 의한 일산화탄소 중독', imgSrc: '/images/space17.jpg' },
+                { id: 18, name: '바지선 부력탱크', desc: '철판 산화(녹)로 인한 극심한 산소결핍', imgSrc: '/images/space18.jpg' },
+                { id: 19, name: '하수도 맨홀', desc: '산소결핍 및 황화수소, 가연성 가스', imgSrc: '/images/space19.jpg' },
+                { id: 20, name: '상수도 맨홀', desc: '내부 부식 및 미생물 호흡으로 인한 산소결핍', imgSrc: '/images/space20.jpg' },
             ];
             return (
-                <div className="p-4 md:p-8 max-w-6xl mx-auto pb-20">
-                    <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg mb-8 shadow-sm">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Icon name="book-open" className="text-blue-600" /> 법정 18대 밀폐공간 가이드
+                <div className="p-4 md:p-8 max-w-7xl mx-auto pb-20">
+                    {/* 상단 헤더 */}
+                    <div className="mb-8">
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-3 flex items-center gap-3">
+                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-600 text-white shrink-0">
+                                <Icon name="alert-triangle" size={20} />
+                            </span>
+                            질식재해가 발생할 수 있는 주요 장소
                         </h2>
-                        <p className="text-gray-700 leading-relaxed">
-                            산업안전보건기준에 관한 규칙 [별표 18]에 따른 밀폐공간은 단순히 '사방이 막힌 곳'만이 아닙니다.<br />
-                            환기가 불충분하고 산소결핍이나 유해가스로 인한 질식·화재·폭발 위험이 있는 장소는 <strong>천장이 뚫려있더라도 법적 밀폐공간에 해당</strong>합니다.
+                        <p className="text-gray-600 leading-relaxed text-sm md:text-base pl-1 border-l-4 border-red-400 ml-1 pl-4">
+                            우리 주변에서 흔히 볼 수 있는 아래의 장소들은 산소결핍이나 유해가스로 인한 치명적인 질식 위험이 존재합니다.
                         </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {spaces.map((space) => (
-                            <div key={space.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all group flex flex-col h-full relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <Icon name={space.icon || "alert-circle"} size={80} />
-                                </div>
-                                <div className="flex items-center gap-3 mb-3 z-10">
-                                    <div className="bg-blue-100 px-3 py-1 rounded-lg text-blue-700">
-                                        <span className="font-bold text-sm">NO.{space.id}</span>
+
+                    {/* 갤러리 그리드 */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                        {confinedSpaceExamples.map((item) => (
+                            <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-red-200 transition-all overflow-hidden group">
+                                {/* 이미지 영역 */}
+                                <div className="aspect-video bg-slate-100 rounded-t-xl overflow-hidden relative flex items-center justify-center">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-1">
+                                        <Icon name="camera" size={28} className="opacity-40" />
+                                        <span className="text-xs opacity-40">사진 준비 중</span>
                                     </div>
-                                    <h3 className="font-bold text-lg text-gray-800 leading-tight">{space.title}</h3>
+                                    <img
+                                        src={item.imgSrc}
+                                        alt={item.name}
+                                        className="absolute inset-0 w-full h-full object-cover z-10"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
                                 </div>
-                                <p className="text-gray-600 text-sm flex-grow z-10">{space.desc}</p>
+                                {/* 텍스트 영역 */}
+                                <div className="p-3">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded">NO.{item.id}</span>
+                                        <h3 className="font-bold text-sm text-gray-800 leading-tight truncate">{item.name}</h3>
+                                    </div>
+                                    <p className="text-xs text-gray-500 leading-snug">{item.desc}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
