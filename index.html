@@ -307,7 +307,7 @@
 
         // --- 메인 함수 (App) 정의 ---
         function App() {
-            const [activeTab, setActiveTab] = useState('cover');
+            const [activeTab, setActiveTab] = React.useState('cover');
 
             // --- 로그인 상태 관리 및 차단 관문 (Robust Fix) ---
             const [user, setUser] = React.useState(null);
