@@ -447,23 +447,32 @@
 
                             {/* 사이드바 (모바일: 슬라이드오버 | PC: 고정) */}
                             <aside className={`absolute md:relative z-50 w-64 h-full bg-white text-slate-800 flex flex-col shadow-sm border-r border-gray-200 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-                                <div className="p-6 border-b border-gray-200">
-                                    <h1 className="text-xl font-bold flex items-center gap-2 text-slate-800"><Icon name="shield-alert" className="text-blue-500" /> KIHA Safety</h1>
-                                    <p className="text-xs text-gray-400 mt-1">밀폐공간 위험성평가 Pro</p>
+                                <div className="p-5 border-b border-gray-100">
+                                    <h1 className="text-lg font-bold flex items-center gap-2 text-slate-800"><Icon name="shield-alert" className="text-blue-500" /> KIHA Safety</h1>
+                                    <p className="text-xs text-gray-400 mt-0.5">밀폐공간 위험성평가 Pro</p>
+                                    <div className="mt-3 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+                                        <span className="text-base">👤</span>
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-semibold text-slate-700 truncate">{user.displayName || user.email}</p>
+                                            <p className="text-xs text-gray-400">로그인됨</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                                <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
                                     <MenuBtn active={activeTab === 'guide'} onClick={() => { setActiveTab('guide'); setIsMobileMenuOpen(false); }} icon="book-open" text="밀폐공간이란?" />
                                     <MenuBtn active={activeTab === 'diagnosis'} onClick={() => { setActiveTab('diagnosis'); setIsMobileMenuOpen(false); }} icon="compass" text="밀폐공간 자가진단" />
+                                    <div className="h-px bg-gray-100 my-2"></div>
                                     <MenuBtn active={activeTab === 'cover'} onClick={() => { setActiveTab('cover'); setIsMobileMenuOpen(false); }} icon="file-text" text="1. 보고서 표지" />
                                     <MenuBtn active={activeTab === 'status'} onClick={() => { setActiveTab('status'); setIsMobileMenuOpen(false); }} icon="layout-list" text="2. 밀폐공간 현황" />
                                     <MenuBtn active={activeTab === 'check'} onClick={() => { setActiveTab('check'); setIsMobileMenuOpen(false); }} icon="check-square" text="3. 체크리스트" />
                                     <MenuBtn active={activeTab === 'map'} onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }} icon="map-pin" text="4. 디지털 배치도" />
                                     <MenuBtn active={activeTab === 'conclusion'} onClick={() => { setActiveTab('conclusion'); setIsMobileMenuOpen(false); }} icon="pen-tool" text="5. 총평 및 의견" />
+                                    <div className="h-px bg-gray-100 my-2"></div>
                                     <MenuBtn active={activeTab === 'download'} onClick={() => { setActiveTab('download'); setIsMobileMenuOpen(false); }} icon="folder-down" text="자료 다운로드" />
                                 </nav>
-                                <div className="p-4 border-t border-gray-200 space-y-2">
+                                <div className="p-4 border-t border-gray-100 space-y-2">
                                     <div className="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">데이터 관리</div>
-                                    <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"><Icon name="download" size={16} />저장</button>
+                                    <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"><Icon name="download" size={16} />저장</button>
                                     <button onClick={() => fileInputRef.current.click()} className="w-full flex gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-lg text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm"><Icon name="upload" size={16} />불러오기</button>
                                     <input type="file" ref={fileInputRef} onChange={handleLoadFile} className="hidden" accept=".json" />
                                     <div className="h-px bg-gray-200 my-2"></div>
