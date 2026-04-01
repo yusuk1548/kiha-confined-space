@@ -318,6 +318,7 @@
             const [mapImage, setMapImage] = useState(null);
             const [finalOpinion, setFinalOpinion] = useState("");
             const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+            const [toastMsg, setToastMsg] = React.useState('');
 
             // ─── useRef ─────────────────────────────────────────────────
             const fileInputRef = useRef(null);
@@ -403,7 +404,7 @@
                         checklistAll,
                         // mapImage 는 Firestore 1MB 제한 초과 방지를 위해 지역에서만 저장
                     })
-                    .then(() => alert("협회 본사 서버에 평가 데이터가 안전하게 동기화되었습니다."))
+                    .then(() => { setToastMsg('안전하게 저장이 완료되었습니다.'); setTimeout(() => setToastMsg(''), 3000); })
                     .catch(err => console.error("클라우드 저장 실패:", err));
                 }
                 // 💾 [2] 로컴 JSON 다운로드 (기존 로직, 병렬 실행)
@@ -527,6 +528,8 @@
                                 </footer>
                             </main>
                         </div>
+                        {/* 토스트 메시지 */}
+                        {toastMsg && <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-50 print:hidden text-sm font-semibold">✅ {toastMsg}</div>}
                     </React.Fragment>
                 )
             );
