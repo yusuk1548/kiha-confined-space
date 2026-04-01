@@ -382,7 +382,9 @@
                     status: checklistResults[item.id] || null
                 })))
                 , [checklistResults]);
-
+// --- 로그인 차단기 ---
+    if (authLoading) return <div className="flex items-center justify-center h-screen text-xl font-bold text-gray-600 bg-slate-100">보안 연결 중...</div>;
+    if (!user) return <LoginScreen />;
             return (
                 <React.Fragment>
                     {/* 인쇄 뷰 */}
