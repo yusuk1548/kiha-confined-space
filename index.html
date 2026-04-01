@@ -97,6 +97,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDog3sJj7YRciPBc12gNEhuNhJTCIQCFpQ",
@@ -108,6 +109,7 @@
             measurementId: "G-JWTHYKHPS9"
         };
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
     </script>
 </head>
 
@@ -387,6 +389,24 @@
 
             // ─── 이벤트 핸들러 (Hook 아님, 순서 무관) ────────────────────
             const handleSaveFile = () => {
+                // ☁️ [1] Firestore 클라우드 전송 (맵이미지 제외)
+                const currentUser = firebase.auth().currentUser;
+                if (currentUser) {
+                    db.collection("kiha_reports").add({
+                        evaluatorName: currentUser.displayName || "이름없음",
+                        evaluatorEmail: currentUser.email,
+                        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        reportInfo,
+                        spaces,
+                        defectSummary,
+                        finalOpinion,
+                        checklistAll,
+                        // mapImage 는 Firestore 1MB 제한 초과 방지를 위해 지역에서만 저장
+                    })
+                    .then(() => alert("협회 본사 서버에 평가 데이터가 안전하게 동기화되었습니다."))
+                    .catch(err => console.error("클라우드 저장 실패:", err));
+                }
+                // 💾 [2] 로컴 JSON 다운로드 (기존 로직, 병렬 실행)
                 const fileName = reportInfo.companyName ? reportInfo.companyName : "무제";
                 const data = { reportInfo, spaces, checklistResults, finalOpinion, mapImage };
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
