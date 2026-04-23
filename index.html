@@ -319,6 +319,7 @@
             const [finalOpinion, setFinalOpinion] = useState("");
             const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
             const [toastMsg, setToastMsg] = React.useState('');
+            const [selectedSpaceItem, setSelectedSpaceItem] = React.useState(null);
 
             // ─── useRef ─────────────────────────────────────────────────
             const fileInputRef = useRef(null);
@@ -516,7 +517,7 @@
                                 {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
                                 {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
                                 {activeTab === 'download' && <DownloadScreen />}
-                                {activeTab === 'guide' && <GuideScreen />}
+                                {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
                                 {activeTab === 'diagnosis' && <DiagnosisScreen />}
                                 {/* 관리자 정보 푸터 (인쇄 시 완벽 숨김 처리) */}
                                 <footer className="mt-12 py-6 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50">
@@ -562,6 +563,58 @@
                         </div>
                         {/* 토스트 메시지 */}
                         {toastMsg && <div className="fixed bottom-20 md:bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[60] print:hidden text-sm font-semibold">✅ {toastMsg}</div>}
+
+                        {/* 밀폐공간 사진 확대 모달 */}
+                        {selectedSpaceItem && (
+                            <div
+                                className="fixed inset-0 bg-black bg-opacity-75 z-[100] flex justify-center items-center p-4 print:hidden"
+                                onClick={() => setSelectedSpaceItem(null)}
+                            >
+                                <div
+                                    className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    {/* 닫기 버튼 */}
+                                    <button
+                                        onClick={() => setSelectedSpaceItem(null)}
+                                        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-red-100 hover:text-red-600 rounded-full text-gray-500 text-xl font-bold transition-colors z-10"
+                                        aria-label="닫기"
+                                    >
+                                        <Icon name="x" size={20} />
+                                    </button>
+                                    {/* 번호 배지 */}
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <span className="text-sm font-bold bg-red-600 text-white px-3 py-1 rounded-full">NO.{selectedSpaceItem.id}</span>
+                                        <h2 className="text-2xl font-bold text-gray-900">{selectedSpaceItem.name}</h2>
+                                    </div>
+                                    {/* 사진 */}
+                                    <div className="w-full bg-slate-100 rounded-xl overflow-hidden mb-4 flex items-center justify-center min-h-[200px] relative">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+                                            <Icon name="camera" size={40} className="opacity-30" />
+                                            <span className="text-sm opacity-30">사진 준비 중</span>
+                                        </div>
+                                        <img
+                                            src={selectedSpaceItem.imgSrc}
+                                            alt={selectedSpaceItem.name}
+                                            className="relative z-10 w-full h-auto object-contain rounded-lg"
+                                            onError={e => { e.target.style.display = 'none'; }}
+                                        />
+                                    </div>
+                                    {/* 설명 */}
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                        <div className="flex items-start gap-3">
+                                            <span className="shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center mt-0.5">
+                                                <Icon name="alert-triangle" size={16} />
+                                            </span>
+                                            <div>
+                                                <p className="font-bold text-red-700 text-base mb-1">주요 위험 요인</p>
+                                                <p className="text-gray-700 text-base leading-relaxed">{selectedSpaceItem.desc}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </React.Fragment>
                 )
             );
@@ -1182,7 +1235,7 @@
             );
         };
 
-        const GuideScreen = () => {
+        const GuideScreen = ({ onSelect }) => {
             const confinedSpaceExamples = [
                 { id: 1, name: '강제반응탑', desc: '화학물질 잔류 및 반응 가스 체류', imgSrc: './images/space1.png' },
                 { id: 2, name: '보일러 연통 내부', desc: '일산화탄소 등 연소가스 체류', imgSrc: './images/space2.png' },
@@ -1217,13 +1270,18 @@
                         </h2>
                         <p className="text-gray-600 leading-relaxed text-sm md:text-base pl-1 border-l-4 border-red-400 ml-1 pl-4">
                             우리 주변에서 흔히 볼 수 있는 아래의 장소들은 산소결핍이나 유해가스로 인한 치명적인 질식 위험이 존재합니다.
+                            <span className="ml-2 text-red-500 font-semibold">📷 클릭하면 사진을 크게 볼 수 있습니다.</span>
                         </p>
                     </div>
 
                     {/* 갤러리 그리드 */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                         {confinedSpaceExamples.map((item) => (
-                            <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-red-200 transition-all overflow-hidden group">
+                            <div
+                                key={item.id}
+                                onClick={() => onSelect(item)}
+                                className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-red-300 hover:-translate-y-1 transition-all overflow-hidden group cursor-pointer"
+                            >
                                 {/* 이미지 영역 */}
                                 <div className="aspect-video bg-slate-100 rounded-t-xl overflow-hidden relative flex items-center justify-center">
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-1">
@@ -1233,9 +1291,15 @@
                                     <img
                                         src={item.imgSrc}
                                         alt={item.name}
-                                        className="absolute inset-0 w-full h-full object-cover z-10"
+                                        className="absolute inset-0 w-full h-full object-cover z-10 group-hover:scale-105 transition-transform duration-300"
                                         onError={(e) => { e.target.style.display = 'none'; }}
                                     />
+                                    {/* 확대 힌트 오버레이 */}
+                                    <div className="absolute inset-0 z-20 bg-black bg-opacity-0 group-hover:bg-opacity-20 flex items-center justify-center transition-all duration-200">
+                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow">
+                                            🔍 크게 보기
+                                        </span>
+                                    </div>
                                 </div>
                                 {/* 텍스트 영역 */}
                                 <div className="p-3">
