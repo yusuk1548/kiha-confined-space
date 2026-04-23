@@ -509,19 +509,21 @@
                                 </div>
                             </aside>
 
-                            {/* 메인 컨텐츠 영역 */}
-                            <main className="flex-1 bg-gray-50 overflow-auto pb-20 md:pb-8">
-                                {activeTab === 'cover' && <CoverScreen data={reportInfo} setData={setReportInfo} />}
-                                {activeTab === 'check' && <ChecklistScreen results={checklistResults} setResults={setChecklistResults} defectSummary={defectSummary} />}
-                                {activeTab === 'status' && <StatusScreen spaces={spaces} setSpaces={setSpaces} />}
-                                {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
-                                {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
-                                {activeTab === 'download' && <DownloadScreen />}
-                                {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
-                                {activeTab === 'diagnosis' && <DiagnosisScreen />}
-                                {/* 관리자 정보 푸터 (인쇄 시 완벽 숨김 처리) */}
-                                <footer className="mt-12 py-6 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50">
-                                    <p className="font-bold text-gray-700 mb-2">시스템 오류 및 사용 문의</p>
+                            {/* 메인 컨텐츠 영역 — flex-1 h-full overflow-y-auto로 스크롤바 단일화 */}
+                            <main className="flex-1 h-full overflow-y-auto flex flex-col bg-gray-50 pb-20 md:pb-0">
+                                <div className="flex-1">
+                                    {activeTab === 'cover' && <CoverScreen data={reportInfo} setData={setReportInfo} />}
+                                    {activeTab === 'check' && <ChecklistScreen results={checklistResults} setResults={setChecklistResults} defectSummary={defectSummary} />}
+                                    {activeTab === 'status' && <StatusScreen spaces={spaces} setSpaces={setSpaces} />}
+                                    {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
+                                    {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
+                                    {activeTab === 'download' && <DownloadScreen />}
+                                    {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
+                                    {activeTab === 'diagnosis' && <DiagnosisScreen />}
+                                </div>
+                                {/* 꼬리말 — mt-auto로 스크롤 끝에 자연스럽게 위치 */}
+                                <footer className="mt-auto py-5 border-t border-gray-200 text-center text-xs md:text-sm text-gray-500 print:hidden bg-gray-50 shrink-0">
+                                    <p className="font-bold text-gray-700 mb-1">시스템 오류 및 사용 문의</p>
                                     <p>대한산업보건협회 대구지역본부 보건관리국 | 정유석 과장</p>
                                     <p className="mt-1">
                                         <span className="inline-block mr-3">📞 010-2875-1548 / 053-659-0116</span>
@@ -629,38 +631,43 @@
         // ... (화면 렌더링용 컴포넌트들 생략, 기능은 동일) ...
         function CoverScreen({ data, setData }) {
             return (
-                <div className="h-full flex items-center justify-center p-4 md:p-8 pt-4 md:pt-8 overflow-auto">
-                    <div className="w-full max-w-[210mm] min-h-[297mm] bg-white flex flex-col items-center justify-between border relative p-6 md:p-10">
-                        <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
-                        <div className="text-right w-full font-bold text-gray-400 mt-4">KIHA-2026-REPORT</div>
-                        <div className="text-center mt-6 md:mt-10">
-                            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 md:mb-6 leading-tight text-center text-gray-900">밀폐공간 작업<br />위험성평가 보고서</h1>
-                            <p className="text-lg md:text-3xl text-center break-words whitespace-normal mt-2 text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
-                        </div>
-                        <div className="w-full max-w-lg mx-auto px-2 md:px-10 space-y-6 md:space-y-8 my-6 md:my-10">
-                            <div className="border-b-2 border-gray-300 pb-2">
-                                <label className="text-sm font-bold text-gray-500">사업장명</label>
-                                <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-2xl md:text-3xl font-bold text-center bg-transparent outline-none py-3 md:py-2" placeholder="사업장명 입력" />
+                <div className="w-full h-full overflow-y-auto bg-gray-50">
+                    <div className="flex items-start justify-center p-3 md:p-8 py-4 md:py-10 min-h-full">
+                        <div className="w-full max-w-[210mm] bg-white flex flex-col items-center border relative p-4 md:p-10 shadow-sm">
+                            <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
+                            <div className="text-right w-full font-bold text-gray-400 mt-3 md:mt-4 text-xs md:text-sm">KIHA-2026-REPORT</div>
+                            {/* 메인 타이틀 - 모바일에서 잘리지 않도록 break-keep + text-center */}
+                            <div className="text-center mt-4 md:mt-10 w-full">
+                                <h1 className="text-2xl md:text-5xl font-extrabold mb-2 md:mb-6 leading-tight text-center text-gray-900 break-keep whitespace-normal">밀폐공간 작업<br />위험성평가 보고서</h1>
+                                <p className="text-sm md:text-2xl text-center break-words whitespace-normal text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
                             </div>
-                            <div className="border-b-2 border-gray-300 pb-2">
-                                <label className="text-sm font-bold text-gray-500">평가 기간</label>
-                                <input type="text" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-xl md:text-2xl font-bold text-center bg-transparent outline-none py-3 md:py-2" />
-                            </div>
-                            <div className="border-b-2 border-gray-300 pb-2 text-center">
-                                <label className="text-sm font-bold text-gray-500 block mb-2">평가 기관</label>
-                                <div className="text-xl md:text-2xl font-bold mb-2">(사)대한산업보건협회</div>
-                                <div className="flex flex-col sm:flex-row justify-center gap-2">
-                                    <select className="p-3 md:p-2 border rounded text-base" value={data.agencyType} onChange={e => setData({ ...data, agencyType: e.target.value, agencyBranch: e.target.value === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0] })}>
-                                        <option value="region">지역본부</option><option value="center">센터</option>
-                                    </select>
-                                    <select className="p-3 md:p-2 border rounded font-bold text-blue-900 bg-blue-50 text-base" value={data.agencyBranch} onChange={e => setData({ ...data, agencyBranch: e.target.value })}>
-                                        {(data.agencyType === 'region' ? KIHA_REGIONS : KIHA_CENTERS).map(b => <option key={b} value={b}>{b}</option>)}
-                                    </select>
+                            {/* 항목 목록 - 모바일에서 간격 타이트하게 */}
+                            <div className="w-full max-w-lg mx-auto px-0 md:px-10 space-y-3 md:space-y-8 my-4 md:my-10">
+                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2">
+                                    <label className="text-xs md:text-sm font-bold text-gray-500">사업장명</label>
+                                    <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-xl md:text-3xl font-bold text-center bg-transparent outline-none py-2 md:py-2" placeholder="사업장명 입력" />
+                                </div>
+                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2">
+                                    <label className="text-xs md:text-sm font-bold text-gray-500">평가 기간</label>
+                                    <input type="text" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-base md:text-2xl font-bold text-center bg-transparent outline-none py-2 md:py-2" />
+                                </div>
+                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2 text-center">
+                                    <label className="text-xs md:text-sm font-bold text-gray-500 block mb-1 md:mb-2">평가 기관</label>
+                                    <div className="text-base md:text-2xl font-bold mb-1 md:mb-2">(사)대한산업보건협회</div>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-2">
+                                        <select className="p-2 border rounded text-sm md:text-base" value={data.agencyType} onChange={e => setData({ ...data, agencyType: e.target.value, agencyBranch: e.target.value === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0] })}>
+                                            <option value="region">지역본부</option><option value="center">센터</option>
+                                        </select>
+                                        <select className="p-2 border rounded font-bold text-blue-900 bg-blue-50 text-sm md:text-base" value={data.agencyBranch} onChange={e => setData({ ...data, agencyBranch: e.target.value })}>
+                                            {(data.agencyType === 'region' ? KIHA_REGIONS : KIHA_CENTERS).map(b => <option key={b} value={b}>{b}</option>)}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mb-6 md:mb-10 text-center">
-                            <img src="./logo.png" alt="Logo" className="h-16 md:h-24 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
+                            {/* 로고 */}
+                            <div className="mb-4 md:mb-10 text-center">
+                                <img src="./logo.png" alt="Logo" className="h-12 md:h-24 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
+                            </div>
                         </div>
                     </div>
                 </div>
