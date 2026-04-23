@@ -484,7 +484,6 @@
                                     </div>
                                 </div>
                                 <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-                                    <MenuBtn active={activeTab === 'guide'} onClick={() => setActiveTab('guide')} icon="book-open" text="밀폐공간이란?" />
                                     <MenuBtn active={activeTab === 'diagnosis'} onClick={() => setActiveTab('diagnosis')} icon="compass" text="밀폐공간 자가진단" />
                                     <div className="h-px bg-gray-100 my-2"></div>
                                     <MenuBtn active={activeTab === 'cover'} onClick={() => setActiveTab('cover')} icon="file-text" text="1. 보고서 표지" />
@@ -537,7 +536,6 @@
                                 <div className="overflow-x-auto whitespace-nowrap scrollbar-none">
                                     <div className="inline-flex">
                                         {[
-                                            { tab: 'guide', icon: 'book-open', label: '안내' },
                                             { tab: 'diagnosis', icon: 'compass', label: '자가진단' },
                                             { tab: 'cover', icon: 'file-text', label: '표지' },
                                             { tab: 'status', icon: 'layout-list', label: '현황' },
@@ -1145,12 +1143,47 @@
             const [step, setStep] = useState(1);
             const [hasSpace, setHasSpace] = useState(null);
             const [hasWork, setHasWork] = useState(null);
+            const [showGuideModal, setShowGuideModal] = useState(false);
             const reset = () => { setStep(1); setHasSpace(null); setHasWork(null); };
+
+            const confinedSpaceExamples = [
+                { id: 1, name: '강제반응탑', desc: '화학물질 잔류 및 반응 가스 체류', imgSrc: './images/space1.png' },
+                { id: 2, name: '보일러 연통 내부', desc: '일산화탄소 등 연소가스 체류', imgSrc: './images/space2.png' },
+                { id: 3, name: '선창 내부', desc: '화물 산화로 인한 극심한 산소결핍', imgSrc: './images/space3.png' },
+                { id: 4, name: '음식물 저장 호퍼', desc: '유기물 부패로 인한 황화수소 발생', imgSrc: './images/space4.png' },
+                { id: 5, name: '주류발효탱크', desc: '발효 중 이산화탄소 급증 및 산소결핍', imgSrc: './images/space5.png' },
+                { id: 6, name: '식품발효 및 저장조', desc: '발효 가스 생성 및 산소 소모', imgSrc: './images/space6.png' },
+                { id: 7, name: '하수처리장 침전지', desc: '슬러지 부패로 인한 황화수소 중독', imgSrc: './images/space7.png' },
+                { id: 8, name: '오수처리장 정화조', desc: '고농도 황화수소 및 메탄가스 발생', imgSrc: './images/space8.png' },
+                { id: 9, name: '분뇨 처리장', desc: '복합 유해가스 및 산소결핍', imgSrc: './images/space9.png' },
+                { id: 10, name: '냉동창고 내부', desc: '냉매 누출 및 드라이아이스 승화 위험', imgSrc: './images/space10.png' },
+                { id: 11, name: '폐수침전조', desc: '폐수 찌꺼기 부패로 인한 독성 가스', imgSrc: './images/space11.png' },
+                { id: 12, name: '반응기', desc: '세척용제 증기 및 잔류 가스 중독', imgSrc: './images/space12.png' },
+                { id: 13, name: '원료저장탱크', desc: '내부 산화 및 유기용제 증기 체류', imgSrc: './images/space13.png' },
+                { id: 14, name: '용접/비파괴 배관 내부', desc: '아르곤 등 불활성기체로 인한 산소결핍', imgSrc: './images/space14.png' },
+                { id: 15, name: '공기정화장치 내부', desc: '유해물질 축적 및 환기 불량', imgSrc: './images/space15.png' },
+                { id: 16, name: '지하 피트', desc: '환기 불량으로 인한 각종 유해가스 정체', imgSrc: './images/space16.png' },
+                { id: 17, name: '콘크리트 양생장소', desc: '갈탄/목탄 연소에 의한 일산화탄소 중독', imgSrc: './images/space17.png' },
+                { id: 18, name: '바지선 부력탱크', desc: '철판 산화(녹)로 인한 극심한 산소결핍', imgSrc: './images/space18.png' },
+                { id: 19, name: '하수도 맨홀', desc: '산소결핍 및 황화수소, 가연성 가스', imgSrc: './images/space19.png' },
+                { id: 20, name: '상수도 맨홀', desc: '내부 부식 및 미생물 호흡으로 인한 산소결핍', imgSrc: './images/space20.png' },
+            ];
+
             return (
                 <div className="p-4 md:p-8 max-w-4xl mx-auto">
-                    <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Icon name="compass" className="text-blue-600" /> 사업장 밀폐공간 자가진단
-                    </h2>
+                    {/* 제목 및 도움말 버튼 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                            <Icon name="compass" className="text-blue-600" /> 사업장 밀폐공간 자가진단
+                        </h2>
+                        <button
+                            onClick={() => setShowGuideModal(true)}
+                            className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-all shrink-0"
+                        >
+                            💡 밀폐공간 20종류 사진으로 확인하기
+                        </button>
+                    </div>
+
                     <div className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-200 min-h-[400px] flex flex-col justify-center items-center text-center">
 
                         {step === 1 && (
@@ -1159,7 +1192,7 @@
                                     <Icon name="search" size={32} />
                                 </div>
                                 <h3 className="text-2xl font-bold mb-4">Q1. 우리 사업장에 '밀폐공간'이 존재합니까?</h3>
-                                <p className="text-gray-500 mb-8">(※ 환기가 불충분하거나 유해가스가 정체될 수 있는 정화조, 맨홀, 탱크, 핏트 등)</p>
+                                <p className="text-gray-500 mb-8">(※ 환기가 불충분하거나 유해가스가 정체될 수 있는 정화조, 맨홀, 탱크, 핑트 등)</p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                     <button onClick={() => { setHasSpace(true); setStep(2); }} className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
                                         <Icon name="check-circle" /> 네, 존재합니다
@@ -1238,6 +1271,77 @@
                         )}
 
                     </div>
+
+                    {/* 밀폐공간 20종류 갤러리 모달 */}
+                    {showGuideModal && (
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-75 z-[90] flex justify-center items-end md:items-center p-0 md:p-4 print:hidden"
+                            onClick={() => setShowGuideModal(false)}
+                        >
+                            <div
+                                className="bg-white w-full md:max-w-5xl md:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {/* 모달 헤더 */}
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                            <Icon name="alert-triangle" className="text-red-500" size={20} />
+                                            질식재해 발생 가능 주요 장소 20종
+                                        </h3>
+                                        <p className="text-xs text-gray-500 mt-0.5">카드를 클릭하면 사진을 크게 볼 수 있습니다</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowGuideModal(false)}
+                                        className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-red-100 hover:text-red-600 rounded-full text-gray-500 font-bold transition-colors shrink-0"
+                                        aria-label="닫기"
+                                    >
+                                        <Icon name="x" size={20} />
+                                    </button>
+                                </div>
+                                {/* 갤러리 그리드 */}
+                                <div className="overflow-y-auto p-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                        {confinedSpaceExamples.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                onClick={() => { setShowGuideModal(false); }}
+                                                className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-red-200 hover:-translate-y-0.5 transition-all overflow-hidden group cursor-pointer"
+                                            >
+                                                <div className="aspect-video bg-slate-100 overflow-hidden relative flex items-center justify-center">
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-1">
+                                                        <Icon name="camera" size={22} className="opacity-40" />
+                                                    </div>
+                                                    <img
+                                                        src={item.imgSrc}
+                                                        alt={item.name}
+                                                        className="absolute inset-0 w-full h-full object-cover z-10 group-hover:scale-105 transition-transform duration-300"
+                                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                                    />
+                                                </div>
+                                                <div className="p-2">
+                                                    <div className="flex items-center gap-1 mb-0.5">
+                                                        <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded shrink-0">NO.{item.id}</span>
+                                                        <span className="font-bold text-xs text-gray-800 leading-tight truncate">{item.name}</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">{item.desc}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* 모달 푸터 */}
+                                <div className="px-5 py-3 border-t border-gray-100 shrink-0 text-center">
+                                    <button
+                                        onClick={() => setShowGuideModal(false)}
+                                        className="px-6 py-2.5 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
+                                    >
+                                        확인했습니다 — 자가진단으로 돌아가기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
