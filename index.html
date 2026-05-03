@@ -303,7 +303,7 @@
         function App() {
             // ✅ [Rules of Hooks] 모든 Hook은 조건문/early return 없이 최상단에서 무조건 실행
             // ─── useState ───────────────────────────────────────────────
-            const [activeTab, setActiveTab] = React.useState('cover');
+            const [activeTab, setActiveTab] = React.useState('diagnosis');
             const [user, setUser] = React.useState(null);
             const [authLoading, setAuthLoading] = React.useState(true);
             const [reportInfo, setReportInfo] = useState({
@@ -647,7 +647,7 @@
                                 </div>
                                 <div className="border-b-2 border-gray-300 pb-1 md:pb-2">
                                     <label className="text-xs md:text-sm font-bold text-gray-500">평가 기간</label>
-                                    <input type="text" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-base md:text-2xl font-bold text-center bg-transparent outline-none py-2 md:py-2" />
+                                    <input type="date" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-base md:text-2xl font-bold text-center bg-transparent outline-none py-2 md:py-2" />
                                 </div>
                                 <div className="border-b-2 border-gray-300 pb-1 md:pb-2 text-center">
                                     <label className="text-xs md:text-sm font-bold text-gray-500 block mb-1 md:mb-2">평가 기관</label>
