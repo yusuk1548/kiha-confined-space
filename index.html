@@ -628,8 +628,8 @@
                         {/* 밀폐공간 사진 확대 모달 */}
                         {selectedSpaceItem && (
                             <div
-                                className="fixed inset-0 bg-black bg-opacity-75 z-[100] flex justify-center items-center p-4 print:hidden"
-                                onClick={() => setSelectedSpaceItem(null)}
+                                className="fixed inset-0 bg-black bg-opacity-75 z-[200] flex justify-center items-center p-4 print:hidden"
+                                onClick={(e) => { e.stopPropagation(); setSelectedSpaceItem(null); }}
                             >
                                 <div
                                     className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl"
@@ -637,7 +637,7 @@
                                 >
                                     {/* 닫기 버튼 */}
                                     <button
-                                        onClick={() => setSelectedSpaceItem(null)}
+                                        onClick={(e) => { e.stopPropagation(); setSelectedSpaceItem(null); }}
                                         className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-red-100 hover:text-red-600 rounded-full text-gray-500 text-xl font-bold transition-colors z-10"
                                         aria-label="닫기"
                                     >
@@ -1214,6 +1214,7 @@
             const [hasSpace, setHasSpace] = useState(null);
             const [hasWork, setHasWork] = useState(null);
             const [showGuideModal, setShowGuideModal] = useState(false);
+            const [selectedItem, setSelectedItem] = useState(null); // 사진 확대 모달
             const reset = () => { setStep(1); setHasSpace(null); setHasWork(null); };
 
             const confinedSpaceExamples = [
@@ -1375,7 +1376,7 @@
                                         {confinedSpaceExamples.map((item) => (
                                             <div
                                                 key={item.id}
-                                                onClick={() => { setShowGuideModal(false); }}
+                                                onClick={(e) => { e.stopPropagation(); setSelectedItem(item); }}
                                                 className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-red-200 hover:-translate-y-0.5 transition-all overflow-hidden group cursor-pointer"
                                             >
                                                 <div className="aspect-video bg-slate-100 overflow-hidden relative flex items-center justify-center">
@@ -1408,6 +1409,54 @@
                                     >
                                         확인했습니다 — 자가진단으로 돌아가기
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 사진 확대 모달 - 도움말 모달보다 위에 렌더링 (z-[200]) */}
+                    {selectedItem && (
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-80 z-[200] flex justify-center items-center p-4 print:hidden"
+                            onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
+                        >
+                            <div
+                                className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
+                                    className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-red-100 hover:text-red-600 rounded-full text-gray-500 text-xl font-bold transition-colors z-10"
+                                    aria-label="닫기"
+                                >
+                                    <Icon name="x" size={20} />
+                                </button>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-sm font-bold bg-red-600 text-white px-3 py-1 rounded-full">NO.{selectedItem.id}</span>
+                                    <h2 className="text-2xl font-bold text-gray-900">{selectedItem.name}</h2>
+                                </div>
+                                <div className="w-full bg-slate-100 rounded-xl overflow-hidden mb-4 flex items-center justify-center min-h-[200px] relative">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+                                        <Icon name="camera" size={40} className="opacity-30" />
+                                        <span className="text-sm opacity-30">사진 준비 중</span>
+                                    </div>
+                                    <img
+                                        src={selectedItem.imgSrc}
+                                        alt={selectedItem.name}
+                                        className="relative z-10 w-full h-auto object-contain rounded-lg"
+                                        onError={e => { e.target.style.display = 'none'; }}
+                                    />
+                                </div>
+                                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                    <div className="flex items-start gap-3">
+                                        <span className="shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center mt-0.5">
+                                            <Icon name="alert-triangle" size={16} />
+                                        </span>
+                                        <div>
+                                            <p className="font-bold text-red-700 text-base mb-1">주요 위험 요인</p>
+                                            <p className="text-gray-700 text-base leading-relaxed">{selectedItem.desc}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
