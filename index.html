@@ -309,7 +309,7 @@
             const [reportInfo, setReportInfo] = useState({
                 year: new Date().getFullYear(),
                 companyName: '',
-                period: new Date().toLocaleDateString() + " (1일간)",
+                period: new Date().toISOString().split('T')[0],
                 agencyType: 'region',
                 agencyBranch: '대구지역본부'
             });
