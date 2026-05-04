@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>밀폐공간 위험성평가 솔루션 (KIHA)</title>
+    <title>밀폐공간 위험성평가 솔루션</title>
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -418,9 +418,9 @@
 
             useEffect(() => {
                 if (reportInfo.companyName) {
-                    document.title = `${reportInfo.companyName}_밀폐공간 위험성평가 보고서(KIHA)`;
+                    document.title = `${reportInfo.companyName}_밀폐공간 위험성평가 보고서`;
                 } else {
-                    document.title = '밀폐공간 위험성평가 솔루션 (KIHA)';
+                    document.title = '밀폐공간 위험성평가 솔루션';
                 }
             }, [reportInfo.companyName]);
 
@@ -524,19 +524,36 @@
                         <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-50 relative">
 
                             {/* 모바일 전용 상단 헤더 (md 이상에서는 숨김) */}
-                            <div className="md:hidden flex items-center justify-between bg-white text-slate-800 px-4 py-3 z-40 shrink-0 border-b border-gray-200 shadow-sm">
-                                <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> KIHA Safety</h1>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={handleSaveFile} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold"><Icon name="download" size={14} />저장</button>
-                                    <button onClick={() => firebase.auth().signOut()} className="p-2 text-red-400"><Icon name="log-out" size={18} /></button>
+                            <div className="md:hidden flex flex-col bg-white text-slate-800 px-4 pt-3 pb-2 z-40 shrink-0 border-b border-gray-200 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> SafeSpace</h1>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={handleSaveFile} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold"><Icon name="download" size={14} />저장</button>
+                                        <button onClick={() => firebase.auth().signOut()} className="p-2 text-red-400"><Icon name="log-out" size={18} /></button>
+                                    </div>
+                                </div>
+                                {/* 불러오기 / 초기화 서브 버튼 */}
+                                <div className="flex gap-2 mt-2">
+                                    <button
+                                        onClick={() => fileInputRef.current.click()}
+                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-md text-sm font-medium shadow-sm transition"
+                                    >
+                                        <Icon name="upload" size={14} /> 불러오기
+                                    </button>
+                                    <button
+                                        onClick={handleReset}
+                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-sm font-medium shadow-sm transition"
+                                    >
+                                        <Icon name="rotate-ccw" size={14} /> 초기화
+                                    </button>
                                 </div>
                             </div>
 
                             {/* PC 전용 사이드바 (모바일에서는 완전히 숨김) */}
                             <aside className="hidden md:flex w-64 bg-white text-slate-800 flex-col shadow-sm border-r border-gray-200 shrink-0">
                                 <div className="p-5 border-b border-gray-100">
-                                    <h1 className="text-lg font-bold flex items-center gap-2 text-slate-800"><Icon name="shield-alert" className="text-blue-500" /> KIHA Safety</h1>
-                                    <p className="text-xs text-gray-400 mt-0.5">밀폐공간 위험성평가 Pro</p>
+                                    <h1 className="text-lg font-bold flex items-center gap-2 text-slate-800"><Icon name="shield-alert" className="text-blue-500" /> SafeSpace</h1>
+                                    <p className="text-xs text-gray-400 mt-0.5">밀폐공간 위험성평가 솔루션</p>
                                     <div className="mt-3 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
                                         <span className="text-base">👤</span>
                                         <div className="min-w-0">
@@ -604,7 +621,6 @@
                                             { tab: 'check', icon: 'check-square', label: '체크' },
                                             { tab: 'map', icon: 'map-pin', label: '배치도' },
                                             { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
-                                            { tab: 'download', icon: 'folder-down', label: '다운로드' },
                                         ].map(({ tab, icon, label }) => (
                                             <button
                                                 key={tab}
@@ -621,6 +637,15 @@
                                     </div>
                                 </div>
                             </nav>
+
+                            {/* 모바일 전용 다운로드 FAB (하단 탭바 바로 위 고정) */}
+                            <button
+                                className="md:hidden fixed bottom-20 right-4 z-50 bg-blue-600 text-white font-bold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 print:hidden"
+                                onClick={handleSaveFile}
+                            >
+                                <Icon name="download" size={18} />
+                                보고서 다운로드
+                            </button>
                         </div>
                         {/* 토스트 메시지 */}
                         {toastMsg && <div className="fixed bottom-20 md:bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[60] print:hidden text-sm font-semibold">✅ {toastMsg}</div>}
