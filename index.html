@@ -524,28 +524,23 @@
                         <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-50 relative">
 
                             {/* 모바일 전용 상단 헤더 (md 이상에서는 숨김) */}
-                            <div className="md:hidden flex flex-col bg-white text-slate-800 px-4 pt-3 pb-2 z-40 shrink-0 border-b border-gray-200 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> SafeSpace</h1>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={handleSaveFile} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold"><Icon name="download" size={14} />저장</button>
-                                        <button onClick={() => firebase.auth().signOut()} className="p-2 text-red-400"><Icon name="log-out" size={18} /></button>
-                                    </div>
-                                </div>
-                                {/* 불러오기 / 초기화 서브 버튼 */}
-                                <div className="flex gap-2 mt-2">
+                            <div className="md:hidden flex items-center justify-between bg-white text-slate-800 px-4 py-2.5 z-40 shrink-0 border-b border-gray-200 shadow-sm">
+                                <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> SafeSpace</h1>
+                                <div className="flex items-center gap-1.5">
                                     <button
                                         onClick={() => fileInputRef.current.click()}
-                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-md text-sm font-medium shadow-sm transition"
+                                        className="flex items-center gap-1 text-xs px-2 py-1 border border-gray-300 rounded text-gray-500 bg-white shadow-sm hover:bg-gray-50 transition"
                                     >
-                                        <Icon name="upload" size={14} /> 불러오기
+                                        <Icon name="upload" size={12} /> 불러오기
                                     </button>
                                     <button
                                         onClick={handleReset}
-                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-sm font-medium shadow-sm transition"
+                                        className="flex items-center gap-1 text-xs px-2 py-1 border border-red-200 rounded text-red-500 bg-white shadow-sm hover:bg-red-50 transition"
                                     >
-                                        <Icon name="rotate-ccw" size={14} /> 초기화
+                                        <Icon name="rotate-ccw" size={12} /> 초기화
                                     </button>
+                                    <button onClick={handleSaveFile} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold"><Icon name="download" size={13} />저장</button>
+                                    <button onClick={() => firebase.auth().signOut()} className="p-1.5 text-red-400"><Icon name="log-out" size={17} /></button>
                                 </div>
                             </div>
 
@@ -612,40 +607,36 @@
 
                             {/* 모바일 전용 하단 탭 바 (md 이상에서는 숨김) */}
                             <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50 print:hidden">
-                                <div className="overflow-x-auto whitespace-nowrap scrollbar-none">
-                                    <div className="inline-flex">
-                                        {[
-                                            { tab: 'diagnosis', icon: 'compass', label: '자가진단' },
-                                            { tab: 'cover', icon: 'file-text', label: '표지' },
-                                            { tab: 'status', icon: 'layout-list', label: '현황' },
-                                            { tab: 'check', icon: 'check-square', label: '체크' },
-                                            { tab: 'map', icon: 'map-pin', label: '배치도' },
-                                            { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
-                                        ].map(({ tab, icon, label }) => (
-                                            <button
-                                                key={tab}
-                                                onClick={() => setActiveTab(tab)}
-                                                className={`inline-flex flex-col items-center justify-center gap-0.5 px-4 py-3 text-xs font-medium transition-colors ${activeTab === tab
-                                                    ? 'text-blue-600 border-t-2 border-blue-600 bg-blue-50'
-                                                    : 'text-gray-500 border-t-2 border-transparent'
+                                <div className="relative">
+                                    <div className="overflow-x-auto whitespace-nowrap scrollbar-none">
+                                        <div className="inline-flex">
+                                            {[
+                                                { tab: 'diagnosis', icon: 'compass', label: '자가진단' },
+                                                { tab: 'cover', icon: 'file-text', label: '표지' },
+                                                { tab: 'status', icon: 'layout-list', label: '현황' },
+                                                { tab: 'check', icon: 'check-square', label: '체크' },
+                                                { tab: 'map', icon: 'map-pin', label: '배치도' },
+                                                { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
+                                                { tab: 'download', icon: 'folder-down', label: '다운로드' },
+                                            ].map(({ tab, icon, label }) => (
+                                                <button
+                                                    key={tab}
+                                                    onClick={() => setActiveTab(tab)}
+                                                    className={`inline-flex flex-col items-center justify-center gap-0.5 px-4 py-3 text-xs font-medium transition-colors ${activeTab === tab
+                                                        ? 'text-blue-600 border-t-2 border-blue-600 bg-blue-50'
+                                                        : 'text-gray-500 border-t-2 border-transparent'
                                                     }`}
-                                            >
-                                                <Icon name={icon} size={20} />
-                                                <span>{label}</span>
-                                            </button>
-                                        ))}
+                                                >
+                                                    <Icon name={icon} size={20} />
+                                                    <span>{label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
+                                    {/* 우측 페이드 그라데이션 — 스크롤 힌트 */}
+                                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
                                 </div>
                             </nav>
-
-                            {/* 모바일 전용 다운로드 FAB (하단 탭바 바로 위 고정) */}
-                            <button
-                                className="md:hidden fixed bottom-20 right-4 z-50 bg-blue-600 text-white font-bold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 print:hidden"
-                                onClick={handleSaveFile}
-                            >
-                                <Icon name="download" size={18} />
-                                보고서 다운로드
-                            </button>
                         </div>
                         {/* 토스트 메시지 */}
                         {toastMsg && <div className="fixed bottom-20 md:bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-[60] print:hidden text-sm font-semibold">✅ {toastMsg}</div>}
