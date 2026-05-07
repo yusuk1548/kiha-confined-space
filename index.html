@@ -387,6 +387,23 @@
             const [mapImage, setMapImage] = useState(null);
             const [finalOpinion, setFinalOpinion] = useState("");
             const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+            const [programInfo, setProgramInfo] = useState(() => {
+                const today = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                return {
+                    revisionDate: today,
+                    workType: '내부청소',
+                    workFreq: '비정기',
+                    workerCount: '2인 1조',
+                    managerName: '',
+                    emergencyTel: '',
+                    hasMeter: false,
+                    meterModel: '',
+                    meterCalDate: today,
+                    hasFan: false,
+                    fanModel: '',
+                    fanCalDate: today,
+                };
+            });
             const [toastMsg, setToastMsg] = React.useState('');
             const [selectedSpaceItem, setSelectedSpaceItem] = React.useState(null);
 
@@ -597,6 +614,7 @@
                                     <MenuBtn active={activeTab === 'check'} onClick={() => setActiveTab('check')} icon="check-square" text="3. 체크리스트" />
                                     <MenuBtn active={activeTab === 'map'} onClick={() => setActiveTab('map')} icon="map-pin" text="4. 디지털 배치도" />
                                     <MenuBtn active={activeTab === 'conclusion'} onClick={() => setActiveTab('conclusion')} icon="pen-tool" text="5. 총평 및 의견" />
+                                    <MenuBtn active={activeTab === 'program'} onClick={() => setActiveTab('program')} icon="clipboard-list" text="보건작업 프로그램" />
                                     <div className="h-px bg-gray-100 my-2"></div>
                                     <MenuBtn active={activeTab === 'download'} onClick={() => setActiveTab('download')} icon="folder-down" text="자료 다운로드" />
                                 </nav>
@@ -623,6 +641,7 @@
                                     {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
                                     {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
                                     {activeTab === 'download' && <DownloadScreen />}
+                                    {activeTab === 'program' && <ProgramScreen info={programInfo} setInfo={setProgramInfo} />}
                                     {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
                                     {activeTab === 'diagnosis' && <DiagnosisScreen />}
                                 </div>
@@ -1593,6 +1612,101 @@
             );
         };
 
+        const ProgramScreen = ({ info, setInfo }) => {
+            const set = (key, val) => setInfo(prev => ({ ...prev, [key]: val }));
+            return (
+                <div className="p-4 md:p-8 max-w-2xl mx-auto pb-24">
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <Icon name="clipboard-list" className="text-teal-600" /> 밀폐공간 보건작업 프로그램 설정
+                    </h2>
+                    <div className="space-y-4">
+                        {/* 제개정 일자 */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                            <label className="block text-sm font-bold text-gray-600 mb-2">프로그램 제개정일자</label>
+                            <input type="date" value={info.revisionDate} onChange={e => set('revisionDate', e.target.value)} className="w-full p-2 border rounded-lg text-sm" />
+                        </div>
+                        {/* 작업정보 */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
+                            <div className="text-sm font-bold text-gray-600 mb-1">작업 정보</div>
+                            <div>
+                                <label className="text-xs text-gray-500">작업내용</label>
+                                <select value={info.workType} onChange={e => set('workType', e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm">
+                                    {['내부청소','설비점검','보수작업','용접','비파괴검사','배관작업','기타'].map(o => <option key={o}>{o}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500">작업빈도</label>
+                                <select value={info.workFreq} onChange={e => set('workFreq', e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm">
+                                    {['비정기','청소시(비정기)','점검시(비정기)','반기별 1회','분기별 1회'].map(o => <option key={o}>{o}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500">근로자 수</label>
+                                <select value={info.workerCount} onChange={e => set('workerCount', e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm">
+                                    {['2인 1조','3인 1조','4인 1조'].map(o => <option key={o}>{o}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        {/* 관리책임자 */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
+                            <div className="text-sm font-bold text-gray-600 mb-1">관리 책임자 및 연락망</div>
+                            <div>
+                                <label className="text-xs text-gray-500">총괄책임자 성명</label>
+                                <input type="text" value={info.managerName} onChange={e => set('managerName', e.target.value)} placeholder="예: 홍길동 과장" className="w-full mt-1 p-2 border rounded-lg text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500">사내 비상연락처</label>
+                                <input type="tel" value={info.emergencyTel} onChange={e => set('emergencyTel', e.target.value)} placeholder="예: 010-0000-0000" className="w-full mt-1 p-2 border rounded-lg text-sm" />
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
+                                💡 고정 비상연락망: 119(소방서), 1644-8595(안전보건공단 원콜서비스), 1339(응급의료)
+                            </div>
+                        </div>
+                        {/* 장비 보유 */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-4">
+                            <div className="text-sm font-bold text-gray-600">장비 보유 현황</div>
+                            {/* 가스측정기 */}
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium">가스측정기</span>
+                                    <button onClick={() => set('hasMeter', !info.hasMeter)} className={`w-12 h-6 rounded-full transition-colors ${info.hasMeter ? 'bg-teal-500' : 'bg-gray-300'}`}>
+                                        <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${info.hasMeter ? 'translate-x-6' : 'translate-x-0'}`} />
+                                    </button>
+                                </div>
+                                {info.hasMeter && (
+                                    <div className="space-y-2 pl-2">
+                                        <input type="text" value={info.meterModel} onChange={e => set('meterModel', e.target.value)} placeholder="모델명" className="w-full p-2 border rounded-lg text-sm" />
+                                        <div>
+                                            <label className="text-xs text-gray-500">검교정일자</label>
+                                            <input type="date" value={info.meterCalDate} onChange={e => set('meterCalDate', e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            {/* 환기팜 */}
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium">환기팜</span>
+                                    <button onClick={() => set('hasFan', !info.hasFan)} className={`w-12 h-6 rounded-full transition-colors ${info.hasFan ? 'bg-teal-500' : 'bg-gray-300'}`}>
+                                        <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform mx-0.5 ${info.hasFan ? 'translate-x-6' : 'translate-x-0'}`} />
+                                    </button>
+                                </div>
+                                {info.hasFan && (
+                                    <div className="space-y-2 pl-2">
+                                        <input type="text" value={info.fanModel} onChange={e => set('fanModel', e.target.value)} placeholder="모델명" className="w-full p-2 border rounded-lg text-sm" />
+                                        <div>
+                                            <label className="text-xs text-gray-500">검교정일자</label>
+                                            <input type="date" value={info.fanCalDate} onChange={e => set('fanCalDate', e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const DownloadScreen = () => {
             const files = [
                 { title: "1. 밀폐공간 출입금지 표지 (별지 제4호서식)", pdf: "./downloads/sign.pdf" },
@@ -1605,23 +1719,27 @@
             return (
                 <div className="p-4 md:p-8 max-w-5xl mx-auto">
                     <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Icon name="folder-down" className="text-blue-600" /> 필수 법정 양식 다운로드
+                        <Icon name="folder-down" className="text-blue-600" /> 다운로드
                     </h2>
+                    {/* 투트랙 다운로드 버튼 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        <button onClick={() => window.print()} className="flex items-center justify-center gap-3 p-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                            <Icon name="file-text" size={28} /> <span>평가보고서 출력</span>
+                        </button>
+                        <button onClick={() => alert('보건작업 프로그램 PDF 생성 기능이 곳 연결됩니다.')} className="flex items-center justify-center gap-3 p-5 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-bold text-lg shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                            <Icon name="book-open" size={28} /> <span>보건작업 프로그램 다운로드</span>
+                        </button>
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2"><Icon name="paperclip" size={18} /> 필수 법정 양식</h3>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <ul className="divide-y divide-gray-100">
                             {files.map((file, idx) => (
-                                <li key={idx} className="p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
-                                    <span className="font-semibold text-gray-700 text-lg">{file.title}</span>
+                                <li key={idx} className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                                    <span className="font-semibold text-gray-700">{file.title}</span>
                                     <div className="flex flex-wrap gap-2">
-                                        {file.hwpx && (
-                                            <a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16} /> HWPX 다운로드</a>
-                                        )}
-                                        {file.pdf && (
-                                            <a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16} /> PDF 다운로드</a>
-                                        )}
-                                        {file.extraPdf && (
-                                            <a href={file.extraPdf.url} download className="px-4 py-2 bg-rose-50 text-rose-600 rounded-md font-medium hover:bg-rose-100 flex items-center gap-1"><Icon name="book-open" size={16} /> {file.extraPdf.label}</a>
-                                        )}
+                                        {file.hwpx && (<a href={file.hwpx} download className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md font-medium hover:bg-blue-100 flex items-center gap-1"><Icon name="file-text" size={16} /> HWPX</a>)}
+                                        {file.pdf && (<a href={file.pdf} download className="px-4 py-2 bg-red-50 text-red-600 rounded-md font-medium hover:bg-red-100 flex items-center gap-1"><Icon name="file" size={16} /> PDF</a>)}
+                                        {file.extraPdf && (<a href={file.extraPdf.url} download className="px-4 py-2 bg-rose-50 text-rose-600 rounded-md font-medium hover:bg-rose-100 flex items-center gap-1"><Icon name="book-open" size={16} /> {file.extraPdf.label}</a>)}
                                     </div>
                                 </li>
                             ))}
