@@ -536,6 +536,8 @@
                             <div className="md:hidden flex items-center justify-between bg-white text-slate-800 px-4 py-2.5 z-40 shrink-0 border-b border-gray-200 shadow-sm relative">
                                 <h1 className="text-lg font-bold flex items-center gap-2"><Icon name="shield-alert" className="text-yellow-400" size={18} /> SafeSpace</h1>
                                 <div className="flex items-center gap-2">
+                                    {/* 로그인 사용자 이름 */}
+                                    <span className="text-sm font-medium text-gray-700 max-w-[80px] truncate hidden xs:block" style={{display: 'block', maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{user.displayName || user.email?.split('@')[0]}</span>
                                     {/* 로그아웃 버튼 — 항상 노출 */}
                                     <button onClick={() => firebase.auth().signOut()} className="p-1.5 text-red-400"><Icon name="log-out" size={17} /></button>
                                     {/* 드롭다운 토글 버튼 (⋮) */}
@@ -547,6 +549,8 @@
                                         ⋮
                                     </button>
                                 </div>
+                                {/* 드롭다운 배경(Backdrop) — 외부 클릭 시 메뉴 닫힘 */}
+                                {isMobileMenuOpen && <div className="fixed inset-0 z-[190]" onClick={() => setIsMobileMenuOpen(false)}></div>}
                                 {/* 드롭다운 메뉴 패널 */}
                                 {isMobileMenuOpen && (
                                     <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-200 z-[200] overflow-hidden">
@@ -636,31 +640,29 @@
                             {/* 모바일 전용 하단 탭 바 (md 이상에서는 숨김) */}
                             <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50 print:hidden">
                                 <div className="relative">
-                                    <div className="overflow-x-auto whitespace-nowrap scrollbar-none">
-                                        <div className="inline-flex">
-                                            {[
-                                                { tab: 'diagnosis', icon: 'compass', label: '자가진단' },
-                                                { tab: 'cover', icon: 'file-text', label: '표지' },
-                                                { tab: 'status', icon: 'layout-list', label: '현황' },
-                                                { tab: 'check', icon: 'check-square', label: '체크' },
-                                                { tab: 'map', icon: 'map-pin', label: '배치도' },
-                                                { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
-                                                { tab: 'download', icon: 'folder-down', label: '다운로드' },
-                                            ].map(({ tab, icon, label }) => (
-                                                <button
-                                                    key={tab}
-                                                    onClick={() => setActiveTab(tab)}
-                                                    style={{ minWidth: '72px' }}
-                                                    className={`inline-flex flex-col items-center justify-center gap-0.5 px-4 py-3 text-xs font-medium transition-colors shrink-0 ${activeTab === tab
-                                                        ? 'text-blue-600 border-t-2 border-blue-600 bg-blue-50'
-                                                        : 'text-gray-500 border-t-2 border-transparent'
-                                                    }`}
-                                                >
-                                                    <Icon name={icon} size={20} />
-                                                    <span>{label}</span>
-                                                </button>
-                                            ))}
-                                        </div>
+                                    <div className="flex flex-nowrap overflow-x-auto scrollbar-none">
+                                        {[
+                                            { tab: 'diagnosis', icon: 'compass', label: '자가진단' },
+                                            { tab: 'cover', icon: 'file-text', label: '표지' },
+                                            { tab: 'status', icon: 'layout-list', label: '현황' },
+                                            { tab: 'check', icon: 'check-square', label: '체크' },
+                                            { tab: 'map', icon: 'map-pin', label: '배치도' },
+                                            { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
+                                            { tab: 'download', icon: 'folder-down', label: '다운로드' },
+                                        ].map(({ tab, icon, label }) => (
+                                            <button
+                                                key={tab}
+                                                onClick={() => setActiveTab(tab)}
+                                                style={{ width: '22vw', minWidth: '76px', flexShrink: 0 }}
+                                                className={`flex flex-col items-center justify-center gap-0.5 py-3 text-xs font-medium transition-colors ${activeTab === tab
+                                                    ? 'text-blue-600 border-t-2 border-blue-600 bg-blue-50'
+                                                    : 'text-gray-500 border-t-2 border-transparent'
+                                                }`}
+                                            >
+                                                <Icon name={icon} size={20} />
+                                                <span>{label}</span>
+                                            </button>
+                                        ))}
                                     </div>
                                     {/* 우측 페이드 그라데이션 — 스크롤 힌트 */}
                                     <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
