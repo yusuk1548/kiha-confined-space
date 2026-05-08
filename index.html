@@ -131,6 +131,13 @@
 </head>
 
 <body class="bg-gray-100 text-slate-800 font-sans">
+    <script>
+        window.deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+        });
+    </script>
     <div id="root"></div>
 
     <script type="text/babel">
@@ -557,11 +564,13 @@
                 const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
                 if (isIos) {
                     setShowIosPrompt(true);
-                } else if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then(() => setDeferredPrompt(null));
+                } else if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                    window.deferredPrompt.userChoice.then((choiceResult) => {
+                        window.deferredPrompt = null;
+                    });
                 } else {
-                    alert('설치 팝업이 차단되었습니다.\n\n브라우저 메뉴(⋮ 또는 ≡)를 누른 후, [홈 화면에 추가] 또는 [앱 설치]를 직접 선택하시면 앱을 설치할 수 있습니다.');
+                    alert('안드로이드 시스템이 이미 앱이 설치되어 있다고 판단하고 있습니다.\n\n스마트폰의 [설정] ➟ [애플리케이션] 목록에 들어가서 SafeSpace(또는 KIHA Safety) 앱이 남아있는지 확인하고 "삭제"하신 후 다시 시도해 주세요.');
                 }
             };
 
