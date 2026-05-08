@@ -1,7 +1,7 @@
 {
   "name": "SafeSpace - 밀폐공간 위험성평가 솔루션",
   "short_name": "SafeSpace",
-  "start_url": "/space/",
+  "start_url": "/space/?v=2",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
