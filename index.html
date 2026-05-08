@@ -10,11 +10,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="SafeSpace">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-    <link rel="shortcut icon" sizes="192x192" href="./icon-192.png">
-    <link rel="apple-touch-icon" href="./icon-512.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
-    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/space/icon-192.png">
+    <link rel="shortcut icon" sizes="192x192" href="/space/icon-192.png">
+    <link rel="apple-touch-icon" href="/space/icon-512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/space/icon-192.png">
+    <link rel="manifest" href="/space/manifest.json">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -470,15 +470,6 @@
                 }
             }, [reportInfo.companyName]);
 
-            useEffect(() => {
-                if ('serviceWorker' in navigator) {
-                    window.addEventListener('load', () => {
-                        navigator.serviceWorker.register('./sw.js')
-                            .then(reg => console.log('Service Worker Registered:', reg.scope))
-                            .catch(err => console.log('Service Worker Registration Failed:', err));
-                    });
-                }
-            }, []);
 
             useEffect(() => {
                 const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); };
@@ -2422,9 +2413,10 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
-            });
+            // 브라우저가 다 켜지기도 전에 서비스워커부터 강제로 등록하여 WebAPK 생성 조건을 충족시킴
+            navigator.serviceWorker.register('/space/sw.js', { scope: '/space/' })
+                .then(reg => console.log('SW Registered!', reg))
+                .catch(err => console.error('SW Error', err));
         }
     </script>
 </body>
