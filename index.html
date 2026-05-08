@@ -426,6 +426,7 @@
             const [selectedSpaceItem, setSelectedSpaceItem] = React.useState(null);
             const [deferredPrompt, setDeferredPrompt] = React.useState(null);
             const [showIosPrompt, setShowIosPrompt] = React.useState(false);
+            const [summary, setSummary] = React.useState('');
 
             // ─── useRef ─────────────────────────────────────────────────
             const fileInputRef = useRef(null);
@@ -565,19 +566,21 @@
                 }
             };
             const handleAutoGenerateSummary = () => {
-                if (!spaces || spaces.length === 0) {
-                    alert("등록된 밀폐공간 데이터가 없습니다.");
+            const handleAutoGenerateSummary = () => {
+                const currentSpaces = spaces || [];
+                if (currentSpaces.length === 0) {
+                    alert("등록된 밀폐공간 데이터가 없습니다. 현황 탭에서 먼저 데이터를 입력해 주세요.");
                     return;
                 }
                 let text = "[밀폐공간 위험성평가 총평 및 종합의견]\n\n";
-                text += "당 사업장에는 현재 총 " + spaces.length + "개의 밀폐공간이 존재하며, 확인된 주요 위험 공간 및 작업은 다음과 같습니다.\n\n";
-                spaces.forEach((s, i) => {
-                    text += (i+1) + ". " + (s.location || s.name) + " (" + s.name + "): " + (s.workContent || s.cycle || "작업") + " 수행 중 질식 및 가스 중독 위험\n";
+                text += "당 사업장에는 현재 총 " + currentSpaces.length + "개의 밀폐공간이 존재하며, 확인된 주요 위험 공간 및 작업은 다음과 같습니다.\n\n";
+                currentSpaces.forEach((s, i) => {
+                    text += (i+1) + ". " + (s.location || "위치 미상") + " (" + (s.name || "공간명 미상") + "): " + (s.workContent || s.cycle || "작업") + " 수행 중 질식 및 가스 중독 위험\n";
                 });
                 text += "\n이에 따라 작업 전 반드시 산소 및 유해가스 농도를 측정하고, 작업 중 지속적인 환기와 적절한 보호구(송기마스크 등) 착용을 엄격히 관리해야 합니다. 또한, 비상시를 대비한 구조 장비 비치와 모의 훈련을 정기적으로 실시하여 질식 사고를 원천적으로 예방할 것을 권고합니다.";
+                setSummary(text);
                 setFinalOpinion(text);
             };
-
 
             const handleProgramDownload = async () => {
                 try {
@@ -744,7 +747,6 @@
                                     <MenuBtn active={activeTab === 'conclusion'} onClick={() => setActiveTab('conclusion')} icon="pen-tool" text="5. 총평 및 의견" />
                                     <MenuBtn active={activeTab === 'program'} onClick={() => setActiveTab('program')} icon="clipboard-list" text="6. 프로그램" />
                                     <div className="h-px bg-gray-100 my-2"></div>
-                                    {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} />}
                                     <MenuBtn active={activeTab === 'download'} onClick={() => setActiveTab('download')} icon="folder-down" text="자료 다운로드" />
                                 </nav>
                                 <div className="p-4 border-t border-gray-100 space-y-2">
@@ -769,6 +771,7 @@
                                     {activeTab === 'check' && <ChecklistScreen results={checklistResults} setResults={setChecklistResults} defectSummary={defectSummary} />}
                                     {activeTab === 'status' && <StatusScreen spaces={spaces} setSpaces={setSpaces} />}
                                     {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
+                                    {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} onAutoGenerate={handleAutoGenerateSummary} summary={summary} setSummary={setSummary} />}
                                     {activeTab === 'download' && <DownloadScreen onProgramDownload={handleProgramDownload} />}
                                     {activeTab === 'program' && <ProgramScreen info={programInfo} setInfo={setProgramInfo} spaces={spaces} setSpaces={setSpaces} />}
                                     {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
@@ -1312,15 +1315,17 @@
             );
         }
 
-        function ConclusionScreen({ reportInfo, spaces, defectSummary, checklistResults, setFinalOpinion, finalOpinion }) {
+        function ConclusionScreen({ reportInfo, spaces, defectSummary, checklistResults, setFinalOpinion, finalOpinion, onAutoGenerate, summary, setSummary }) {
             const generate = () => {
-                const total = spaces.length;
-                const high = spaces.filter(s => s.risk.level === 'HIGH').length;
-                const medium = spaces.filter(s => s.risk.level === 'MEDIUM').length;
-                const low = spaces.filter(s => s.risk.level === 'LOW').length;
+                const safeSpaces = spaces || [];
+                if (safeSpaces.length === 0) { setFinalOpinion(""); return; }
+                const total = safeSpaces.length;
+                const high   = safeSpaces.filter(s => s.risk && s.risk.level === "HIGH").length;
+                const medium = safeSpaces.filter(s => s.risk && s.risk.level === "MEDIUM").length;
+                const low    = safeSpaces.filter(s => s.risk && s.risk.level === "LOW").length;
 
                 // 설비 명칭별 개수 카운트
-                const spaceCounts = spaces.reduce((acc, s) => {
+                const spaceCounts = safeSpaces.reduce((acc, s) => {
                     acc[s.name] = (acc[s.name] || 0) + 1;
                     return acc;
                 }, {});
@@ -1391,7 +1396,7 @@
             };
             return (
                 <div className="p-4 md:p-8 h-full flex flex-col overflow-auto">
-                    <div className="mb-4 flex flex-wrap gap-3 items-center"><button onClick={generate} className="px-4 py-3 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-base transition">📊 분석 자동 작성</button><button onClick={handleAutoGenerateSummary} className="px-4 py-3 md:py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-base transition flex items-center gap-1"><span>✨</span><span>AI 자동 작성</span></button></div>
+                    <div className="mb-4 flex flex-wrap gap-3 items-center"><button onClick={generate} className="px-4 py-3 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-base transition">📊 분석 자동 작성</button><button onClick={onAutoGenerate} className="px-4 py-3 md:py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-base transition flex items-center gap-1"><span>✨</span><span>AI 자동 작성</span></button></div>
 
                     {/* [인쇄 전용] 1-1. 종합 평가 결과표 */}
                     <div className="hidden print:!block w-full mb-8 page-break-inside-avoid">
