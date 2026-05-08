@@ -1,23 +1,21 @@
 {
-  "name": "밀폐공간 위험성평가 솔루션 (KIHA)",
-  "short_name": "KIHA Safety",
-  "start_url": "./index.html",
+  "name": "SafeSpace - 밀폐공간 위험성평가 솔루션",
+  "short_name": "SafeSpace",
+  "start_url": "/space/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "description": "2026년 최신 KOSHA Guide 기반 밀폐공간 위험성평가 솔루션",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "description": "소규모 사업장을 위한 밀폐공간 스마트 위험성평가 및 법정 서류 자동화 앱",
   "icons": [
     {
-      "src": "./icon-512.png",
-      "sizes": "192x192",
+      "src": "icon-192.png",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "192x192"
     },
     {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
+      "src": "icon-512.png",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "512x512"
     }
   ]
 }
