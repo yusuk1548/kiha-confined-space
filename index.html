@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -589,7 +589,8 @@
                     const pdfRes = await fetch('https://yusuk1548.github.io/space/program.pdf' + cacheBuster);
                     const pdfBytes = await pdfRes.arrayBuffer();
 
-                    const fontRes = await fetch('https://yusuk1548.github.io/space/NanumGothic.ttf' + cacheBuster);
+                    // 구글 폰트 공식 저장소의 100% 순정 TTF 원본 파일 직접 호출 (CORS 허용됨, 캐시 무시)
+                    const fontRes = await fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Regular.ttf', { cache: 'no-store' });
                     const fontBytes = await fontRes.arrayBuffer();
 
                     // 파일 용량 진단 (10KB 미만이면 HTML 에러페이지이거나 파일 손상)
