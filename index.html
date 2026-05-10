@@ -150,6 +150,20 @@
             return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
         };
 
+        const MenuBtn = ({ active, onClick, icon, text }) => (
+            <button
+                onClick={onClick}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    active 
+                    ? 'bg-blue-50 text-blue-700 shadow-sm' 
+                    : 'text-slate-600 hover:bg-gray-50 hover:text-slate-900'
+                }`}
+            >
+                <Icon name={icon} size={18} className={active ? 'text-blue-600' : 'text-slate-400'} />
+                {text}
+            </button>
+        );
+
         const compressImage = (file, maxWidth = 800, quality = 0.6) => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
