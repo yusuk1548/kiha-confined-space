@@ -646,17 +646,18 @@
                     // --- [1페이지: 표지] ---
                     const page1 = pages[0];
 
-                    // 1. 기존 '(주)0000' 글자 지우기 (하얀색 네모로 덮어쓰기)
-                    // 위치: 하단 중앙 (영점 조절: x, y, width, height)
-                    page1.drawRectangle({ x: 150, y: 120, width: 300, height: 40, color: rgb(1, 1, 1) });
+                    // 1. 기존 '(주)0000' 완벽하게 지우기 (하얀색 네모 영역 대폭 확장)
+                    page1.drawRectangle({ x: 100, y: 80, width: 400, height: 80, color: rgb(1, 1, 1) });
 
-                    // 2. 사업장명 합성 (파란색 글씨, 지운 자리 바로 위에 작성)
-                    drawCenteredText(page1, companyName, 150, 130, 300, 24, rgb(0.1, 0.4, 0.8));
+                    // 2. 사업장명 합성 (파란색 글씨, 지운 자리 정중앙 배치)
+                    drawCenteredText(page1, companyName, 100, 110, 400, 24, rgb(0.1, 0.4, 0.8));
 
-                    // 3. 제정일자 및 개정일자 (중앙 표 위치로 분리 이동)
-                    // 영점 조절: x, y값 조절 필요
-                    drawCenteredText(page1, programDate,  120, 480, 120, 12); // 제정일자 빈칸 추정 위치
-                    drawCenteredText(page1, revisionDate, 120, 420, 120, 12); // 개정일자 빈칸 추정 위치
+                    // 3. 제정일자 및 개정일자 (상단 표 위치로 Y좌표 대폭 상향 이동)
+                    // 영점 조절: x, y값 조절 필요 (추정치: y 680 부근)
+                    drawCenteredText(page1, programDate, 100, 680, 150, 12);
+                    if (revisionDate) {
+                        drawCenteredText(page1, revisionDate, 100, 615, 150, 12);
+                    }
 
                     // --- [2페이지: 밀폐공간 현황표] ---
                     const page2 = pages.length > 1 ? pages[1] : pages[0];
