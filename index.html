@@ -437,7 +437,7 @@
             const [teamMemberExt, setTeamMemberExt] = React.useState('');
             const [teamMemberPur, setTeamMemberPur] = React.useState('');
             const [teamMemberMaint, setTeamMemberMaint] = React.useState('');
-            const [emerContacts, setEmerContacts] = React.useState({ director: '', dirPhone: '', manager: '', manPhone: '', safety: '', safPhone: '' });
+            const [emerContacts, setEmerContacts] = React.useState({ director: '정유석', dirPhone: '010-2875-1548', manager: '강현선', manPhone: '', teamExt: '도향숙', teamExtPhone: '', teamPur: '손희영', teamPurPhone: '', teamMaint: '권순목', teamMaintPhone: '' });
             const [equipment, setEquipment] = React.useState({ oxygen: '보유', gas: '보유', vent: '보유', mask: '보유', tripod: '보유', rescue: '보유' });
 
             // ─── useRef ─────────────────────────────────────────────────
@@ -607,10 +607,10 @@
                     return;
                 }
                 const opt = {
-                    margin:      15,
-                    filename:    `밀폐공간작업프로그램_${companyName}.pdf`,
+                    margin:      0,
+                    filename:     `밀페공간작업프로그램_${companyName}.pdf`,
                     image:       { type: 'jpeg', quality: 1.0 },
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    html2canvas: { scale: 2, useCORS: true, windowWidth: 1024 },
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
                 html2pdf().set(opt).from(element).save().then(() => {
@@ -897,13 +897,26 @@
                                         <section>
                                             <h3 className="font-bold text-lg border-b pb-2 mb-3">2. 비상연락망 (조직도 연동)</h3>
                                             <div className="space-y-3">
-                                                {[['director','dirPhone','관리책임자'],['manager','manPhone','관리감독자'],['safety','safPhone','안전보건관리']].map(([nk,pk,label]) => (
-                                                    <div key={nk} className="flex gap-2 items-center">
-                                                        <span className="w-24 text-sm font-semibold shrink-0">{label}</span>
-                                                        <input type="text" value={emerContacts[nk]} onChange={(e) => setEmerContacts({...emerContacts, [nk]: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="성명" />
-                                                        <input type="text" value={emerContacts[pk]} onChange={(e) => setEmerContacts({...emerContacts, [pk]: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
-                                                    </div>
-                                                ))}
+                                              <div className="flex gap-2 items-center"><span className="w-32 text-xs font-bold bg-gray-100 p-2 rounded text-center">프로그램 총괄 책임자</span>
+                                                <input type="text" value={emerContacts.director} onChange={(e) => setEmerContacts({...emerContacts, director: e.target.value})} className="w-24 p-2 border rounded text-sm" placeholder="성명" />
+                                                <input type="text" value={emerContacts.dirPhone} onChange={(e) => setEmerContacts({...emerContacts, dirPhone: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
+                                              </div>
+                                              <div className="flex gap-2 items-center"><span className="w-32 text-xs font-bold bg-gray-100 p-2 rounded text-center">프로그램 관리자</span>
+                                                <input type="text" value={emerContacts.manager} onChange={(e) => setEmerContacts({...emerContacts, manager: e.target.value})} className="w-24 p-2 border rounded text-sm" placeholder="성명" />
+                                                <input type="text" value={emerContacts.manPhone} onChange={(e) => setEmerContacts({...emerContacts, manPhone: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
+                                              </div>
+                                              <div className="flex gap-2 items-center"><span className="w-32 text-xs font-bold bg-gray-100 p-2 rounded text-center">추진 팀원(외주업체)</span>
+                                                <input type="text" value={emerContacts.teamExt} onChange={(e) => setEmerContacts({...emerContacts, teamExt: e.target.value})} className="w-24 p-2 border rounded text-sm" placeholder="성명" />
+                                                <input type="text" value={emerContacts.teamExtPhone} onChange={(e) => setEmerContacts({...emerContacts, teamExtPhone: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
+                                              </div>
+                                              <div className="flex gap-2 items-center"><span className="w-32 text-xs font-bold bg-gray-100 p-2 rounded text-center">추진 팀원(구매담당)</span>
+                                                <input type="text" value={emerContacts.teamPur} onChange={(e) => setEmerContacts({...emerContacts, teamPur: e.target.value})} className="w-24 p-2 border rounded text-sm" placeholder="성명" />
+                                                <input type="text" value={emerContacts.teamPurPhone} onChange={(e) => setEmerContacts({...emerContacts, teamPurPhone: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
+                                              </div>
+                                              <div className="flex gap-2 items-center"><span className="w-32 text-xs font-bold bg-gray-100 p-2 rounded text-center">추진 팀원(정비보수)</span>
+                                                <input type="text" value={emerContacts.teamMaint} onChange={(e) => setEmerContacts({...emerContacts, teamMaint: e.target.value})} className="w-24 p-2 border rounded text-sm" placeholder="성명" />
+                                                <input type="text" value={emerContacts.teamMaintPhone} onChange={(e) => setEmerContacts({...emerContacts, teamMaintPhone: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
+                                              </div>
                                             </div>
                                         </section>
                                         {/* 3. 안전장비 */}
@@ -1035,7 +1048,7 @@
                         </div>
                         {/* PDF 오프스크린 템플릿 */}
                         <div style={{ position: 'absolute', top: '-20000px', left: '-20000px' }}>
-                          <div id="pdf-print-template" className="bg-white text-black" style={{ width: '210mm', padding: '15mm 20mm', fontFamily: "'Malgun Gothic', '맑은 고딕', sans-serif", fontSize: '11pt', lineHeight: '1.6' }}>
+                          <div id="pdf-print-template" className="bg-white text-black" style={{ width: '210mm', boxSizing: 'border-box', padding: '15mm 20mm', fontFamily: "'Malgun Gothic', '맑은 고딕', sans-serif", fontSize: '11pt', lineHeight: '1.6' }}>
 
                             {/* [1페이지] 표지 */}
                             <div style={{ height: '260mm', display: 'flex', flexDirection: 'column', pageBreakAfter: 'always' }}>
@@ -1071,20 +1084,24 @@
                             {/* [2페이지] 목적 및 현황 */}
                             <div style={{ pageBreakAfter: 'always' }}>
                               <h2 style={{ fontSize: '18px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '8px', marginBottom: '16px' }}>1. 목적</h2>
-                              <p style={{ marginBottom: '32px', textAlign: 'justify', lineHeight: '1.8' }}>산업안전보건기준에 관한 규칙 제619조 규정에 의한 밀폐공간 작업 프로그램으로서, 해당 사업장내 정규직과 비정규직, 같은 사업장에서 밀폐공간작업을 수행하는 원청, 협력업체 및 사외 작업자 등 모든 근로자에게 밀폐공간 작업 시 산소결핍 또는 유해가스로 인한 질식재해를 예방하는데 그 목적을 두고 있다.</p>
-                              <h2 style={{ fontSize: '18px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '8px', marginBottom: '16px', marginTop: '24px' }}>2. 밀폐공간 작업장소 보유현황</h2>
-                              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '11px' }}>
+                              <p style={{ marginBottom: '32px', textAlign: 'justify', lineHeight: '1.8' }}>산업안전보건기준에 관한 규칙 제619조 규정에 의한 밀�                              <h2 style={{ fontSize: '18px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '8px', marginBottom: '16px' }}>5. 비상연락 체계 구축</h2>
+                              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '12px' }}>
                                 <thead>
                                   <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
-                                    {['연번','위치','밀폐공간명','작업내용','작업빈도','근로자수','위험요인'].map(h => <th key={h} style={{ border: '1px solid black', padding: '10px 4px' }}>{h}</th>)}
+                                    {['구분','성명 / 직위','연락처 (사내/휴대폰)'].map(h => <th key={h} style={{ border: '1px solid black', padding: '10px 8px' }}>{h}</th>)}
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {spaces && spaces.length > 0 ? spaces.map((s, i) => (
-                                    <tr key={i}>
-                                      <td style={{ border: '1px solid black', padding: '10px 4px' }}>{i + 1}</td>
-                                      <td style={{ border: '1px solid black', padding: '10px 4px' }}>{s.location}</td>
-                                      <td style={{ border: '1px solid black', padding: '10px 4px', fontWeight: 'bold' }}>{s.name}</td>
+                                  {[['프로그램 총괄 책임자','director','dirPhone'],['프로그램 관리자','manager','manPhone'],['추진 팀원(외주업체)','teamExt','teamExtPhone'],['추진 팀원(구매담당)','teamPur','teamPurPhone'],['추진 팀원(정비보수)','teamMaint','teamMaintPhone']].map(([label,nk,pk]) => (
+                                    <tr key={nk}>
+                                      <td style={{ border: '1px solid black', padding: '10px 8px', fontWeight: 'bold', background: '#f9fafb' }}>{label}</td>
+                                      <td style={{ border: '1px solid black', padding: '10px 8px', fontSize: '14px' }}>{emerContacts[nk] || ''}</td>
+                                      <td style={{ border: '1px solid black', padding: '10px 8px', fontWeight: 'bold' }}>{emerContacts[pk] || ''}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>    <td style={{ border: '1px solid black', padding: '10px 4px', fontWeight: 'bold' }}>{s.name}</td>
                                       <td style={{ border: '1px solid black', padding: '10px 4px' }}>{s.workContent}</td>
                                       <td style={{ border: '1px solid black', padding: '10px 4px' }}>{s.workFrequency}</td>
                                       <td style={{ border: '1px solid black', padding: '10px 4px' }}>{s.workers}</td>
@@ -1099,13 +1116,14 @@
                             <div style={{ pageBreakAfter: 'always' }}>
                               <h2 style={{ fontSize: '18px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '8px', marginBottom: '24px' }}>3. 밀폐공간 조직 및 운영</h2>
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-                                <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '10px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '200px' }}>총괄책임자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal', fontSize: '16px' }}>{emerContacts.director || '성명'}</span></div>
+                                <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '10px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '220px' }}>프로그램 총괄 책임자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal', fontSize: '16px' }}>{emerContacts.director || '성명'}</span></div>
                                 <div style={{ height: '24px', borderLeft: '2px solid black' }}></div>
-                                <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '10px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '200px' }}>프로그램 관리자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal', fontSize: '16px' }}>{emerContacts.manager || '성명'}</span></div>
+                                <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '10px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '220px' }}>프로그램 관리자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal', fontSize: '16px' }}>{emerContacts.manager || '성명'}</span></div>
                                 <div style={{ height: '24px', borderLeft: '2px solid black' }}></div>
-                                <div style={{ display: 'flex', gap: '40px' }}>
-                                  <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '8px 16px', textAlign: 'center', fontWeight: 'bold', minWidth: '140px' }}>안전보건관리<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.safety || '성명'}</span></div>
-                                  <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '8px 16px', textAlign: 'center', fontWeight: 'bold', minWidth: '140px' }}>현장감독<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.manager || '성명'}</span></div>
+                                <div style={{ display: 'flex', gap: '16px' }}>
+                                  <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '8px 12px', textAlign: 'center', fontWeight: 'bold', minWidth: '120px', fontSize: '12px' }}>추진팀원(외주업체)<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.teamExt || '성명'}</span></div>
+                                  <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '8px 12px', textAlign: 'center', fontWeight: 'bold', minWidth: '120px', fontSize: '12px' }}>추진팀원(구매담당)<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.teamPur || '성명'}</span></div>
+                                  <div style={{ border: '2px solid black', background: '#f3f4f6', padding: '8px 12px', textAlign: 'center', fontWeight: 'bold', minWidth: '120px', fontSize: '12px' }}>추진팀원(정비보수)<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.teamMaint || '성명'}</span></div>
                                 </div>
                               </div>
                               <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px' }}>▶ 보유장소별 사진 및 위험요인</h3>
@@ -1149,13 +1167,11 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {[['관리책임자','director','dirPhone'],['관리감독자','manager','manPhone'],['안전보건관리','safety','safPhone']].map(([label,nk,pk]) => (
-                                    <tr key={nk}>
-                                      <td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>{label}</td>
-                                      <td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts[nk] || ''}</td>
-                                      <td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts[pk] || ''}</td>
-                                    </tr>
-                                  ))}
+                                  <tr><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>프로그램 총괄 책임자</td><td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts.director || ''}</td><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts.dirPhone || ''}</td></tr>
+                                  <tr><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>프로그램 관리자</td><td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts.manager || ''}</td><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts.manPhone || ''}</td></tr>
+                                  <tr><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>추진 팀원(외주업체)</td><td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts.teamExt || ''}</td><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts.teamExtPhone || ''}</td></tr>
+                                  <tr><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>추진 팀원(구매담당)</td><td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts.teamPur || ''}</td><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts.teamPurPhone || ''}</td></tr>
+                                  <tr><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold', background: '#f9fafb' }}>추진 팀원(정비보수)</td><td style={{ border: '1px solid black', padding: '12px 8px', fontSize: '14px' }}>{emerContacts.teamMaint || ''}</td><td style={{ border: '1px solid black', padding: '12px 8px', fontWeight: 'bold' }}>{emerContacts.teamMaintPhone || ''}</td></tr>
                                 </tbody>
                               </table>
                             </div>
