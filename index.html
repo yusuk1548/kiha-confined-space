@@ -1168,9 +1168,9 @@
                                     {/* ─── [3페이지 이후] 밀폐공간별 사진 및 세부 위험요인 ─── */}
                                     <div style={{ pageBreakBefore: 'always', paddingTop: '10mm' }}>
                                         <h2 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">3. 보유장소별 사진 및 위험요인</h2>
-                                        <div className="grid grid-cols-2 gap-8">
+                                        <div className="w-full text-left">
                                             {spaces && spaces.length > 0 ? spaces.map((space, idx) => (
-                                                <div key={idx} style={{ pageBreakInside: 'avoid' }}>
+                                                <div key={idx} style={{ display: 'inline-block', width: '48%', margin: '0 1% 20px 1%', verticalAlign: 'top', pageBreakInside: 'avoid' }}>
                                                     <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mb-3" style={{ height: '70mm' }}>
                                                         {(space.photo && space.photo.startsWith('data:image')) ? (
                                                             <img src={space.photo} alt={space.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -1199,7 +1199,7 @@
                                                     </table>
                                                 </div>
                                             )) : (
-                                                <div className="col-span-2 text-center text-gray-500 py-10 border-2 border-dashed border-gray-300 rounded-lg">등록된 밀폐공간이 없습니다.</div>
+                                                <div className="w-full text-center text-gray-500 py-10 border-2 border-dashed border-gray-300 rounded-lg">등록된 밀폐공간이 없습니다.</div>
                                             )}
                                         </div>
                                     </div>
@@ -1293,36 +1293,68 @@
                                     <p className="mb-4 ml-2">사업주는 밀폐공간 작업을 수급인에게 도급하는 경우, 수급인 근로자의 질식재해 예방을 위해 밀폐공간의 위치, 위험성, 작업상 주의사항을 작업 시작 전 서면으로 고지하고, 수급인이 작업 프로그램에 따라 안전하게 작업하는지 확인해야 한다.</p>
                                 </div>
 
-                                {/* ─── [7페이지] 별첨 1 & 별첨 2 ─── */}
-                                <div style={{ pageBreakAfter: 'always' }}>
+                                {/* ─── [7페이지] 별첨 1 ─── */}
+                                <div style={{ pageBreakBefore: 'always', paddingTop: '10mm' }}>
                                     <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">【별첨 1】 밀폐공간 (제618조제1호 관련)</h2>
-                                    <ul className="list-decimal ml-6 mb-10 space-y-1 text-sm bg-gray-50 p-4 border rounded">
-                                        <li>우물·수직갱·터널·잠함·피트 또는 그밖에 이와 유사한 것의 내부</li>
-                                        <li>케이블·가스관 등을 수용하기 위하여 지하에 부설한 암거·맨홀 또는 피트의 내부</li>
-                                        <li>빗물·하천의 유수 또는 용수가 있거나 있었던 통·암거·맨홀 또는 피트의 내부</li>
-                                        <li>석탄·아탄·황화광 등 산소를 흡수하는 물질이 들어 있는 창고나 선창의 내부</li>
-                                        <li>분뇨, 오염된 흙, 폐수, 오수 등 부패하기 쉬운 물질이 들어있는 정화조·침전조·집수조·탱크의 내부</li>
-                                        <li>산소농도 18% 미만 23.5% 이상, 황화수소 10ppm 이상, 일산화탄소 30ppm 이상인 장소</li>
-                                        <li>화학물질이 들어있던 반응기 및 탱크의 내부</li>
-                                        <li>근로자가 상주하지 않는 공간으로서 출입이 제한되어 있는 장소의 내부 등 18개 항목</li>
-                                    </ul>
-
-                                    <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">【별첨 2】 밀폐공간 출입금지 표지</h2>
-                                    <div className="border-4 border-red-600 p-4 text-center w-3/4 mx-auto bg-white mt-6">
-                                        <h3 className="text-3xl font-black text-black tracking-widest">질식 위험공간</h3>
-                                        <p className="text-xl font-bold my-4">"관계자외 출입금지"</p>
-                                        <div className="bg-red-600 text-yellow-300 font-black text-5xl py-6 rounded-full border-4 border-red-800 shadow-inner w-2/3 mx-auto my-6 tracking-widest">위 험</div>
-                                        <ul className="text-left font-bold text-green-800 space-y-2 w-4/5 mx-auto mb-4 text-sm">
-                                            <li>출입 전 산소 및 유해가스 농도 측정</li>
-                                            <li>작업 전·작업 중 지속적인 환기</li>
-                                            <li>구조작업 시 공기호흡기 또는 송기마스크 착용</li>
+                                    <div className="text-[10pt] leading-relaxed text-justify space-y-1.5">
+                                        <p>1. 다음의 지층에 접하거나 통하는 우물·수직갱·터널·잠함·피트 또는 그밖에 이와 유사한 것의 내부</p>
+                                        <ul className="pl-6 space-y-0.5">
+                                            <li>가. 상층에 물이 통과하지 않는 지층이 있는 역암층 중 함수 또는 용수가 없거나 적은 부분</li>
+                                            <li>나. 제1철 염류 또는 제1망간 염류를 함유하는 지층</li>
+                                            <li>다. 메탄·에탄 또는 부탄을 함유하는 지층</li>
+                                            <li>라. 탄산수를 용출하고 있거나 용출할 우려가 있는 지층</li>
                                         </ul>
-                                        <p className="font-bold text-red-600 text-lg bg-red-100 py-2">☎ 1644-8595 로 장비대여 신청하세요</p>
+                                        <p>2. 장기간 사용하지 않은 우물 등의 내부</p>
+                                        <p>3. 케이블·가스관 또는 지하에 부설되어 있는 매설물을 수용하기 위하여 지하에 부설한 암거·맨홀 또는 피트의 내부</p>
+                                        <p>4. 빗물·하천의 유수 또는 용수가 있거나 있었던 통·암거·맨홀 또는 피트의 내부</p>
+                                        <p>5. 바닷물이 있거나 있었던 열교환기·관·암거·맨홀·둑 또는 피트의 내부</p>
+                                        <p>6. 장기간 밀폐된 강재(鋼材)의 보일러·탱크·반응탑이나 그 밖에 그 내벽이 산화하기 쉬운 시설(그 내벽이 스테인리스강으로 된 것 또는 그 내벽의 산화를 방지하기 위하여 필요한 조치가 되어 있는 것은 제외한다)의 내부</p>
+                                        <p>7. 석탄·아탄·황화광·강재·원목·건성유(乾性油)·어유(魚油) 또는 그 밖의 공기 중의 산소를 흡수하는 물질이 들어 있는 탱크 또는 호퍼(hopper) 등의 저장시설이나 선창의 내부</p>
+                                        <p>8. 천장·바닥 또는 벽이 건성유를 함유하는 페인트로 도장되어 그 페인트가 건조되기 전에 밀폐된 지하실·창고 또는 탱크 등 통풍이 불충분한 시설의 내부</p>
+                                        <p>9. 곡물 또는 사료의 저장용 창고 또는 피트의 내부, 과일의 숙성용 창고 또는 피트의 내부, 종자의 발아용 창고 또는 피트의 내부, 버섯류의 재배를 위하여 사용하고 있는 사일로(silo), 그 밖에 곡물 또는 사료종자를 적재한 선창의 내부</p>
+                                        <p>10. 간장·주류·효모 그 밖에 발효하는 물품이 들어 있거나 들어 있었던 탱크·창고 또는 양조주의 내부</p>
+                                        <p>11. 분뇨, 오염된 흙, 썩은 물, 폐수, 오수, 그 밖에 부패하거나 분해되기 쉬운 물질이 들어있는 정화조·침전조·집수조·탱크·암거·맨홀·관 또는 피트의 내부</p>
+                                        <p>12. 드라이아이스를 사용하는 냉장고·냉동고·냉동화물자동차 또는 냉동컨테이너의 내부</p>
+                                        <p>13. 헬륨·아르곤·질소·프레온·이산화탄소 또는 그 밖의 불활성기체가 들어 있거나 있었던 보일러·탱크 또는 반응탑 등 시설의 내부</p>
+                                        <p>14. 산소농도가 18퍼센트 미만 또는 23.5퍼센트 이상, 이산화탄소 농도가 1.5퍼센트 이상, 일산화탄소농도가 30피피엠 이상 또는 황화수소농도가 10피피엠 이상인 장소의 내부</p>
+                                        <p>15. 갈탄·목탄·연탄난로를 사용하는 콘크리트 양생장소(養生場所) 및 가설숙소 내부</p>
+                                        <p>16. 화학물질이 들어있던 반응기 및 탱크의 내부</p>
+                                        <p>17. 유해가스가 들어있던 배관이나 집진기의 내부</p>
+                                        <p>18. 근로자가 상주(常住)하지 않는 공간으로서 출입이 제한되어 있는 장소의 내부</p>
+                                    </div>
+                                </div>
+
+                                {/* ─── 【별첨 2】 밀폐공간 출입금지 표지 ─── */}
+                                <div style={{ pageBreakBefore: 'always', pageBreakAfter: 'always', paddingTop: '10mm' }}>
+                                    <h2 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">【별첨 2】 밀폐공간 출입금지 표지</h2>
+
+                                    {/* 실제 표지판 외곽선 */}
+                                    <div className="border-8 border-red-600 p-8 text-center w-5/6 mx-auto bg-white mt-8">
+                                        <h3 className="text-4xl font-black text-black tracking-widest mb-4">질식 위험공간</h3>
+                                        <p className="text-3xl font-bold text-red-600 mb-10">"관계자외 출입금지"</p>
+
+                                        {/* '위험' 강조 원형 로고 */}
+                                        <div className="bg-red-600 text-white font-black text-6xl py-12 rounded-full border-8 border-red-800 w-3/4 mx-auto my-10 tracking-widest flex items-center justify-center">
+                                            위 험
+                                        </div>
+
+                                        {/* 안전 수칙 3가지 */}
+                                        <ul className="text-left font-bold text-black space-y-5 w-4/5 mx-auto mb-12 text-xl list-none">
+                                            <li className="flex items-center gap-3"><span className="text-red-600 text-2xl">▶</span> 출입전 산소 및 유해가스 농도 측정</li>
+                                            <li className="flex items-center gap-3"><span className="text-red-600 text-2xl">▶</span> 작업전 작업중 지속적인 환기</li>
+                                            <li className="flex items-center gap-3"><span className="text-red-600 text-2xl">▶</span> 구조작업시 공기호흡기 또는 송기마스크 착용</li>
+                                        </ul>
+
+                                        {/* 담당자 및 연락처 기입란 */}
+                                        <div className="flex justify-between items-center border-t-4 border-gray-800 pt-6 px-8 text-xl font-bold text-left">
+                                            <div className="w-1/2">담당자 : <span className="inline-block w-40 border-b-2 border-black translate-y-1"></span></div>
+                                            <div className="w-1/2">연락처 : <span className="inline-block w-48 border-b-2 border-black translate-y-1"></span></div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* ─── [8페이지] 별첨 3 작업허가서 ─── */}
-                                <div style={{ pageBreakAfter: 'always' }}>
+                                <div style={{ pageBreakBefore: 'always', pageBreakAfter: 'always', paddingTop: '20mm' }}>
                                     <h2 className="text-xl font-bold mb-6 text-center text-2xl tracking-wide">밀폐공간 안전보건작업 허가서</h2>
                                     <table className="w-full border-collapse border-2 border-black text-sm text-center mb-8">
                                         <tbody>
