@@ -1165,25 +1165,52 @@
                                         </div>
                                     </div>
 
-                                    <h3 className="font-bold text-lg mb-4">▶ 보유장소별 사진 및 위험요인</h3>
-                                    <div className="grid grid-cols-2 gap-6">
-                                        {spaces && spaces.map((space, idx) => (
-                                            <div key={idx} className="border-2 border-black p-3 flex flex-col items-center break-inside-avoid shadow-sm">
-                                                <div className="font-bold bg-gray-100 w-full text-center border-b-2 border-black pb-2 mb-3 text-base">
-                                                    {idx + 1}. {space.name}
+                                    {/* ─── [3페이지 이후] 밀폐공간별 사진 및 세부 위험요인 ─── */}
+                                    {spaces && spaces.length > 0 ? spaces.map((space, idx) => (
+                                        <div key={idx} style={{ pageBreakBefore: 'always', padding: '10mm 0' }}>
+                                            <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">▶ 보유장소별 사진 및 위험요인 (No.{idx + 1})</h2>
+                                            <div className="grid grid-cols-1 gap-6" style={{ pageBreakInside: 'avoid' }}>
+                                                <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center" style={{ height: '120mm' }}>
+                                                    {(space.photo && space.photo.startsWith('data:image')) ? (
+                                                        <img
+                                                            src={space.photo}
+                                                            alt={space.name}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                        />
+                                                    ) : (space.imgSrc && space.imgSrc.startsWith('data:image')) ? (
+                                                        <img
+                                                            src={space.imgSrc}
+                                                            alt={space.name}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                        />
+                                                    ) : (
+                                                        <div className="text-gray-400 flex flex-col items-center">
+                                                            <Icon name="image" size={48} className="mb-2" />
+                                                            <p className="font-bold">사진 미등록</p>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                {space.imgSrc && space.imgSrc.startsWith('data:image') ? (
-                                                    <img src={space.imgSrc} alt={space.name} className="h-40 object-contain mb-3" />
-                                                ) : (
-                                                    <div className="h-40 flex items-center justify-center text-gray-400 bg-gray-50 w-full mb-3 border border-dashed">사진 미등록</div>
-                                                )}
-                                                <div className="text-sm text-left w-full bg-gray-50 p-2 rounded">
-                                                    <span className="font-bold">위치:</span> {space.location}<br />
-                                                    <span className="font-bold">위험요인:</span> {Array.isArray(space.hazards) ? space.hazards.join(', ') : space.hazards}
-                                                </div>
+                                                <table className="w-full border-collapse border border-black text-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th className="border border-black bg-gray-100 p-3 w-1/4">밀폐공간명</th>
+                                                            <td className="border border-black p-3 font-bold text-lg">{space.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th className="border border-black bg-gray-100 p-3">위치</th>
+                                                            <td className="border border-black p-3">{space.location}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th className="border border-black bg-gray-100 p-3">위험요인</th>
+                                                            <td className="border border-black p-3 text-red-600 font-bold">
+                                                                {Array.isArray(space.hazards) ? space.hazards.join(', ') : space.hazards}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )) : null}
                                 </div>
 
                                 {/* ─── [4페이지] 장비 현황, 연락망 ─── */}
@@ -1641,7 +1668,23 @@
                         {/* 작업내용 */}
                         <div>
                             <label className="text-sm font-bold text-gray-600">작업내용</label>
-                            <input type="text" className="w-full p-3 md:p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-base" placeholder="예: 내부 청소 및 점검" value={form.workContent} onChange={e => setForm({ ...form, workContent: e.target.value })} />
+                            <input
+                                type="text"
+                                list="work-content-options-new"
+                                className="w-full p-3 md:p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-base"
+                                placeholder="목록에서 선택하거나 직접 입력하세요"
+                                value={form.workContent}
+                                onChange={e => setForm({ ...form, workContent: e.target.value })}
+                            />
+                            <datalist id="work-content-options-new">
+                                <option value="청소 및 세척 작업" />
+                                <option value="설비 유지보수 및 점검" />
+                                <option value="용접 및 절단 작업 (화기 작업)" />
+                                <option value="도장 및 방수 작업" />
+                                <option value="기계 설치 및 해체" />
+                                <option value="내부 육안 검사" />
+                                <option value="내부 작업 없음" />
+                            </datalist>
                         </div>
 
                         {/* 위치·면적 */}
