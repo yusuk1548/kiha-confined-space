@@ -437,7 +437,7 @@
             const [teamMemberExt, setTeamMemberExt] = React.useState('');
             const [teamMemberPur, setTeamMemberPur] = React.useState('');
             const [teamMemberMaint, setTeamMemberMaint] = React.useState('');
-            const [emerContacts, setEmerContacts] = React.useState({ director: '정유석', dirPhone: '010-2875-1548', manager: '강현선', manPhone: '', teamExt: '도향숙', teamExtPhone: '', teamPur: '손희영', teamPurPhone: '', teamMaint: '권순목', teamMaintPhone: '' });
+            const [emerContacts, setEmerContacts] = React.useState({ director: '', dirPhone: '', manager: '', manPhone: '', teamExt: '', teamExtPhone: '', teamPur: '', teamPurPhone: '', teamMaint: '', teamMaintPhone: '' });
             const [equipment, setEquipment] = React.useState({ oxygen: '보유', gas: '보유', vent: '보유', mask: '보유', tripod: '보유', rescue: '보유' });
 
             // ─── useRef ─────────────────────────────────────────────────
@@ -607,12 +607,13 @@
                     return;
                 }
                 const opt = {
-                    margin:      0,
+                    margin:       0,
                     filename:     `밀페공간작업프로그램_${companyName}.pdf`,
-                    image:       { type: 'jpeg', quality: 1.0 },
-                    html2canvas: { scale: 2, useCORS: true, windowWidth: 1024 },
-                    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    // scrollX: 0, scrollY: 0 옵션을 주어야 좌표가 틀어져서 짤리는 현상이 사라짐
+                    html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                  };
                 html2pdf().set(opt).from(element).save().then(() => {
                     setToastMsg('');
                 });
@@ -1046,8 +1047,8 @@
 
                             </div>
                         </div>
-                        {/* PDF 출력용 오프스크린 템플릿 (A4 사이즈 완벽 고정, 짤림 방지) */}
-                        <div style={{ position: 'absolute', top: '-20000px', left: '-20000px' }}>
+                        {/* PDF 출력용 오프스크린 템플릿 (화면 짤림 방지 및 정중앙 정렬) */}
+                        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: -9999, opacity: 0, pointerEvents: 'none' }}>
                           <div id="pdf-print-template" className="bg-white text-black" style={{ width: '210mm', boxSizing: 'border-box', padding: '15mm 20mm', fontFamily: "'Malgun Gothic', '맑은 고딕', sans-serif", fontSize: '11pt', lineHeight: '1.6' }}>
                             
                             {/* ─── [1페이지] 표지 ─── */}
