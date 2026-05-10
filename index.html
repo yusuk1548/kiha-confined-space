@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -1226,6 +1226,17 @@
                                     <th className="border border-black py-2">구분</th>
                                     <th className="border border-black py-2">성명 / 직위</th>
                                     <th className="border border-black py-2">연락처 (사내/휴대폰)</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody>
+                                   <tr><td className="border border-black py-3 font-bold bg-gray-50">프로그램 총괄 책임자</td><td className="border border-black py-3 text-lg">{emerContacts?.director || ''}</td><td className="border border-black py-3 font-bold">{emerContacts?.dirPhone || ''}</td></tr>
+                                   <tr><td className="border border-black py-3 font-bold bg-gray-50">프로그램 관리자</td><td className="border border-black py-3 text-lg">{emerContacts?.manager || ''}</td><td className="border border-black py-3 font-bold">{emerContacts?.manPhone || ''}</td></tr>
+                                   <tr><td className="border border-black py-3 font-bold bg-gray-50">추진 팀원(외주업체)</td><td className="border border-black py-3 text-lg">{emerContacts?.teamExt || ''}</td><td className="border border-black py-3 font-bold">{emerContacts?.teamExtPhone || ''}</td></tr>
+                                   <tr><td className="border border-black py-3 font-bold bg-gray-50">추진 팀원(구매담당)</td><td className="border border-black py-3 text-lg">{emerContacts?.teamPur || ''}</td><td className="border border-black py-3 font-bold">{emerContacts?.teamPurPhone || ''}</td></tr>
+                                   <tr><td className="border border-black py-3 font-bold bg-gray-50">추진 팀원(정비보수)</td><td className="border border-black py-3 text-lg">{emerContacts?.teamMaint || ''}</td><td className="border border-black py-3 font-bold">{emerContacts?.teamMaintPhone || ''}</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
                                                         {/* ─── [5페이지] 제6장 ~ 7장 KOSHA 원문 ─── */}
                             <div style={{ pageBreakAfter: 'always', textAlign: 'justify' }}>
                               <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">6. 밀폐공간 보건작업 관리</h2>
@@ -1325,8 +1336,9 @@
                               </div>
                             </div>
 
-                          </div>
-                        </div>
+                          </div> {/* id="pdf-print-template" 닫기 */}
+                        </div> {/* position:fixed 오프스크린 래퍼 닫기 */}
+
                     </React.Fragment>
                 )
             );
@@ -1392,6 +1404,7 @@
                 </div>
             </div>
         );
+
         function ChecklistScreen({ results, setResults, defectSummary }) {
             const [expanded, setExpanded] = useState("1. 관리 및 장비 지급");
             return (
@@ -1740,6 +1753,7 @@
                         </div>
                     )}
                 </div>
+            </div>
             );
         }
 
@@ -2077,8 +2091,6 @@
                                         확인했습니다 — 자가진단으로 돌아가기
                                     </button>
                                 </div>
-                            </div>
-                        </div>
                     )}
 
                     {/* 사진 확대 모달 - 도움말 모달보다 위에 렌더링 (z-[200]) */}
@@ -2124,9 +2136,6 @@
                                             <p className="text-gray-700 text-base leading-relaxed">{selectedItem.desc}</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
                     )}
                 </div>
             );
@@ -2209,7 +2218,6 @@
                             </div>
                         ))}
                     </div>
-                </div>
             );
         };
 
