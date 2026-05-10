@@ -1224,8 +1224,8 @@
                               </table>
                             </div>
 
-                            {/* ─── [5페이지 이후] 제6장 ~ 9장 KOSHA 원문 ─── */}
-                            <div style={{ textAlign: 'justify' }}>
+                                                        {/* ─── [5페이지] 제6장 ~ 7장 KOSHA 원문 ─── */}
+                            <div style={{ pageBreakAfter: 'always', textAlign: 'justify' }}>
                               <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">6. 밀폐공간 보건작업 관리</h2>
                               <h3 className="font-bold text-lg mt-4 mb-2 bg-gray-100 p-2 border-l-4 border-blue-600">가. 출입금지 및 표지판 설치</h3>
                               <p className="mb-4 ml-2">사업주는 밀폐공간에 근로자가 출입하지 않도록 잠금장치를 하고, 출입구에 관계자 외 출입금지 표지를 보기 쉬운 장소에 부착하여야 한다. 작업 시에는 안전작업허가서를 발급받고 출입구에 게시한다.</p>
@@ -1243,9 +1243,12 @@
 
                               <h3 className="font-bold text-lg mt-4 mb-2">나. 보호구 지급 및 착용</h3>
                               <p className="mb-4 ml-2">환기만으로 적정공기 유지가 곤란하거나 피난, 구출 작업을 수행할 경우 사업주는 근로자에게 <strong>송기마스크 또는 공기호흡기</strong>를 반드시 지급하고 착용하도록 지도하여야 한다. (일반 방독마스크 착용 절대 금지)</p>
+                            </div>
 
-                              <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2 mt-10">8. 비상시 구출 및 응급처치</h2>
-                              <ol className="list-decimal ml-8 mb-6 space-y-3 font-bold text-red-700">
+                            {/* ─── [6페이지] 제8장 ~ 9장 KOSHA 원문 ─── */}
+                            <div style={{ pageBreakAfter: 'always', textAlign: 'justify' }}>
+                              <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">8. 비상시 구출 및 응급처치</h2>
+                              <ol className="list-decimal ml-8 mb-6 space-y-4 font-bold text-red-700">
                                 <li>사고 인지 및 전파: 감시인은 즉시 큰 소리로 사고를 알리고, 119 및 사내 비상연락망에 구조를 요청한다.</li>
                                 <li>직접 구조 금지: 감시인이나 동료 작업자는 공기호흡기 등 보호구 없이 맨몸으로 구조하러 들어가는 것을 절대 금지한다. (구조자 동반 질식 위험)</li>
                                 <li>구조 장비 활용: 비치된 구조용 삼각대와 윈치를 이용하여 작업자를 외부로 구출한다.</li>
@@ -1256,60 +1259,71 @@
                               <p className="mb-4 ml-2">사업주는 밀폐공간 작업을 수급인에게 도급하는 경우, 수급인 근로자의 질식재해 예방을 위해 밀폐공간의 위치, 위험성, 작업상 주의사항을 작업 시작 전 서면으로 고지하고, 수급인이 작업 프로그램에 따라 안전하게 작업하는지 확인해야 한다.</p>
                             </div>
 
+                            {/* ─── [7페이지] 별첨 1 & 별첨 2 ─── */}
+                            <div style={{ pageBreakAfter: 'always' }}>
+                              <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">【별첨 1】 밀폐공간 (제618조제1호 관련)</h2>
+                              <ul className="list-decimal ml-6 mb-10 space-y-1 text-sm bg-gray-50 p-4 border rounded">
+                                <li>우물·수직갱·터널·잠함·피트 또는 그밖에 이와 유사한 것의 내부</li>
+                                <li>케이블·가스관 등을 수용하기 위하여 지하에 부설한 암거·맨홀 또는 피트의 내부</li>
+                                <li>빗물·하천의 유수 또는 용수가 있거나 있었던 통·암거·맨홀 또는 피트의 내부</li>
+                                <li>석탄·아탄·황화광 등 산소를 흡수하는 물질이 들어 있는 창고나 선창의 내부</li>
+                                <li>분뇨, 오염된 흙, 폐수, 오수 등 부패하기 쉬운 물질이 들어있는 정화조·침전조·집수조·탱크의 내부</li>
+                                <li>산소농도 18% 미만 23.5% 이상, 황화수소 10ppm 이상, 일산화탄소 30ppm 이상인 장소</li>
+                                <li>화학물질이 들어있던 반응기 및 탱크의 내부</li>
+                                <li>근로자가 상주하지 않는 공간으로서 출입이 제한되어 있는 장소의 내부 등 18개 항목</li>
+                              </ul>
+
+                              <h2 className="text-xl font-bold mb-4 border-b-2 border-black pb-2">【별첨 2】 밀폐공간 출입금지 표지</h2>
+                              <div className="border-4 border-red-600 p-4 text-center w-3/4 mx-auto bg-white mt-6">
+                                <h3 className="text-3xl font-black text-black tracking-widest">질식 위험공간</h3>
+                                <p className="text-xl font-bold my-4">"관계자외 출입금지"</p>
+                                <div className="bg-red-600 text-yellow-300 font-black text-5xl py-6 rounded-full border-4 border-red-800 shadow-inner w-2/3 mx-auto my-6 tracking-widest">위 험</div>
+                                <ul className="text-left font-bold text-green-800 space-y-2 w-4/5 mx-auto mb-4 text-sm">
+                                  <li>출입 전 산소 및 유해가스 농도 측정</li>
+                                  <li>작업 전·작업 중 지속적인 환기</li>
+                                  <li>구조작업 시 공기호흡기 또는 송기마스크 착용</li>
+                                </ul>
+                                <p className="font-bold text-red-600 text-lg bg-red-100 py-2">☎ 1644-8595 로 장비대여 신청하세요</p>
+                              </div>
+                            </div>
+
+                            {/* ─── [8페이지] 별첨 3 작업허가서 ─── */}
+                            <div style={{ pageBreakAfter: 'always' }}>
+                              <h2 className="text-xl font-bold mb-6 text-center text-2xl tracking-wide">밀폐공간 안전보건작업 허가서</h2>
+                              <table className="w-full border-collapse border-2 border-black text-sm text-center mb-8">
+                                <tbody>
+                                  <tr>
+                                    <th className="border border-black py-3 bg-gray-100 w-1/4 font-bold">작업장소</th>
+                                    <td className="border border-black py-3">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</td>
+                                    <th className="border border-black py-3 bg-gray-100 w-1/4 font-bold">작업일시</th>
+                                    <td className="border border-black py-3">202 &nbsp; . &nbsp; &nbsp; . &nbsp; &nbsp; . ( : ~ : )</td>
+                                  </tr>
+                                  <tr>
+                                    <th className="border border-black py-4 bg-gray-100 font-bold">작업내용</th>
+                                    <td colSpan="3" className="border border-black py-4"></td>
+                                  </tr>
+                                  <tr>
+                                    <th className="border border-black py-6 bg-gray-100 font-bold">가스측정 결과</th>
+                                    <td colSpan="3" className="border border-black py-6 text-left px-6 leading-loose">
+                                      산소: &nbsp; &nbsp; &nbsp; &nbsp; %, &nbsp; &nbsp; 황화수소: &nbsp; &nbsp; &nbsp; &nbsp; ppm, &nbsp; &nbsp; 일산화탄소: &nbsp; &nbsp; &nbsp; &nbsp; ppm<br/>
+                                      측정자: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (서명)
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th className="border border-black py-6 bg-gray-100 font-bold">안전조치 확인</th>
+                                    <td colSpan="3" className="border border-black py-6 text-left px-6 font-bold space-y-2">
+                                      <p>☐ 환기 실시 &nbsp; &nbsp; &nbsp; ☐ 보호구 지급</p>
+                                      <p>☐ 감시인 배치 &nbsp; &nbsp; &nbsp; ☐ 표지판 설치</p>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <div className="flex justify-end mt-10 mr-10 text-lg font-bold">
+                                <p>허가권자: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (서명)</p>
+                              </div>
+                            </div>
+
                           </div>
-                        </div>
-
-                    </React.Fragment>
-                )
-            );
-        }
-
-        const MenuBtn = ({ active, onClick, icon, text }) => (
-            <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 ${active ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm' : 'text-slate-500 hover:bg-gray-100 hover:text-slate-800'}`}>
-                <Icon name={icon} size={18} /> {text}
-            </button>
-        );
-
-        // ... (화면 렌더링용 컴포넌트들 생략, 기능은 동일) ...
-        function CoverScreen({ data, setData }) {
-            return (
-                <div className="w-full h-full overflow-y-auto bg-gray-50">
-                    <div className="flex items-start justify-center p-3 md:p-8 py-4 md:py-10 min-h-full">
-                        <div className="w-full max-w-[210mm] bg-white flex flex-col items-center border relative p-4 md:p-10 shadow-sm">
-                            <div className="absolute top-0 left-0 w-full h-4 bg-blue-800"></div>
-
-                            {/* 메인 타이틀 - 모바일에서 잘리지 않도록 break-keep + text-center */}
-                            <div className="text-center mt-4 md:mt-10 w-full">
-                                <h1 className="text-2xl md:text-5xl font-extrabold mb-2 md:mb-6 leading-tight text-center text-gray-900 break-keep whitespace-normal">밀폐공간 작업<br />위험성평가 보고서</h1>
-                                <p className="text-sm md:text-2xl text-center break-words whitespace-normal text-gray-500 font-serif">Confined Space Risk Assessment Report</p>
-                            </div>
-                            {/* 항목 목록 - 모바일에서 간격 타이트하게 */}
-                            <div className="w-full max-w-lg mx-auto px-0 md:px-10 space-y-3 md:space-y-8 my-4 md:my-10">
-                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-500">사업장명</label>
-                                    <input type="text" value={data.companyName} onChange={e => setData({ ...data, companyName: e.target.value })} className="w-full text-xl md:text-3xl font-bold text-center bg-transparent outline-none py-2 md:py-2" placeholder="사업장명 입력" />
-                                </div>
-                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-500">평가 기간</label>
-                                    <input type="date" value={data.period} onChange={e => setData({ ...data, period: e.target.value })} className="w-full text-base md:text-2xl font-bold text-center bg-transparent outline-none py-2 md:py-2" />
-                                </div>
-                                <div className="border-b-2 border-gray-300 pb-1 md:pb-2 text-center">
-                                    <label className="text-xs md:text-sm font-bold text-gray-500 block mb-1 md:mb-2">평가 기관</label>
-                                    <div className="text-base md:text-2xl font-bold mb-1 md:mb-2">(사)대한산업보건협회</div>
-                                    <div className="flex flex-col sm:flex-row justify-center gap-2">
-                                        <select className="p-2 border rounded text-sm md:text-base" value={data.agencyType} onChange={e => setData({ ...data, agencyType: e.target.value, agencyBranch: e.target.value === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0] })}>
-                                            <option value="region">지역본부</option><option value="center">센터</option>
-                                        </select>
-                                        <select className="p-2 border rounded font-bold text-blue-900 bg-blue-50 text-sm md:text-base" value={data.agencyBranch} onChange={e => setData({ ...data, agencyBranch: e.target.value })}>
-                                            {(data.agencyType === 'region' ? KIHA_REGIONS : KIHA_CENTERS).map(b => <option key={b} value={b}>{b}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* 로고 */}
-                            <div className="mb-4 md:mb-10 text-center">
-                                <img src="./logo.png" alt="Logo" className="h-12 md:h-24 object-contain mx-auto" onError={(e) => { e.target.style.display = 'none' }} />
-                            </div>
                         </div>
                     </div>
                 </div>
