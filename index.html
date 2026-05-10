@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -21,6 +21,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         /* 화면용 기본 스타일 */
@@ -438,6 +439,7 @@
             const [teamMemberMaint, setTeamMemberMaint] = React.useState('');
 
             // ─── useRef ─────────────────────────────────────────────────
+            const printRef = React.useRef();
             const fileInputRef = useRef(null);
 
             // ─── useEffect ──────────────────────────────────────────────
@@ -590,116 +592,24 @@
                 setFinalOpinion(text);
             };
 
-            const handleProgramDownload = async () => {
-                try {
-                    // 현재 시간값을 강제로 붙여 브라우저와 서비스워커의 캐시를 100% 무시
-                    const cacheBuster = '?v=' + new Date().getTime();
-
-                    const pdfRes = await fetch('https://yusuk1548.github.io/space/program.pdf' + cacheBuster);
-                    const pdfBytes = await pdfRes.arrayBuffer();
-
-                    // 구글 폰트 공식 저장소의 100% 순정 TTF 원본 파일 직접 호출 (CORS 허용됨, 캐시 무시)
-                    const fontRes = await fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Regular.ttf', { cache: 'no-store' });
-                    const fontBytes = await fontRes.arrayBuffer();
-
-                    // 파일 용량 진단 (10KB 미만이면 HTML 에러페이지이거나 파일 손상)
-                    if (pdfBytes.byteLength < 10000) {
-                        throw new Error(`PDF 파일이 너무 작습니다. (용량: ${pdfBytes.byteLength} Byte)\n정상적인 PDF 파일이 아닙니다.`);
-                    }
-                    if (fontBytes.byteLength < 10000) {
-                        throw new Error(`폰트 파일이 너무 작습니다. (용량: ${fontBytes.byteLength} Byte)\n정상적인 TTF 폰트 파일이 아닙니다.`);
-                    }
-
-                    const { PDFDocument, rgb } = window.PDFLib;
-                    const pdfDoc = await PDFDocument.load(pdfBytes);
-
-                    // 폰트킷 등록 확인
-                    if (!window.fontkit) {
-                        throw new Error("폰트킷(fontkit) 라이브러리가 로드되지 않았습니다. HTML의 <head>를 확인하세요.");
-                    }
-                    pdfDoc.registerFontkit(window.fontkit);
-                    const customFont = await pdfDoc.embedFont(fontBytes);
-                    // 텍스트 가운데 정렬 및 폰트 자동 축소 함수 (색상 옵션 지원)
-                    const drawCenteredText = (page, text, boxX, boxY, boxWidth, defaultSize = 10, textColor = rgb(0, 0, 0)) => {
-                        if (text === undefined || text === null || String(text).trim() === '') return;
-                        const str = String(text).trim();
-                        let size = defaultSize;
-                        let textWidth = customFont.widthOfTextAtSize(str, size);
-
-                        // 글자가 박스 너비보다 크면 폰트 사이즈를 최소 6pt까지 0.5씩 줄임 (Auto-scaling)
-                        while (textWidth > boxWidth && size > 6) {
-                            size -= 0.5;
-                            textWidth = customFont.widthOfTextAtSize(str, size);
-                        }
-
-                        // 가운데 정렬을 위한 시작 X좌표 계산
-                        const startX = boxX + (boxWidth - textWidth) / 2;
-                        page.drawText(str, { x: startX, y: boxY, size: size, font: customFont, color: textColor });
-                    };
-
-                    // 상태값 변수 추출 (가독성 향상)
-                    // companyName / programDate / revisionDate / programDirector / programManager
-                    // / teamMemberExt / teamMemberPur / teamMemberMaint 는 App 레벨 state에서 직접 참조
-
-                    const pages = pdfDoc.getPages();
-
-                    // --- [1페이지: 표지] ---
-                    const page1 = pages[0];
-
-                    // 1. 기존 '(주)0000' 완벽하게 지우기 (하얀색 네모 영역 대폭 확장)
-                    page1.drawRectangle({ x: 100, y: 90, width: 400, height: 90, color: rgb(1, 1, 1) });
-
-                    // 2. 사업장명 합성 (파란색 글씨, 지운 자리 정중앙 배치)
-                    drawCenteredText(page1, companyName, 100, 110, 400, 24, rgb(0.1, 0.4, 0.8));
-
-                    // 3. 제정일자 및 개정일자 (상단 표 위치로 Y좌표 대폭 상향 이동)
-                    // 영점 조절: x, y값 조절 필요 (추정치: y 680 부근)
-                    drawCenteredText(page1, programDate, 110, 390, 150, 12);
-                    if (revisionDate) {
-                        drawCenteredText(page1, revisionDate, 110, 305, 150, 12);
-                    }
-
-                    // --- [2페이지: 밀폐공간 현황표] ---
-                    const page2 = pages.length > 1 ? pages[1] : pages[0];
-                    if (spaces && spaces.length > 0) {
-                        spaces.forEach((space, index) => {
-                            const y = 380 - (index * 30); // 한 줄 내려갈 때마다 Y좌표 30씩 감소 (영점조절 필요)
-                            if (y < 50) return;
-
-                            drawCenteredText(page2, index + 1, 56, y, 30, 10); // 연번
-                            drawCenteredText(page2, space.location, 80, y, 60, 10); // 위치
-                            drawCenteredText(page2, space.name, 140, y, 80, 10); // 공간명
-                            drawCenteredText(page2, space.workContent, 240, y, 80, 10); // 작업내용
-                            drawCenteredText(page2, space.workFrequency, 330, y, 60, 10); // 작업빈도
-                            drawCenteredText(page2, space.workers, 400, y, 50, 10); // 근로자수
-                            drawCenteredText(page2, space.permitRequired ? '유' : '무', 455, y, 40, 10); // 작업허가 유/무
-                            const safeHazardsText = Array.isArray(space.hazards) ? space.hazards.join(', ') : (space.hazards || '');
-                            drawCenteredText(page2, safeHazardsText, 510, y, 50, 10); // 위험요인
-                        });
-                    }
-
-                    // --- [4페이지: 프로그램 조직도] ---
-                    if (pages.length > 3) {
-                        const page4 = pages[3];
-                        // 프로그램 탭에서 입력한 담당자 이름 매핑
-                        drawCenteredText(page4, programDirector, 250, 700, 100, 12); // 총괄책임자
-                        drawCenteredText(page4, programManager, 250, 600, 100, 12); // 관리자
-                        drawCenteredText(page4, teamMemberExt, 100, 450, 80, 12); // 추진팀원(외주)
-                        drawCenteredText(page4, teamMemberPur, 250, 450, 80, 12); // 추진팀원(구매)
-                        drawCenteredText(page4, teamMemberMaint, 400, 450, 80, 12); // 추진팀원(정비)
-                    }
-
-                    // 다운로드 트리거
-                    const pdfBytesSaved = await pdfDoc.save();
-                    const blob = new Blob([pdfBytesSaved], { type: 'application/pdf' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = '밀폐공간_작업프로그램_' + (reportInfo.companyName || '무제') + '.pdf';
-                    link.click();
-                } catch (err) {
-                    console.error('PDF 생성 오류:', err);
-                    alert('PDF 생성 중 오류가 발생했습니다.\n\n' + err.message);
+            const handleProgramDownload = () => {
+                if (!companyName) {
+                    alert('사업장명을 입력해주세요.');
+                    return;
                 }
+                if (!printRef.current) {
+                    alert('PDF 템플릿을 찾을 수 없습니다. 잠시 후 다시 시도해주세요.');
+                    return;
+                }
+                const element = printRef.current;
+                const opt = {
+                    margin:      0,
+                    filename:    `밀폐공간작업프로그램_${companyName}.pdf`,
+                    image:       { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
             };
 
 
@@ -1024,6 +934,105 @@
                                 </div>
                             </div>
                         )}
+                        {/* PDF 출력용 숨김 영역 (A4 사이즈 고정) */}
+                        <div style={{ position: 'absolute', left: '-9999px', top: 0, zIndex: -1 }}>
+                            <div ref={printRef} className="bg-white text-black text-sm" style={{ width: '210mm', padding: '20mm', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
+
+                                {/* [1페이지] 표지 */}
+                                <div style={{ height: '257mm', position: 'relative', pageBreakAfter: 'always' }} className="flex flex-col">
+                                    <h1 className="text-4xl font-bold text-center" style={{ marginTop: '128px' }}>밀폐공간작업프로그램(매뉴얼)</h1>
+
+                                    {/* 우측 상단 결재란 */}
+                                    <div style={{ position: 'absolute', top: 0, right: 0, display: 'flex', fontSize: '11px', textAlign: 'center', border: '1px solid black' }}>
+                                        <div style={{ width: '32px', borderRight: '1px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>결<br/>재</div>
+                                        <div>
+                                            <div style={{ display: 'flex', borderBottom: '1px solid black', background: '#f3f4f6' }}>
+                                                <div style={{ width: '64px', borderRight: '1px solid black', padding: '4px' }}>작성</div>
+                                                <div style={{ width: '64px', borderRight: '1px solid black', padding: '4px' }}>검토</div>
+                                                <div style={{ width: '64px', padding: '4px' }}>승인</div>
+                                            </div>
+                                            <div style={{ display: 'flex', height: '64px' }}>
+                                                <div style={{ width: '64px', borderRight: '1px solid black' }}></div>
+                                                <div style={{ width: '64px', borderRight: '1px solid black' }}></div>
+                                                <div style={{ width: '64px' }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 제정/개정일자 */}
+                                    <div style={{ marginTop: '120px', textAlign: 'center', lineHeight: '2' }}>
+                                        <p style={{ fontSize: '18px', fontWeight: 'bold' }}>제정일자 : {programDate || '20  .  .  .'}</p>
+                                        {revisionDate && <p style={{ fontSize: '18px', fontWeight: 'bold' }}>개정일자 : {revisionDate}</p>}
+                                    </div>
+
+                                    {/* 하단 사업장명 */}
+                                    <div style={{ position: 'absolute', bottom: '80px', width: '100%', textAlign: 'center' }}>
+                                        <h2 style={{ fontSize: '30px', fontWeight: '900', color: '#1e40af' }}>{companyName || '사업장명 입력'}</h2>
+                                    </div>
+                                </div>
+
+                                {/* [2페이지] 목적 및 현황 */}
+                                <div style={{ pageBreakAfter: 'always', paddingTop: '8px' }}>
+                                    <h2 style={{ fontSize: '20px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>1. 목적</h2>
+                                    <p style={{ marginBottom: '32px', lineHeight: '1.8' }}>산업안전보건기준에 관한 규칙 제619조 규정에 의한 밀폐공간 작업 프로그램(매뉴얼)으로서, 해당 사업장내 정규직과 비정규직, 원청, 협력업체 등 모든 근로자에게 질식재해를 예방하는데 그 목적을 두고 있다.</p>
+
+                                    <h2 style={{ fontSize: '20px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>2. 밀폐공간 작업장소</h2>
+                                    <h3 style={{ fontWeight: 'bold', marginBottom: '8px' }}>가. 보유현황</h3>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'center', marginBottom: '32px' }}>
+                                        <thead style={{ background: '#f3f4f6' }}>
+                                            <tr>
+                                                {['연번','위치','밀폐공간명','작업내용','작업빈도','근로자수','위험요인'].map(h => (
+                                                    <th key={h} style={{ border: '1px solid black', padding: '6px' }}>{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(spaces && spaces.length > 0) ? spaces.map((space, idx) => (
+                                                <tr key={idx}>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{idx + 1}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{space.location}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{space.name}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{space.workContent}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{space.workFrequency}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{space.workers}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px' }}>{Array.isArray(space.hazards) ? space.hazards.join(', ') : (space.hazards || '')}</td>
+                                                </tr>
+                                            )) : (
+                                                <tr><td colSpan="7" style={{ border: '1px solid black', padding: '16px', color: '#6b7280' }}>등록된 밀폐공간이 없습니다.</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* [3페이지] 조직도 */}
+                                <div style={{ pageBreakAfter: 'always', paddingTop: '8px' }}>
+                                    <h2 style={{ fontSize: '20px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>3. 밀폐공간 조직 및 운영</h2>
+                                    <p style={{ marginBottom: '24px' }}>프로그램 수립·수행을 위한 추진팀은 아래 조직도와 같이 구성하여 운영한다.</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ border: '2px solid black', width: '192px', textAlign: 'center', background: '#f3f4f6', padding: '8px', fontWeight: 'bold' }}>
+                                            프로그램 총괄 책임자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{programDirector || '성명'}</span>
+                                        </div>
+                                        <div style={{ height: '16px', borderLeft: '2px solid black' }}></div>
+                                        <div style={{ border: '2px solid black', width: '192px', textAlign: 'center', background: '#f3f4f6', padding: '8px', fontWeight: 'bold' }}>
+                                            프로그램 관리자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{programManager || '성명'}</span>
+                                        </div>
+                                        <div style={{ height: '16px', borderLeft: '2px solid black' }}></div>
+                                        <div style={{ width: '100%', maxWidth: '480px', borderTop: '2px solid black', display: 'flex', justifyContent: 'space-between', paddingTop: '16px' }}>
+                                            <div style={{ border: '2px solid black', width: '128px', textAlign: 'center', background: '#f3f4f6', padding: '8px', fontWeight: 'bold' }}>
+                                                추진팀원<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{teamMemberExt || '성명'}</span>
+                                            </div>
+                                            <div style={{ border: '2px solid black', width: '128px', textAlign: 'center', background: '#f3f4f6', padding: '8px', fontWeight: 'bold' }}>
+                                                추진팀원<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{teamMemberPur || '성명'}</span>
+                                            </div>
+                                            <div style={{ border: '2px solid black', width: '128px', textAlign: 'center', background: '#f3f4f6', padding: '8px', fontWeight: 'bold' }}>
+                                                추진팀원<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{teamMemberMaint || '성명'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                     </React.Fragment>
                 )
             );
