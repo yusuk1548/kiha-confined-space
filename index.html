@@ -437,6 +437,8 @@
             const [teamMemberExt, setTeamMemberExt] = React.useState('');
             const [teamMemberPur, setTeamMemberPur] = React.useState('');
             const [teamMemberMaint, setTeamMemberMaint] = React.useState('');
+            const [emerContacts, setEmerContacts] = React.useState({ director: '', dirPhone: '', manager: '', manPhone: '', safety: '', safPhone: '' });
+            const [equipment, setEquipment] = React.useState({ oxygen: '보유', gas: '보유', vent: '보유', mask: '보유', tripod: '보유', rescue: '보유' });
 
             // ─── useRef ─────────────────────────────────────────────────
             const printRef = React.useRef();
@@ -592,24 +594,101 @@
                 setFinalOpinion(text);
             };
 
-            const handleProgramDownload = () => {
-                if (!companyName) {
-                    alert('사업장명을 입력해주세요.');
-                    return;
+            const handleProgramDownload = async () => {
+                try {
+                    if (!companyName) return alert('사업장명을 입력해주세요.');
+                    setToastMsg('PDF 문서를 생성 중입니다... (약 2~3초 소요)');
+                    const { PDFDocument, rgb } = window.PDFLib;
+                    const existingPdfBytes = await fetch('https://yusuk1548.github.io/space/program.pdf?v=' + Date.now()).then(r => r.arrayBuffer());
+                    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+                    pdfDoc.registerFontkit(window.fontkit);
+                    const fontBytes = await fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Regular.ttf', { cache: 'no-store' }).then(r => r.arrayBuffer());
+                    const customFont = await pdfDoc.embedFont(fontBytes);
+                    const drawText = (page, text, x, y, size = 10, color = rgb(0,0,0)) => {
+                        if (text === undefined || text === null || String(text).trim() === '') return;
+                        const str = String(text).trim();
+                        const tw = customFont.widthOfTextAtSize(str, size);
+                        page.drawText(str, { x: x - tw / 2, y, size, font: customFont, color });
+                    };
+                    const spacesList = spaces || [];
+                    let addedPages = 0;
+                    // [1페이지] 표지
+                    const page1 = pdfDoc.getPages()[0];
+                    page1.drawRectangle({ x: 100, y: 90, width: 400, height: 90, color: rgb(1,1,1) });
+                    drawText(page1, companyName, 300, 120, 22, rgb(0.1,0.4,0.8));
+                    drawText(page1, programDate, 200, 390, 12);
+                    if (revisionDate) drawText(page1, revisionDate, 200, 310, 12);
+                    // [2페이지] 현황표 (초과 시 자동 복제)
+                    let currentPage2 = pdfDoc.getPages()[1];
+                    for (let i = 0; i < spacesList.length; i++) {
+                        if (i > 0 && i % 9 === 0) {
+                            const [cp] = await pdfDoc.copyPages(pdfDoc, [1]);
+                            addedPages++;
+                            pdfDoc.insertPage(1 + addedPages, cp);
+                            currentPage2 = pdfDoc.getPages()[1 + addedPages];
+                        }
+                        const y = 380 - ((i % 9) * 30);
+                        const s = spacesList[i];
+                        drawText(currentPage2, i + 1, 56, y, 10);
+                        drawText(currentPage2, s.location, 110, y, 10);
+                        drawText(currentPage2, s.name, 190, y, 10);
+                        drawText(currentPage2, s.workContent, 280, y, 10);
+                        drawText(currentPage2, s.workFrequency, 360, y, 10);
+                        drawText(currentPage2, s.workers, 425, y, 10);
+                        drawText(currentPage2, Array.isArray(s.hazards) ? s.hazards.join(', ') : (s.hazards || ''), 520, y, 10);
+                    }
+                    const allPages = pdfDoc.getPages();
+                    // [3페이지] 조직도
+                    if (allPages.length > 2 + addedPages) {
+                        const page3 = allPages[2 + addedPages];
+                        drawText(page3, programDirector, 300, 690, 12);
+                        drawText(page3, programManager, 300, 610, 12);
+                        drawText(page3, teamMemberExt, 120, 480, 10);
+                        drawText(page3, teamMemberPur, 300, 480, 10);
+                        drawText(page3, teamMemberMaint, 480, 480, 10);
+                        for (let i = 0; i < Math.min(spacesList.length, 4); i++) {
+                            const sp = spacesList[i];
+                            if (sp.imgSrc && sp.imgSrc.startsWith('data:image')) {
+                                try {
+                                    const imgBytes = await fetch(sp.imgSrc).then(r => r.arrayBuffer());
+                                    const img = sp.imgSrc.includes('png') ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
+                                    const sc = img.scaleToFit(120, 80);
+                                    const px = i % 2 === 0 ? 80 : 340; const py = i < 2 ? 310 : 190;
+                                    page3.drawImage(img, { x: px, y: py, width: sc.width, height: sc.height });
+                                    drawText(page3, `${i+1}. ${sp.name}`, px + 60, py - 14, 9);
+                                } catch(e) { console.warn('img err', e); }
+                            }
+                        }
+                    }
+                    // [7페이지] 안전장비
+                    if (allPages.length > 6 + addedPages) {
+                        const page7 = allPages[6 + addedPages];
+                        const eqKeys = ['oxygen','gas','vent','mask','tripod','rescue'];
+                        const eqY = [500,470,440,410,380,350];
+                        const statX = { '보유': 320, '위탁': 400, '대여': 480 };
+                        eqKeys.forEach((k, i) => { const sx = statX[equipment[k]]; if (sx) drawText(page7, 'O', sx, eqY[i], 14); });
+                    }
+                    // [16페이지] 비상연락망
+                    if (allPages.length > 15 + addedPages) {
+                        const page16 = allPages[15 + addedPages];
+                        drawText(page16, emerContacts.director, 250, 580, 11);
+                        drawText(page16, emerContacts.dirPhone, 420, 580, 11);
+                        drawText(page16, emerContacts.manager, 250, 550, 11);
+                        drawText(page16, emerContacts.manPhone, 420, 550, 11);
+                        drawText(page16, emerContacts.safety, 250, 520, 11);
+                        drawText(page16, emerContacts.safPhone, 420, 520, 11);
+                    }
+                    const pdfOut = await pdfDoc.save();
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(new Blob([pdfOut], { type: 'application/pdf' }));
+                    link.download = `밀폐공간프로그램_${companyName}.pdf`;
+                    link.click();
+                    setToastMsg('');
+                } catch (err) {
+                    console.error(err);
+                    setToastMsg('');
+                    alert('PDF 생성 오류: ' + err.message);
                 }
-                if (!printRef.current) {
-                    alert('PDF 템플릿을 찾을 수 없습니다. 잠시 후 다시 시도해주세요.');
-                    return;
-                }
-                const element = printRef.current;
-                const opt = {
-                    margin:      0,
-                    filename:    `밀폐공간작업프로그램_${companyName}.pdf`,
-                    image:       { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-                html2pdf().set(opt).from(element).save();
             };
 
 
@@ -861,75 +940,69 @@
                                 </div>
                             </div>
                         )}
-                        {/* Fast-Track 모달 — 행정 관리 센터 */}
+                        {/* Fast-Track 모달 — 행정 통제실 */}
                         {showFastTrackModal && (
                             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[350] p-4 print:hidden">
-                                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+                                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
                                     {/* 헤더 */}
-                                    <div className="p-6 pb-3 shrink-0 border-b">
-                                        <h2 className="text-2xl font-bold text-gray-800 mb-1">🚀 프로그램 초간편 완성</h2>
-                                        <p className="text-sm text-gray-500">필수 정보만 입력하면 법정 양식이 즉시 완성됩니다.</p>
+                                    <div className="p-5 border-b bg-gray-50 flex justify-between items-center shrink-0">
+                                        <h2 className="text-xl font-bold text-gray-800">🚀 밀폐공간 프로그램 행정 통제실</h2>
+                                        <button onClick={() => setShowFastTrackModal(false)} className="text-gray-500 hover:text-red-500"><Icon name="x" size={24} /></button>
                                     </div>
-                                    {/* 스크롤 영역 */}
-                                    <div className="p-6 overflow-y-auto flex-1">
-                                        <div className="space-y-6">
-                                            {/* 기본 정보 섹션 */}
-                                            <section className="space-y-4">
-                                                <h3 className="font-bold text-lg border-b pb-2">🏢 기본 정보 및 일자</h3>
-                                                <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="사업장명" />
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">제정일자</label>
-                                                        <input type="date" value={programDate} onChange={(e) => setProgramDate(e.target.value)} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">개정일자 (선택)</label>
-                                                        <input type="date" value={revisionDate} onChange={(e) => setRevisionDate(e.target.value)} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" />
-                                                    </div>
+                                    {/* 스크롤 본문 */}
+                                    <div className="p-6 overflow-y-auto flex-1 space-y-8">
+                                        {/* 1. 기본 정보 */}
+                                        <section>
+                                            <h3 className="font-bold text-lg border-b pb-2 mb-3">1. 기본 정보 및 일자</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="w-full p-2 border rounded" placeholder="사업장명" />
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">제정일자</label>
+                                                    <input type="date" value={programDate} onChange={(e) => setProgramDate(e.target.value)} className="w-full p-2 border rounded" />
                                                 </div>
-                                            </section>
-                                            {/* 프로그램 추진 조직 섹션 */}
-                                            <section className="space-y-4 pt-4 border-t">
-                                                <h3 className="font-bold text-lg border-b pb-2">👥 프로그램 추진 조직</h3>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">총괄책임자</label>
-                                                        <input type="text" value={programDirector} onChange={(e) => setProgramDirector(e.target.value)} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="총괄책임자 성함" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs text-gray-500 mb-1">프로그램 관리자</label>
-                                                        <input type="text" value={programManager} onChange={(e) => setProgramManager(e.target.value)} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="프로그램 관리자 성함" />
-                                                    </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-500 mb-1">개정일자 (선택)</label>
+                                                    <input type="date" value={revisionDate || ''} onChange={(e) => setRevisionDate(e.target.value)} className="w-full p-2 border rounded" />
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <input type="text" value={teamMemberExt} onChange={(e) => setTeamMemberExt(e.target.value)} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="추진팀원 (외주업체 관리)" />
-                                                    <input type="text" value={teamMemberPur} onChange={(e) => setTeamMemberPur(e.target.value)} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="추진팀원 (구매/설비)" />
-                                                    <input type="text" value={teamMemberMaint} onChange={(e) => setTeamMemberMaint(e.target.value)} className="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="추진팀원 (공무/정비)" />
-                                                </div>
-                                            </section>
-                                            {/* 현황 탭 안내 섹션 */}
-                                            <section className="bg-amber-50 p-4 rounded-xl border border-amber-100">
-                                                <div className="flex justify-between items-center">
-                                                    <div>
-                                                        <p className="font-bold text-amber-800 text-sm">📍 밀폐공간 보유 현황 확인</p>
-                                                        <p className="text-xs text-amber-600 mt-0.5">현재 <strong>{spaces.length}개</strong> 등록됨 · 상세 위치도·사진은 '현황' 탭에서 추가 가능합니다.</p>
+                                            </div>
+                                        </section>
+                                        {/* 2. 비상연락망 */}
+                                        <section>
+                                            <h3 className="font-bold text-lg border-b pb-2 mb-3">2. 비상연락망 (조직도 연동)</h3>
+                                            <div className="space-y-3">
+                                                {[['director','dirPhone','관리책임자'],['manager','manPhone','관리감독자'],['safety','safPhone','안전보건관리']].map(([nk,pk,label]) => (
+                                                    <div key={nk} className="flex gap-2 items-center">
+                                                        <span className="w-24 text-sm font-semibold shrink-0">{label}</span>
+                                                        <input type="text" value={emerContacts[nk]} onChange={(e) => setEmerContacts({...emerContacts, [nk]: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="성명" />
+                                                        <input type="text" value={emerContacts[pk]} onChange={(e) => setEmerContacts({...emerContacts, [pk]: e.target.value})} className="flex-1 p-2 border rounded text-sm" placeholder="연락처" />
                                                     </div>
-                                                    <button
-                                                        onClick={() => { setActiveTab('status'); setShowFastTrackModal(false); }}
-                                                        className="ml-3 shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 transition"
-                                                    >
-                                                        현황 탭으로 이동
-                                                    </button>
-                                                </div>
-                                            </section>
+                                                ))}
+                                            </div>
+                                        </section>
+                                        {/* 3. 안전장비 */}
+                                        <section>
+                                            <h3 className="font-bold text-lg border-b pb-2 mb-3">3. 안전장비 현황</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 bg-gray-50 p-4 rounded-xl border">
+                                                {Object.entries({ oxygen: '산소측정기', gas: '유해가스측정기', vent: '환기팬', mask: '송기마스크', tripod: '삼각대/안전대', rescue: '무전기/구조장비' }).map(([key, label]) => (
+                                                    <div key={key} className="flex justify-between items-center text-sm">
+                                                        <span className="font-medium">{label}</span>
+                                                        <select value={equipment[key]} onChange={(e) => setEquipment({...equipment, [key]: e.target.value})} className="p-1 border rounded bg-white">
+                                                            <option>보유</option><option>위탁</option><option>대여</option><option>해당없음</option>
+                                                        </select>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </section>
+                                        {/* 4. 현황 탭 안내 */}
+                                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center">
+                                            <p className="text-sm text-blue-800">📸 밀폐공간 리스트 및 사진 등록은 <strong>'현황'</strong> 탭에서 자동 연동됩니다. (현재 {spaces.length}개 등록됨)</p>
+                                            <button onClick={() => { setActiveTab('status'); setShowFastTrackModal(false); }} className="ml-3 shrink-0 px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded hover:bg-blue-700">현황 탭 이동</button>
                                         </div>
                                     </div>
-                                    {/* 푸터 버튼 */}
-                                    <div className="p-6 pt-4 border-t shrink-0 flex justify-end gap-3">
-                                        <button onClick={() => setShowFastTrackModal(false)} className="px-5 py-2.5 text-gray-600 bg-gray-100 font-semibold rounded-lg hover:bg-gray-200 transition">취소</button>
-                                        <button onClick={() => { handleProgramDownload(); setShowFastTrackModal(false); }} className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 transition flex items-center gap-2">
-                                            📄 PDF 다운로드
-                                        </button>
+                                    {/* 푸터 */}
+                                    <div className="p-5 border-t bg-gray-50 shrink-0 flex justify-end gap-3">
+                                        <button onClick={() => setShowFastTrackModal(false)} className="px-5 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300">닫기</button>
+                                        <button onClick={() => { handleProgramDownload(); setShowFastTrackModal(false); }} className="px-5 py-2.5 bg-teal-600 text-white font-bold rounded-lg shadow hover:bg-teal-700 flex items-center gap-2">📄 완벽 PDF 다운로드</button>
                                     </div>
                                 </div>
                             </div>
