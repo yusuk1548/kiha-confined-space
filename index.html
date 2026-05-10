@@ -720,7 +720,6 @@
                                     <MenuBtn active={activeTab === 'check'} onClick={() => setActiveTab('check')} icon="check-square" text="3. 체크리스트" />
                                     <MenuBtn active={activeTab === 'map'} onClick={() => setActiveTab('map')} icon="map-pin" text="4. 디지털 배치도" />
                                     <MenuBtn active={activeTab === 'conclusion'} onClick={() => setActiveTab('conclusion')} icon="pen-tool" text="5. 총평 및 의견" />
-                                    <MenuBtn active={activeTab === 'program'} onClick={() => setActiveTab('program')} icon="clipboard-list" text="6. 프로그램" />
                                     <div className="h-px bg-gray-100 my-2"></div>
                                     <MenuBtn active={activeTab === 'download'} onClick={() => setActiveTab('download')} icon="folder-down" text="자료 다운로드" />
                                 </nav>
@@ -748,7 +747,7 @@
                                     {activeTab === 'map' && <MapScreen spaces={spaces} mapImage={mapImage} setMapImage={setMapImage} setSpaces={setSpaces} />}
                                     {activeTab === 'conclusion' && <ConclusionScreen reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} checklistResults={checklistResults} setFinalOpinion={setFinalOpinion} finalOpinion={finalOpinion} onAutoGenerate={handleAutoGenerateSummary} summary={summary} setSummary={setSummary} />}
                                     {activeTab === 'download' && <DownloadScreen onProgramDownload={handleProgramDownload} />}
-                                    {activeTab === 'program' && <ProgramScreen info={programInfo} setInfo={setProgramInfo} spaces={spaces} setSpaces={setSpaces} onProgramDownload={handleProgramDownload} />}
+
                                     {activeTab === 'guide' && <GuideScreen onSelect={setSelectedSpaceItem} />}
                                     {activeTab === 'diagnosis' && <DiagnosisScreen onFastTrack={() => setShowFastTrackModal(true)} />}
                                 </div>
@@ -774,7 +773,6 @@
                                             { tab: 'check', icon: 'check-square', label: '체크' },
                                             { tab: 'map', icon: 'map-pin', label: '배치도' },
                                             { tab: 'conclusion', icon: 'pen-tool', label: '총평' },
-                                            { tab: 'program', icon: 'clipboard-list', label: '프로그램' },
                                             { tab: 'download', icon: 'folder-down', label: '다운로드' },
                                         ].map(({ tab, icon, label }) => (
                                             <button
@@ -1345,61 +1343,76 @@
         }
 
         const CoverScreen = ({ data, setData }) => (
-            <div className="p-6 max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                    <Icon name="file-text" className="text-blue-500" /> 1. 보고서 표지
-                </h2>
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-6">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">사업장명</label>
-                        <input
-                            type="text"
-                            value={data.companyName || ''}
-                            onChange={e => setData({...data, companyName: e.target.value})}
-                            className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white transition-colors"
-                            placeholder="사업장명을 입력하세요"
-                        />
+            <div className="p-6 max-w-3xl mx-auto animate-fade-in">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    {/* 타이틀 영역 */}
+                    <div className="flex items-center gap-3 mb-8 border-b border-gray-100 pb-5">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                            <Icon name="file-text" size={24} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800">1. 보고서 표지 정보</h2>
                     </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">평가기간 및 일자</label>
-                        <input
-                            type="text"
-                            value={data.period || ''}
-                            onChange={e => setData({...data, period: e.target.value})}
-                            className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white transition-colors"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* 입력 폼 영역 */}
+                    <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">기관 구분</label>
-                            <select
-                                value={data.agencyType || 'region'}
-                                onChange={e => {
-                                    const newType = e.target.value;
-                                    setData({
-                                        ...data,
-                                        agencyType: newType,
-                                        agencyBranch: newType === 'region' ? KIHA_REGIONS[0] : KIHA_CENTERS[0]
-                                    });
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white transition-colors"
-                            >
-                                <option value="region">지역본부</option>
-                                <option value="center">산업보건센터</option>
-                            </select>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">사업장명</label>
+                            <input
+                                type="text"
+                                value={data.companyName || ""}
+                                onChange={e => setData({...data, companyName: e.target.value})}
+                                className="w-full p-3.5 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="사업장명을 입력하세요"
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">소속 본부/지사</label>
-                            <select
-                                value={data.agencyBranch || ''}
-                                onChange={e => setData({...data, agencyBranch: e.target.value})}
-                                className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white transition-colors"
-                            >
-                                {(data.agencyType === 'center' ? KIHA_CENTERS : KIHA_REGIONS).map(branch => (
-                                    <option key={branch} value={branch}>{branch}</option>
-                                ))}
-                            </select>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">평가기간 및 일자</label>
+                            <input
+                                type="text"
+                                value={data.period || ""}
+                                onChange={e => setData({...data, period: e.target.value})}
+                                className="w-full p-3.5 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="예: 2026-05-11"
+                            />
                         </div>
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">기관 구분</label>
+                                <select
+                                    value={data.agencyType || "region"}
+                                    onChange={e => {
+                                        const newType = e.target.value;
+                                        setData({
+                                            ...data,
+                                            agencyType: newType,
+                                            agencyBranch: newType === "region" ? KIHA_REGIONS[0] : KIHA_CENTERS[0]
+                                        });
+                                    }}
+                                    className="w-full p-3.5 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+                                >
+                                    <option value="region">지역본부</option>
+                                    <option value="center">산업보건센터</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">소속 본부/지사</label>
+                                <select
+                                    value={data.agencyBranch || ""}
+                                    onChange={e => setData({...data, agencyBranch: e.target.value})}
+                                    className="w-full p-3.5 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+                                >
+                                    {(data.agencyType === "center" ? KIHA_CENTERS : KIHA_REGIONS).map(branch => (
+                                        <option key={branch} value={branch}>{branch}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {/* 하단 안내 문구 영역 */}
+                    <div className="mt-8 bg-blue-50 rounded-xl p-4 flex items-start gap-3 border border-blue-100">
+                        <Icon name="info" className="text-blue-500 mt-0.5 flex-shrink-0" size={18} />
+                        <p className="text-sm text-blue-700 font-medium">
+                            입력하신 정보는 PDF 보고서 표지에 자동으로 반영됩니다.
+                        </p>
                     </div>
                 </div>
             </div>
