@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -595,100 +595,27 @@
             };
 
             const handleProgramDownload = async () => {
-                try {
-                    if (!companyName) return alert('사업장명을 입력해주세요.');
-                    setToastMsg('PDF 문서를 생성 중입니다... (약 2~3초 소요)');
-                    const { PDFDocument, rgb } = window.PDFLib;
-                    const existingPdfBytes = await fetch('https://yusuk1548.github.io/space/program.pdf?v=' + Date.now()).then(r => r.arrayBuffer());
-                    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-                    pdfDoc.registerFontkit(window.fontkit);
-                    const fontBytes = await fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Regular.ttf', { cache: 'no-store' }).then(r => r.arrayBuffer());
-                    const customFont = await pdfDoc.embedFont(fontBytes);
-                    const drawText = (page, text, x, y, size = 10, color = rgb(0,0,0)) => {
-                        if (text === undefined || text === null || String(text).trim() === '') return;
-                        const str = String(text).trim();
-                        const tw = customFont.widthOfTextAtSize(str, size);
-                        page.drawText(str, { x: x - tw / 2, y, size, font: customFont, color });
-                    };
-                    const spacesList = spaces || [];
-                    let addedPages = 0;
-                    // [1페이지] 표지
-                    const page1 = pdfDoc.getPages()[0];
-                    page1.drawRectangle({ x: 100, y: 90, width: 400, height: 90, color: rgb(1,1,1) });
-                    drawText(page1, companyName, 300, 120, 22, rgb(0.1,0.4,0.8));
-                    drawText(page1, programDate, 200, 390, 12);
-                    if (revisionDate) drawText(page1, revisionDate, 200, 310, 12);
-                    // [2페이지] 현황표 (초과 시 자동 복제)
-                    let currentPage2 = pdfDoc.getPages()[1];
-                    for (let i = 0; i < spacesList.length; i++) {
-                        if (i > 0 && i % 9 === 0) {
-                            const [cp] = await pdfDoc.copyPages(pdfDoc, [1]);
-                            addedPages++;
-                            pdfDoc.insertPage(1 + addedPages, cp);
-                            currentPage2 = pdfDoc.getPages()[1 + addedPages];
-                        }
-                        const y = 380 - ((i % 9) * 30);
-                        const s = spacesList[i];
-                        drawText(currentPage2, i + 1, 56, y, 10);
-                        drawText(currentPage2, s.location, 110, y, 10);
-                        drawText(currentPage2, s.name, 190, y, 10);
-                        drawText(currentPage2, s.workContent, 280, y, 10);
-                        drawText(currentPage2, s.workFrequency, 360, y, 10);
-                        drawText(currentPage2, s.workers, 425, y, 10);
-                        drawText(currentPage2, Array.isArray(s.hazards) ? s.hazards.join(', ') : (s.hazards || ''), 520, y, 10);
-                    }
-                    const allPages = pdfDoc.getPages();
-                    // [3페이지] 조직도
-                    if (allPages.length > 2 + addedPages) {
-                        const page3 = allPages[2 + addedPages];
-                        drawText(page3, programDirector, 300, 690, 12);
-                        drawText(page3, programManager, 300, 610, 12);
-                        drawText(page3, teamMemberExt, 120, 480, 10);
-                        drawText(page3, teamMemberPur, 300, 480, 10);
-                        drawText(page3, teamMemberMaint, 480, 480, 10);
-                        for (let i = 0; i < Math.min(spacesList.length, 4); i++) {
-                            const sp = spacesList[i];
-                            if (sp.imgSrc && sp.imgSrc.startsWith('data:image')) {
-                                try {
-                                    const imgBytes = await fetch(sp.imgSrc).then(r => r.arrayBuffer());
-                                    const img = sp.imgSrc.includes('png') ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
-                                    const sc = img.scaleToFit(120, 80);
-                                    const px = i % 2 === 0 ? 80 : 340; const py = i < 2 ? 310 : 190;
-                                    page3.drawImage(img, { x: px, y: py, width: sc.width, height: sc.height });
-                                    drawText(page3, `${i+1}. ${sp.name}`, px + 60, py - 14, 9);
-                                } catch(e) { console.warn('img err', e); }
-                            }
-                        }
-                    }
-                    // [7페이지] 안전장비
-                    if (allPages.length > 6 + addedPages) {
-                        const page7 = allPages[6 + addedPages];
-                        const eqKeys = ['oxygen','gas','vent','mask','tripod','rescue'];
-                        const eqY = [500,470,440,410,380,350];
-                        const statX = { '보유': 320, '위탁': 400, '대여': 480 };
-                        eqKeys.forEach((k, i) => { const sx = statX[equipment[k]]; if (sx) drawText(page7, 'O', sx, eqY[i], 14); });
-                    }
-                    // [16페이지] 비상연락망
-                    if (allPages.length > 15 + addedPages) {
-                        const page16 = allPages[15 + addedPages];
-                        drawText(page16, emerContacts.director, 250, 580, 11);
-                        drawText(page16, emerContacts.dirPhone, 420, 580, 11);
-                        drawText(page16, emerContacts.manager, 250, 550, 11);
-                        drawText(page16, emerContacts.manPhone, 420, 550, 11);
-                        drawText(page16, emerContacts.safety, 250, 520, 11);
-                        drawText(page16, emerContacts.safPhone, 420, 520, 11);
-                    }
-                    const pdfOut = await pdfDoc.save();
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(new Blob([pdfOut], { type: 'application/pdf' }));
-                    link.download = `밀폐공간프로그램_${companyName}.pdf`;
-                    link.click();
-                    setToastMsg('');
-                } catch (err) {
-                    console.error(err);
-                    setToastMsg('');
-                    alert('PDF 생성 오류: ' + err.message);
+                if (!companyName) {
+                    alert('사업장명을 입력해주세요.');
+                    return;
                 }
+                setToastMsg('문서를 생성 중입니다... (약 2~3초 소요)');
+                const element = document.getElementById('pdf-print-template');
+                if (!element) {
+                    alert('PDF 템플릿을 찾을 수 없습니다. 잠시 후 다시 시도해주세요.');
+                    setToastMsg('');
+                    return;
+                }
+                const opt = {
+                    margin:      15,
+                    filename:    `밀폐공간작업프로그램_${companyName}.pdf`,
+                    image:       { type: 'jpeg', quality: 1.0 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save().then(() => {
+                    setToastMsg('');
+                });
             };
 
 
@@ -1102,6 +1029,130 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        {/* PDF 오프스크린 템플릿 */}
+                        <div style={{ position: 'absolute', top: '-20000px', left: '-20000px' }}>
+                            <div id="pdf-print-template" className="bg-white text-black" style={{ width: '190mm', padding: '10mm 5mm', fontFamily: "'Malgun Gothic', '맑은 고딕', sans-serif", fontSize: '11pt', lineHeight: '1.6' }}>
+
+                                {/* [1페이지] 표지 */}
+                                <div style={{ height: '260mm', position: 'relative' }}>
+                                    <div style={{ position: 'absolute', top: 0, right: 0 }}>
+                                        <table style={{ borderCollapse: 'collapse', width: '180px', textAlign: 'center', fontSize: '12px' }}>
+                                            <tbody>
+                                                <tr>
+                                                    <td rowSpan="2" style={{ border: '1px solid black', background: '#f3f4f6', width: '24px', writingMode: 'vertical-rl', textAlign: 'center', padding: '4px' }}>결재</td>
+                                                    <td style={{ border: '1px solid black', background: '#f3f4f6', padding: '4px 8px' }}>작성</td>
+                                                    <td style={{ border: '1px solid black', background: '#f3f4f6', padding: '4px 8px' }}>검토</td>
+                                                    <td style={{ border: '1px solid black', background: '#f3f4f6', padding: '4px 8px' }}>승인</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style={{ border: '1px solid black', height: '60px' }}></td>
+                                                    <td style={{ border: '1px solid black', height: '60px' }}></td>
+                                                    <td style={{ border: '1px solid black', height: '60px' }}></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '120mm' }}>
+                                        <h1 style={{ fontSize: '32px', fontWeight: '900', letterSpacing: '4px', marginBottom: '40px' }}>밀폐공간작업프로그램</h1>
+                                        <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center', lineHeight: '2.2' }}>
+                                            <p>제정일자 : {programDate || '20  .  .  .'}</p>
+                                            {revisionDate && <p>개정일자 : {revisionDate}</p>}
+                                        </div>
+                                    </div>
+                                    <div style={{ position: 'absolute', bottom: '40px', width: '100%', textAlign: 'center' }}>
+                                        <h2 style={{ fontSize: '28px', fontWeight: '900', letterSpacing: '2px' }}>{companyName || '사업장명 입력'}</h2>
+                                    </div>
+                                </div>
+
+                                {/* [2페이지] 목적 및 현황 */}
+                                <div style={{ pageBreakBefore: 'always' }}>
+                                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>1. 목적</h2>
+                                    <p style={{ marginBottom: '28px', textAlign: 'justify' }}>산업안전보건기준에 관한 규칙 제619조 규정에 의한 밀폐공간 작업 프로그램으로서, 해당 사업장내 정규직과 비정규직, 같은 사업장에서 밀폐공간작업을 수행하는 원청, 협력업체 및 사외 작업자 등 모든 근로자에게 밀폐공간 작업 시 산소결푝 또는 유해가스로 인한 질식재해를 예방하는데 그 목적을 두고 있다.</p>
+                                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>2. 밀폐공간 작업장소 보유현황</h2>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '11px', marginBottom: '24px' }}>
+                                        <thead>
+                                            <tr style={{ background: '#f3f4f6' }}>
+                                                {['연번','위치','밀폐공간명','작업내용','작업빈도','근로자수','위험요인'].map(h => <th key={h} style={{ border: '1px solid black', padding: '6px 4px' }}>{h}</th>)}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {spaces && spaces.length > 0 ? spaces.map((s, i) => (
+                                                <tr key={i}>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px' }}>{i + 1}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px' }}>{s.location}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px', fontWeight: 'bold' }}>{s.name}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px' }}>{s.workContent}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px' }}>{s.workFrequency}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px' }}>{s.workers}</td>
+                                                    <td style={{ border: '1px solid black', padding: '6px 4px', fontSize: '10px' }}>{Array.isArray(s.hazards) ? s.hazards.join(', ') : (s.hazards || '')}</td>
+                                                </tr>
+                                            )) : <tr><td colSpan="7" style={{ border: '1px solid black', padding: '16px', color: '#6b7280' }}>등록된 밀폐공간이 없습니다.</td></tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* [3페이지] 조직도 및 현장 사진 */}
+                                <div style={{ pageBreakBefore: 'always' }}>
+                                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>3. 밀폐공간 조직 및 운영</h2>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px', gap: '4px' }}>
+                                        <div style={{ border: '1px solid black', background: '#f3f4f6', padding: '8px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '160px' }}>총괄책임자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.director || '성명'}</span></div>
+                                        <div style={{ height: '20px', borderLeft: '1px solid black' }}></div>
+                                        <div style={{ border: '1px solid black', background: '#f3f4f6', padding: '8px 24px', textAlign: 'center', fontWeight: 'bold', minWidth: '160px' }}>프로그램 관리자<br/><span style={{ color: '#1d4ed8', fontWeight: 'normal' }}>{emerContacts.manager || '성명'}</span></div>
+                                    </div>
+                                    <h3 style={{ fontWeight: 'bold', marginBottom: '12px' }}>▶ 보유장소별 사진 및 위험요인</h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        {spaces && spaces.map((sp, i) => (
+                                            <div key={i} style={{ border: '1px solid black', padding: '8px', breakInside: 'avoid' }}>
+                                                <div style={{ fontWeight: 'bold', background: '#f3f4f6', textAlign: 'center', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>{i + 1}. {sp.name}</div>
+                                                {sp.imgSrc && sp.imgSrc.startsWith('data:image') ? <img src={sp.imgSrc} alt={sp.name} style={{ maxHeight: '120px', objectFit: 'contain', display: 'block', margin: '0 auto 8px' }} /> : <div style={{ height: '96px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', background: '#f9fafb', marginBottom: '8px' }}>사진 미등록</div>}
+                                                <div style={{ fontSize: '10px' }}>• 위치: {sp.location}<br/>• 위험: {Array.isArray(sp.hazards) ? sp.hazards.join(', ') : (sp.hazards || '')}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* [4페이지] 안전장비 및 비상연락망 */}
+                                <div style={{ pageBreakBefore: 'always' }}>
+                                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>4. 안전장비 구비 현황</h2>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '12px', marginBottom: '32px' }}>
+                                        <thead>
+                                            <tr style={{ background: '#f3f4f6' }}>
+                                                {['구분','장비명','보유','위탁','대여'].map(h => <th key={h} style={{ border: '1px solid black', padding: '8px 4px' }}>{h}</th>)}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {[{key:'oxygen',name:'산소농도측정기',type:'측정기구'},{key:'gas',name:'유해가스농도측정기',type:'측정기구'},{key:'vent',name:'환기팬/배풍기',type:'환기기구'},{key:'mask',name:'송기마스크/공기호흡기',type:'보호구'},{key:'tripod',name:'구조용 삼각대/안전대',type:'구조장비'}].map((item, i, arr) => (
+                                                <tr key={item.key}>
+                                                    <td style={{ border: '1px solid black', padding: '8px 4px' }}>{item.type}</td>
+                                                    <td style={{ border: '1px solid black', padding: '8px 4px' }}>{item.name}</td>
+                                                    <td style={{ border: '1px solid black', padding: '8px 4px', fontWeight: 'bold', fontSize: '16px' }}>{equipment && equipment[item.key] === '보유' ? 'O' : ''}</td>
+                                                    <td style={{ border: '1px solid black', padding: '8px 4px', fontWeight: 'bold', fontSize: '16px' }}>{equipment && equipment[item.key] === '위탁' ? 'O' : ''}</td>
+                                                    <td style={{ border: '1px solid black', padding: '8px 4px', fontWeight: 'bold', fontSize: '16px' }}>{equipment && equipment[item.key] === '대여' ? 'O' : ''}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '2px solid black', paddingBottom: '4px', marginBottom: '16px' }}>5. 비상연락 체계 구축</h2>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '12px' }}>
+                                        <thead>
+                                            <tr style={{ background: '#f3f4f6' }}>
+                                                {['구분','성명 / 직위','연락체 (사내/휴대폰)'].map(h => <th key={h} style={{ border: '1px solid black', padding: '8px' }}>{h}</th>)}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {[['관리책임자','director','dirPhone'],['관리감독자','manager','manPhone'],['안전보건관리','safety','safPhone']].map(([label,nk,pk]) => (
+                                                <tr key={nk}>
+                                                    <td style={{ border: '1px solid black', padding: '10px 8px', fontWeight: 'bold', background: '#f9fafb' }}>{label}</td>
+                                                    <td style={{ border: '1px solid black', padding: '10px 8px' }}>{emerContacts[nk] || ''}</td>
+                                                    <td style={{ border: '1px solid black', padding: '10px 8px' }}>{emerContacts[pk] || ''}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
 
                             </div>
