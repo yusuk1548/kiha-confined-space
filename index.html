@@ -2279,10 +2279,10 @@
                     <div className="print-page print-fixed-page">
                         <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-4 shrink-0">2. 현황 배치도</h2>
                         {/* 도면 박스 높이를 140mm로 고정하여 범례가 들어갈 자리를 확실히 확보 */}
-                        <div className="flex-1 w-full border flex items-center justify-center relative overflow-hidden" style={{ maxHeight: '140mm' }}>
+                        <div className="w-full border flex items-center justify-center overflow-hidden bg-gray-50" style={{ height: '140mm' }}>
                             {mapImage ? (
-                                <div className="relative inline-block w-full h-full flex justify-center items-center">
-                                    <img src={mapImage} className="max-w-full max-h-full object-contain" />
+                                <div className="relative h-full" style={{ display: 'inline-block' }}>
+                                    <img src={mapImage} className="h-full w-auto block" />
                                     {spaces.filter(s => s.locationMap).map(s => {
                                         // 1단계 가스 적합성 판정 (s.gas 객체 참조)
                                         const o2 = Number(s.gas && s.gas.o2) || 0;
