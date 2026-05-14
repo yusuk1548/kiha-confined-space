@@ -650,7 +650,7 @@
             };
 
             const handleInstallApp = () => {
-                const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
                 if (isIos) {
                     setShowIosPrompt(true);
                 } else if (window.deferredPrompt) {
@@ -659,7 +659,7 @@
                         window.deferredPrompt = null;
                     });
                 } else {
-                    alert("현재 브라우저 환경에서는 자동 설치 팝업이 지원되지 않습니다.\n\n[수동 설치 방법]\n브라우저 우측 하단 메뉴(≡)를 누른 후 ➔ [현재 페이지 추가] ➔ [홈 화면]을 선택해 주세요.");
+                    alert("현재 브라우저 환경에서는 자동 설치 팝업이 지원되지 않습니다.\n\n[수동 설치 방법]\n브라우저 메뉴(⋮ 또는 ≡)를 누른 후 ➔ [홈 화면에 추가] 또는 [앱 설치]를 선택해 주세요.");
                 }
             };
             const handleAutoGenerateSummary = () => {
@@ -965,12 +965,15 @@
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</span>
-                                            <span>우측 상단의 <strong>'추가'</strong>를 누르면 설치 완료!</span>
+                                            <span>우측 상단의 <strong>'추가'</strong>를 누르면 홈 화면에 앱 생성 완료!</span>
                                         </li>
                                     </ol>
+                                    <div className="mt-5 p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600 font-bold text-center leading-relaxed">
+                                        ※ 아이폰(애플) 보안 정책상 자동 다운로드 버튼이 지원되지 않습니다. 반드시 위 설명대로 직접 추가해 주세요.
+                                    </div>
                                     <button onClick={() => setShowIosPrompt(false)}
-                                        className="mt-5 w-full py-3 bg-slate-800 text-white rounded-xl font-semibold text-sm hover:bg-slate-900 transition-colors">
-                                        확인
+                                        className="mt-3 w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm hover:bg-slate-900 transition-colors shadow-md">
+                                        설명 닫고 직접 추가하기
                                     </button>
                                 </div>
                             </div>
