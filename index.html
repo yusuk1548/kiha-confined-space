@@ -604,42 +604,33 @@
 
             const handleReportDownload = async () => {
                 const element = document.getElementById('report-pdf-area');
-                if (!element) {
-                    alert('보고서 데이터를 찾을 수 없습니다.');
-                    return;
+                if (!element) return alert('보고서 영역을 찾을 수 없습니다.');
+
+                setToastMsg('보고서를 생성 중입니다... (약 3~5초 소요)');
+
+                try {
+                    const opt = {
+                        margin: 0,
+                        filename: `${reportInfo.companyName || '사업장'}_위험성평가_보고서.pdf`,
+                        image: { type: 'jpeg', quality: 1.0 },
+                        html2canvas: { 
+                            scale: 2, 
+                            useCORS: true, 
+                            backgroundColor: '#ffffff',
+                            windowWidth: element.scrollWidth,
+                            windowHeight: element.scrollHeight
+                        },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    await html2pdf().set(opt).from(element).save();
+                    setToastMsg('보고서 다운로드가 완료되었습니다.');
+                } catch (error) {
+                    console.error('PDF 생성 오류:', error);
+                    alert('PDF 생성 중 오류가 발생했습니다.');
+                } finally {
+                    setTimeout(() => setToastMsg(''), 3000);
                 }
-
-                setToastMsg('보고서 파일을 생성 중입니다. 잠시만 기다려 주세요...');
-
-                // 브라우저가 요소를 완전히 그릴 시간을 본 (중요)
-                setTimeout(async () => {
-                    try {
-                        const opt = {
-                            margin: 0,
-                            filename: `${reportInfo.companyName || '사업장'}_위험성평가_보고서.pdf`,
-                            image: { type: 'jpeg', quality: 1.0 },
-                            html2canvas: { 
-                                scale: 2,
-                                useCORS: true, 
-                                logging: false,
-                                letterRendering: true,
-                                allowTaint: true,
-                                scrollY: 0,
-                                scrollX: 0
-                            },
-                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                        };
-
-                        await html2pdf().set(opt).from(element).save();
-
-                        setToastMsg('다운로드가 완료되었습니다.');
-                    } catch (error) {
-                        console.error('PDF 생성 오류:', error);
-                        alert('PDF 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-                    } finally {
-                        setTimeout(() => setToastMsg(''), 3000);
-                    }
-                }, 500); // 0.5초 대기로 렌더링 보장
             };
 
 
@@ -652,26 +643,23 @@
                     <LoginScreen />
                 ) : (
                     <React.Fragment>
-                        {/* PDF 캐펩용 영역 — opacity:0 + fixed로 브라우저가 강제 페인트하게 만들어 html2canvas가 렬더링을 읽을 수 있게 함 */}
+                        {/* PDF 출력용 백그라운드 영역 (메인 화면 뒤에 숨김) */}
                         <div 
                             id="report-pdf-area" 
-                            style={{ 
-                                position: 'fixed', 
-                                top: 0, 
-                                left: 0, 
-                                width: '210mm', 
-                                zIndex: -1000, 
-                                opacity: 0, 
-                                pointerEvents: 'none',
-                                backgroundColor: 'white',
-                                visibility: 'visible'
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '210mm',
+                                zIndex: -50,
+                                backgroundColor: '#ffffff',
                             }}
                         >
                             <ReportView reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} mapImage={mapImage} finalOpinion={finalOpinion} checklistAll={checklistAll} />
                         </div>
 
-                        {/* 화면 뷰 */}
-                        <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-50 relative">
+                        {/* 화면 뷰 — z-10 + bg-gray-50으로 보고서 영역을 완전히 덮음 */}
+                        <div className="flex flex-col md:flex-row h-screen overflow-hidden print:hidden bg-gray-50 relative z-10">
 
                             {/* 모바일 전용 상단 헤더 (md 이상에서는 숨김) */}
                             <div className="md:hidden flex items-center justify-between bg-white text-slate-800 px-4 py-2.5 z-40 shrink-0 border-b border-gray-200 shadow-sm relative">
