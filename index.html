@@ -1580,18 +1580,12 @@
             };
             return (
                 <div className="p-4 md:p-8 h-full flex flex-col overflow-auto">
-                    <div className="mb-4 flex flex-col md:flex-row gap-3">
+                    <div className="mb-4">
                         <button
                             onClick={generate}
-                            className="flex-1 md:flex-none px-4 py-3 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-base transition flex justify-center items-center gap-2"
+                            className="px-4 py-3 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-base transition"
                         >
                             📊 초안 자동 작성
-                        </button>
-                        <button
-                            onClick={() => onReportDownload && onReportDownload()}
-                            className="flex-1 md:flex-none px-4 py-3 md:py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-lg text-base shadow-md hover:shadow-lg hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:-translate-y-1 flex justify-center items-center gap-2 border-b-4 border-emerald-800 active:border-b-0 active:translate-y-0"
-                        >
-                            📄 위험성평가 보고서 다운로드 (PDF)
                         </button>
                     </div>
 
