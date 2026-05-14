@@ -603,31 +603,43 @@
             };
 
             const handleReportDownload = async () => {
-                setToastMsg('보고서를 생성 중입니다... (약 3~5초 소요)');
                 const element = document.getElementById('report-pdf-area');
                 if (!element) {
-                    alert('PDF 템플릿을 찾을 수 없습니다.');
-                    setToastMsg('');
+                    alert('보고서 데이터를 찾을 수 없습니다.');
                     return;
                 }
-                const opt = {
-                    margin: 0,
-                    filename: `${reportInfo.companyName || '사업장'}_밀폐공간_위험성평가_보고서.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2, 
-                        useCORS: true, 
-                        logging: false,
-                        letterRendering: true,
-                        scrollY: 0,
-                        scrollX: 0
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-                html2pdf().set(opt).from(element).save().then(() => {
-                    setToastMsg('다운로드가 완료되었습니다.');
-                    setTimeout(() => setToastMsg(''), 3000);
-                });
+
+                setToastMsg('보고서 파일을 생성 중입니다. 잠시만 기다려 주세요...');
+
+                // 브라우저가 요소를 완전히 그릴 시간을 본 (중요)
+                setTimeout(async () => {
+                    try {
+                        const opt = {
+                            margin: 0,
+                            filename: `${reportInfo.companyName || '사업장'}_위험성평가_보고서.pdf`,
+                            image: { type: 'jpeg', quality: 1.0 },
+                            html2canvas: { 
+                                scale: 2,
+                                useCORS: true, 
+                                logging: false,
+                                letterRendering: true,
+                                allowTaint: true,
+                                scrollY: 0,
+                                scrollX: 0
+                            },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        };
+
+                        await html2pdf().set(opt).from(element).save();
+
+                        setToastMsg('다운로드가 완료되었습니다.');
+                    } catch (error) {
+                        console.error('PDF 생성 오류:', error);
+                        alert('PDF 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+                    } finally {
+                        setTimeout(() => setToastMsg(''), 3000);
+                    }
+                }, 500); // 0.5초 대기로 렌더링 보장
             };
 
 
@@ -640,16 +652,19 @@
                     <LoginScreen />
                 ) : (
                     <React.Fragment>
-                        {/* 인쇄 뷰 / PDF 용 영역 — display:none 대신 화면 밖으로 보내 html2pdf가 읽을 수 있게 함 */}
+                        {/* PDF 캐펩용 영역 — opacity:0 + fixed로 브라우저가 강제 페인트하게 만들어 html2canvas가 렬더링을 읽을 수 있게 함 */}
                         <div 
                             id="report-pdf-area" 
-                            className="print:block"
                             style={{ 
-                                position: 'absolute', 
-                                left: '-9999px', 
+                                position: 'fixed', 
                                 top: 0, 
-                                width: '210mm',
-                                backgroundColor: 'white'
+                                left: 0, 
+                                width: '210mm', 
+                                zIndex: -1000, 
+                                opacity: 0, 
+                                pointerEvents: 'none',
+                                backgroundColor: 'white',
+                                visibility: 'visible'
                             }}
                         >
                             <ReportView reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} mapImage={mapImage} finalOpinion={finalOpinion} checklistAll={checklistAll} />
