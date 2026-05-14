@@ -682,35 +682,9 @@
                 alert('작업 프로그램 PDF 다운로드는 [다운로드] 탭에서 이용하세요.');
             };
 
-            const handleReportDownload = async () => {
-                const element = document.getElementById('report-pdf-area');
-                if (!element) return alert('보고서 영역을 찾을 수 없습니다.');
-
-                setToastMsg('보고서를 생성 중입니다... (약 3~5초 소요)');
-
-                try {
-                    const opt = {
-                        margin: 0,
-                        filename: `${reportInfo.companyName || '사업장'}_위험성평가_보고서.pdf`,
-                        image: { type: 'jpeg', quality: 1.0 },
-                        html2canvas: {
-                            scale: 2,
-                            useCORS: true,
-                            backgroundColor: '#ffffff',
-                            windowWidth: element.scrollWidth,
-                            windowHeight: element.scrollHeight
-                        },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                    };
-
-                    await html2pdf().set(opt).from(element).save();
-                    setToastMsg('보고서 다운로드가 완료되었습니다.');
-                } catch (error) {
-                    console.error('PDF 생성 오류:', error);
-                    alert('PDF 생성 중 오류가 발생했습니다.');
-                } finally {
-                    setTimeout(() => setToastMsg(''), 3000);
-                }
+            const handleReportDownload = () => {
+                // 브라우저 표준 인쇄창 호출 (가장 확실한 PDF 저장 방법)
+                window.print();
             };
 
 
