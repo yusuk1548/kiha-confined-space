@@ -708,7 +708,7 @@
                                             onClick={() => { handleSaveFile(); setIsMobileMenuOpen(false); }}
                                             className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-blue-600 font-semibold hover:bg-blue-50 transition-colors"
                                         >
-                                            💾 <span>저장</span>
+                                            💾 <span>데이터 저장</span>
                                         </button>
                                         <button
                                             onClick={() => { handleInstallApp(); setIsMobileMenuOpen(false); }}
@@ -751,7 +751,7 @@
                                     </a>
                                     <div className="h-px bg-gray-100 my-3"></div>
                                     <div className="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">데이터 관리</div>
-                                    <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"><Icon name="download" size={16} />저장</button>
+                                    <button onClick={handleSaveFile} className="w-full flex gap-2 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"><Icon name="download" size={16} />데이터 저장</button>
                                     <button onClick={() => fileInputRef.current.click()} className="w-full flex gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-lg text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm">📁 불러오기</button>
                                     <input type="file" ref={fileInputRef} onChange={handleLoadFile} className="hidden" accept=".json" />
                                     <div className="h-px bg-gray-200 my-2"></div>
