@@ -610,17 +610,21 @@
                     setToastMsg('');
                     return;
                 }
-                // 일시적으로 보이게 한 다음 PDF 생성
-                element.classList.remove('hidden');
                 const opt = {
                     margin: 0,
                     filename: `${reportInfo.companyName || '사업장'}_밀폐공간_위험성평가_보고서.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false,
+                        letterRendering: true,
+                        scrollY: 0,
+                        scrollX: 0
+                    },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
                 html2pdf().set(opt).from(element).save().then(() => {
-                    element.classList.add('hidden');
                     setToastMsg('다운로드가 완료되었습니다.');
                     setTimeout(() => setToastMsg(''), 3000);
                 });
@@ -636,8 +640,18 @@
                     <LoginScreen />
                 ) : (
                     <React.Fragment>
-                        {/* 인쇄 뷰 / PDF 용 영역 */}
-                        <div id="report-pdf-area" className="hidden print:block">
+                        {/* 인쇄 뷰 / PDF 용 영역 — display:none 대신 화면 밖으로 보내 html2pdf가 읽을 수 있게 함 */}
+                        <div 
+                            id="report-pdf-area" 
+                            className="print:block"
+                            style={{ 
+                                position: 'absolute', 
+                                left: '-9999px', 
+                                top: 0, 
+                                width: '210mm',
+                                backgroundColor: 'white'
+                            }}
+                        >
                             <ReportView reportInfo={reportInfo} spaces={spaces} defectSummary={defectSummary} mapImage={mapImage} finalOpinion={finalOpinion} checklistAll={checklistAll} />
                         </div>
 
